@@ -23,13 +23,28 @@ foreach ($class_dirs as $class_dir) {
 	$class_tests = array_diff(scandir($class_path), array('.', '..', '.svn'));
 	
 	foreach ($class_tests as $class_test) {
+		if (!preg_match('#^.*Test.*\.php$#', $class_test)) {
+			continue;	
+		}
+		
 		$test_name = preg_replace('#\.php$#i', '', $class_test);
 		$test_file = $class_path . '/' . $class_test;
 		
 		$result = trim(`$phpunit --tap --log-xml ./xml $test_name $test_file`);	
+		
+		if (!$revision && stripos($result, 'Fatal error')) {
+			echo "\033[0;37;41m";
+			echo "FATAL ERROR";
+			echo "\033[0m\n\n";
+			$lines = explode("\n", $result);
+			$lines = array_slice($lines, 3);
+			echo join("\n", $lines) . "\n";
+			exit;
+		}
+		
 		$xml = new SimpleXMLElement(file_get_contents('./xml'), LIBXML_NOCDATA);
 		unlink('./xml');
-
+		
 		$result = preg_replace('#^PHPUnit.*?$\s+\d+\.\.\d+\s+#ims', '', $result);
 		$result = preg_replace('/\s*^# TestSuite "\w+" (ended|started)\.\s*$\s*/ims', "", $result);
 		
@@ -83,7 +98,7 @@ if ($revision) {
 // If the script was called without a revision number, this is probably being used during developement, so we format for terminal output
 } else {
 	
-	echo "\n";
+	if ($failures) { echo "\n"; }
 	foreach ($results as $result) {
 		if (!$result['success']) {
 			echo "FAILURE in " . $result['name'] . "\n";
@@ -94,7 +109,8 @@ if ($revision) {
 			echo "\n--------\n";
 		}
 	}	
-	echo "\n";
+	if ($failures) { echo "\n"; }
 	echo ($failures == 0) ? "\033[0;37;43m" : "\033[0;37;41m";
-	echo ($total_tests-$failures) . '/' . $total_tests . " TESTS SUCCEEDED\033[0m\n\n";
-}
+	echo ($total_tests-$failures) . '/' . $total_tests . " TESTS SUCCEEDED\033[0m\n";
+	if ($failures) { echo "\n"; }
+}      
