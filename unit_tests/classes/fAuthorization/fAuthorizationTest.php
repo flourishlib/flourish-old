@@ -5,7 +5,6 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{
-		fSession::open();
 	}
 	
 	public function testSetNoAuthLevels()
@@ -44,8 +43,7 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 	public function testRequireLoggedInRedirect()
 	{
 		// This is a gross cli wrapper script since we have to test for exit
-		$code = "fSession::open();
-		fAuthorization::setLoginPage('/login/');
+		$code = "fAuthorization::setLoginPage('/login/');
 		fAuthorization::requireLoggedIn();";
 		$this->assertEquals('http://example.com/login/', shell_exec('php ' . TEST_EXIT_SCRIPT . ' "' . $code . '"'));
 	}
@@ -112,8 +110,7 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(NULL, fAuthorization::requireAuthLevel('admin'));
 
 		// This is a gross cli wrapper script since we have to test for exit
-		$code = "fSession::open();
-		fAuthorization::setLoginPage('/login/');
+		$code = "fAuthorization::setLoginPage('/login/');
 		fAuthorization::setAuthLevels(array('user' => 20, 'admin' => 50));
 		fAuthorization::setUserAuthLevel('user');
 		fAuthorization::requireAuthLevel('admin');";
@@ -157,8 +154,7 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(NULL, fAuthorization::requireACL('news', 'foo'));
 
 		// This is a gross cli wrapper script since we have to test for exit
-		$code = "fSession::open();
-		fAuthorization::setLoginPage('/login/');
+		$code = "fAuthorization::setLoginPage('/login/');
 		\\\$acls = array(
 			'news'   => array('*'),
 			'events' => array('read')

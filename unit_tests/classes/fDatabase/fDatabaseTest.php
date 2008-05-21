@@ -227,14 +227,14 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('17:00', $this->db->unescapeTime($row['time_of_last_login']));
+		$this->assertEquals('17:00:00', $this->db->unescapeTime($row['time_of_last_login']));
 	}
 	
 	public function testUnescapeTimestamp()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('2008-05-01 13:00:00', $this->db->unescapeTime($row['date_created']));
+		$this->assertEquals('2008-05-01 13:00:00', $this->db->unescapeTimestamp($row['date_created']));
 	}
 	
 	public function tearDown()
