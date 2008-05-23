@@ -7,21 +7,21 @@ CREATE TABLE users (
 	status VARCHAR(30) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created DATETIME NOT NULL,
-	birthday DATE,
-	time_of_last_login TIME,
-	is_validated BIT NOT NULL DEFAULT FALSE
+	birthday DATETIME,
+	time_of_last_login DATETIME,
+	is_validated BIT NOT NULL DEFAULT '0'
 );
 
 CREATE TABLE groups (
 	group_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(255) NOT NULL UNIQUE,
 	group_leader INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_founder INTEGER REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+	group_founder INTEGER REFERENCES users(user_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE users_groups (
 	user_id INTEGER NOT NULL REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_id INTEGER NOT NULL REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	group_id INTEGER NOT NULL REFERENCES groups(group_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	PRIMARY KEY(user_id, group_id)
 );
 
@@ -43,7 +43,7 @@ CREATE TABLE albums (
 CREATE TABLE songs (
 	song_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
-	length TIME NOT NULL,
+	length DATETIME NOT NULL,
 	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	track_number INTEGER NOT NULL,
 	UNIQUE(track_number, album_id)
