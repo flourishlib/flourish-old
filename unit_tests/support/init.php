@@ -17,6 +17,7 @@ function __autoload($class_name)
 		'database/object_relational_mapping/',
 		'datetime/',
 		'ecommerce/',
+		'email/',
 		'exceptions/',
 		'filesystem/',
 		'request/',

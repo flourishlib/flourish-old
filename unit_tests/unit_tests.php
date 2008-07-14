@@ -57,7 +57,7 @@ foreach ($class_dirs as $class_dir) {
 		$result = preg_replace('#^PHPUnit.*?$\s+\d+\.\.\d+\s+#ims', '', $result);
 		$result = preg_replace('/\s*^# TestSuite "\w+" (ended|started)\.\s*$\s*/ims', "", $result);
 		
-		preg_match_all('#^(ok|not ok) (\d+) - (?:Failure: )?(\w+)\((\w+)\)$#ims', $result, $matches, PREG_SET_ORDER);
+		preg_match_all('#^(ok|not ok) (\d+) - (?:Failure: )?(\w+)\((\w+)\)( with data set \#\d+ [^\n]*)?$#ims', $result, $matches, PREG_SET_ORDER);
 		
 		$result = '';
 		foreach ($matches as $match) {
