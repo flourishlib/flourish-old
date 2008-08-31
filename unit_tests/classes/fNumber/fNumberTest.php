@@ -335,6 +335,29 @@ class fNumberTest extends PHPUnit_Framework_TestCase
 		$num->fmod($number);
 	}
 	
+	public static function formatProvider()
+	{
+		$output = array();
+		
+		$output[] = array('1.0', '1.0');
+		$output[] = array('1000', '1,000');
+		$output[] = array('12600.0', '12,600.0');
+		$output[] = array('89999999999999999999999999999.89734638', '89,999,999,999,999,999,999,999,999,999.89734638');
+		$output[] = array('-12600.0', '-12,600.0');
+		$output[] = array('-1112600.0', '-1,112,600.0');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider formatProvider
+	 */
+	public function testFormat($input, $output)
+	{
+		$num = new fNumber($input);
+		$this->assertSame($output, $num->format());
+	}
+	
 	public static function gtProvider()
 	{
 		$output = array();

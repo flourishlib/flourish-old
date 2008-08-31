@@ -151,7 +151,8 @@ if ($revision) {
 			<span class="description">tests succeeded</span>
 		</div>
 		<a class="download_link" href="/download/unit_tests/flourish_unit_tests_r<?= $revision ?>.zip">Download Unit Tests</a>
-		<ul class="detailed_results"><?
+		<?
+		/*<ul class="detailed_results"><?
 		foreach ($results as $result) {
 			echo '<li class="' . (($result['success']) ? 'success' : 'failure') . '"><strong>' . (($result['success']) ? 'Success' : 'Failure') . "</strong> " . $result['name'];
 			if (!$result['success']) {
@@ -159,7 +160,8 @@ if ($revision) {
 			}
 			echo "</li>\n";	
 		}
-		?></ul>
+		</ul>*/
+		?>
 	</div>
 	<?
 
