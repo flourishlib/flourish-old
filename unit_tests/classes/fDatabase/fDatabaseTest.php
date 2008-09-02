@@ -135,16 +135,12 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('May 5th, 1950'));
 	}
 	
-	public function testEscapeDateFail()
+	/**
+	 * @dataProvider escapeDateTimeFailProvider
+	 */
+	public function testEscapeDateFail($input, $output)
 	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate(TRUE));
-	}
-	
-	public function testEscapeDateFail2()
-	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('foo'));
+		$this->assertSame($output, $this->db->escapeDate($input));
 	}
 	
 	public function testEscapeString()
@@ -163,16 +159,22 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('midnight'));
 	}
 	
-	public function testEscapeTimeFail()
+	public static function escapeDateTimeFailProvider()
 	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime(TRUE));
+		$output = array();
+		
+		$output[] = array(TRUE, 'NULL');
+		$output[] = array('foo', 'NULL');
+		
+		return $output;
 	}
 	
-	public function testEscapeTimeFail2()
+	/**
+	 * @dataProvider escapeDateTimeFailProvider
+	 */
+	public function testEscapeTimeFail($input, $output)
 	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('foo'));
+		$this->assertSame($output, $this->db->escapeTime($input));
 	}
 	
 	public function testEscapeTimestamp()
@@ -183,16 +185,12 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTimestamp('2008-02-02 20:15:15'));
 	}
 	
-	public function testEscapeTimestampFail()
+	/**
+	 * @dataProvider escapeDateTimeFailProvider
+	 */
+	public function testEscapeTimestampFail($input, $output)
 	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeTimestamp(TRUE));
-	}
-	
-	public function testEscapeTimestampFail2()
-	{
-		$this->setExpectedException('fValidationException'); 
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeTimestamp('foo'));
+		$this->assertSame($output, $this->db->escapeTimestamp($input));
 	}
 	
 	public function testUnescapeBlob()
