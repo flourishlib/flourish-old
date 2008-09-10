@@ -111,28 +111,28 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testEscapeBlob()
 	{
-		switch ($this->db->getExtension()) {
+		switch ($this->db->getType()) {
 			case 'pdo':    $expected = "'☺☻♥♦♣♠•◘○◙'"; break;
 			case 'sqlite': $expected = "X'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'"; break;
 			case 'mysql':  $expected = "'☺☻♥♦♣♠•◘○◙'"; break;
 			case 'pgsql':  $expected = "'☺☻♥♦♣♠•◘○◙'"; break;
 			case 'mssql':  $expected = "0x" . bin2hex('☺☻♥♦♣♠•◘○◙'); break;	
 		}
-		$this->assertEquals($expected, $this->db->escapeBlob('☺☻♥♦♣♠•◘○◙'));
+		$this->assertEquals($expected, $this->db->escape('%l', '☺☻♥♦♣♠•◘○◙'));
 	}
 	
 	public function testEscapeBoolean()
 	{
-		$res = $this->db->query('SELECT * FROM users WHERE is_validated = ' . $this->db->escapeBoolean(TRUE));
-		$res = $this->db->query('SELECT * FROM users WHERE is_validated = ' . $this->db->escapeBoolean(FALSE));
+		$res = $this->db->query('SELECT * FROM users WHERE is_validated = ' . $this->db->escape('%b', TRUE));
+		$res = $this->db->query('SELECT * FROM users WHERE is_validated = ' . $this->db->escape('%b', FALSE));
 	}
 	
 	public function testEscapeDate()
 	{
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('tomorrow'));
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('2007-02-01'));
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('last week'));
-		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escapeDate('May 5th, 1950'));
+		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escape('%d', 'tomorrow'));
+		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escape('%d', '2007-02-01'));
+		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escape('%d', 'last week'));
+		$res = $this->db->query('SELECT * FROM users WHERE date_created < ' . $this->db->escape('%d', 'May 5th, 1950'));
 	}
 	
 	/**
@@ -140,23 +140,23 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeDateFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escapeDate($input));
+		$this->assertSame($output, $this->db->escape('%d', $input));
 	}
 	
 	public function testEscapeString()
 	{
-		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escapeString("O'keefe"));
-		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escapeString("Johnathan"));
-		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escapeString("\\slashed apos'"));
-		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escapeString('FooBar'));
+		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escape('%s', "O'keefe"));
+		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escape('%s', "Johnathan"));
+		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escape('%s', "\\slashed apos'"));
+		$res = $this->db->query('SELECT * FROM users WHERE first_name = ' . $this->db->escape('%s', 'FooBar'));
 	}
 	
 	public function testEscapeTime()
 	{
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('now'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('9:35'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('2pm'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTime('midnight'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%t', 'now'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%t', '9:35'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%t', '2pm'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%t', 'midnight'));
 	}
 	
 	public static function escapeDateTimeFailProvider()
@@ -174,15 +174,15 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTimeFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escapeTime($input));
+		$this->assertSame($output, $this->db->escape('%t', $input));
 	}
 	
 	public function testEscapeTimestamp()
 	{
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTimestamp('now'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTimestamp('yesterday 5 pm'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTimestamp('June 5th, 2004 1:15 am'));
-		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escapeTimestamp('2008-02-02 20:15:15'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%p', 'now'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%p', 'yesterday 5 pm'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%p', 'June 5th, 2004 1:15 am'));
+		$res = $this->db->query('SELECT * FROM users WHERE time_of_last_login < ' . $this->db->escape('%p', '2008-02-02 20:15:15'));
 	}
 	
 	/**
@@ -190,49 +190,49 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTimestampFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escapeTimestamp($input));
+		$this->assertSame($output, $this->db->escape('%p', $input));
 	}
 	
 	public function testUnescapeBlob()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescapeBlob($row['hashed_password']));
+		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescape('%l', $row['hashed_password']));
 	}
 	
 	public function testUnescapeBoolean()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals(TRUE, $this->db->unescapeBoolean($row['is_validated']));
+		$this->assertEquals(TRUE, $this->db->unescape('%b', $row['is_validated']));
 	}
 	
 	public function testUnescapeDate()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('1980-09-01', $this->db->unescapeDate($row['birthday']));
+		$this->assertEquals('1980-09-01', $this->db->unescape('%d', $row['birthday']));
 	}
 	
 	public function testUnescapeString()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('Will', $this->db->unescapeString($row['first_name']));
+		$this->assertEquals('Will', $this->db->unescape('%s', $row['first_name']));
 	}
 	
 	public function testUnescapeTime()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('17:00:00', $this->db->unescapeTime($row['time_of_last_login']));
+		$this->assertEquals('17:00:00', $this->db->unescape('%t', $row['time_of_last_login']));
 	}
 	
 	public function testUnescapeTimestamp()
 	{
 		$res = $this->db->query('SELECT * FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('2008-05-01 13:00:00', $this->db->unescapeTimestamp($row['date_created']));
+		$this->assertEquals('2008-05-01 13:00:00', $this->db->unescape('%p', $row['date_created']));
 	}
 	
 	public function tearDown()
