@@ -9,32 +9,11 @@ $_SERVER['REQUEST_URI'] = '/index.php';
 
 function __autoload($class_name)
 {
-	// Customize this to your root Flourish directory
-	$flourish_root = '../classes/';
-	
-	$sub_dirs = array(
-		'database/',
-		'database/object_relational_mapping/',
-		'datetime/',
-		'ecommerce/',
-		'email/',
-		'exceptions/',
-		'filesystem/',
-		'request/',
-		'response/',
-		'security/',
-		'session/',
-		'utility/'
-	);
-	
-	$file = $class_name . '.php';
-	
-	foreach ($sub_dirs as $sub_dir) {
-		if (file_exists($flourish_root . $sub_dir . $file)) {
-			require_once($flourish_root . $sub_dir . $file);
-			return;
-		}        
-	}
+	$file = '../classes/' . $class_name . '.php';
+	if (file_exists($file)) {
+		require_once($file);
+		return;
+	}        
 	
 	die('The class ' . $class_name . ' could not be loaded');
 }
