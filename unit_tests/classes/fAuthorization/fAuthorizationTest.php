@@ -196,7 +196,7 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 	
 	public function testRequestedUrl()
 	{
-		fSession::set('requested_url', 'test_url.php?query_string=TRUE', fAuthorization::SESSION_PREFIX);
+		fSession::set('requested_url', 'test_url.php?query_string=TRUE', 'fAuthorization::');
 		$this->assertEquals('test_url.php?query_string=TRUE', fAuthorization::getRequestedURL(FALSE));
 		$this->assertEquals('test_url.php?query_string=TRUE', fAuthorization::getRequestedURL(TRUE));
 		$this->assertEquals(NULL, fAuthorization::getRequestedURL(TRUE));
