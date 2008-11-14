@@ -12,7 +12,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('fProgrammerException');
 		
-		fCore::toss('fProgrammerException', 'This is a test');
+		throw new fProgrammerException('This is a test');
 	}
 	
 	public function tearDown()
