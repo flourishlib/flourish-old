@@ -150,18 +150,7 @@ if ($revision) {
 			<span class="tally"><?= $total_tests-$failures ?>/<?= $total_tests ?></span>
 			<span class="description">tests succeeded</span>
 		</div>
-		<a class="download_link" href="/download/unit_tests/flourish_unit_tests_r<?= $revision ?>.zip">Download Unit Tests</a>
-		<?
-		/*<ul class="detailed_results"><?
-		foreach ($results as $result) {
-			echo '<li class="' . (($result['success']) ? 'success' : 'failure') . '"><strong>' . (($result['success']) ? 'Success' : 'Failure') . "</strong> " . $result['name'];
-			if (!$result['success']) {
-				?><div class="error_message"><?= nl2br($result['error']) ?></div><?	
-			}
-			echo "</li>\n";	
-		}
-		</ul>*/
-		?>
+		<a class="download_link" href="/download/tests/flourish_tests_r<?= $revision ?>.zip">Download Unit Tests</a>
 	</div>
 	<?
 
