@@ -7,6 +7,10 @@ require_once 'PHPUnit/TextUI/TestRunner.php';
 $_SERVER['SERVER_NAME'] = 'example.com';
 $_SERVER['REQUEST_URI'] = '/index.php';
 
+if (empty($_SERVER['DOCUMENT_ROOT'])) {
+	$_SERVER['DOCUMENT_ROOT'] = realpath(dirname(__FILE__) . '/../');	
+}
+
 function __autoload($class_name)
 {
 	$file = '../classes/' . $class_name . '.php';
