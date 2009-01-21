@@ -120,11 +120,18 @@ foreach ($class_dirs as $class_dir) {
 			$testcases = array();
 			foreach ((array) $xml->testsuite->children() as $key => $value) {
 				if ($key == '@attributes') { continue; }
+				
+				if (!is_array($value)) {
+					$value = array($value);	
+				}
+				
 				if ($key == 'testsuite') {
-					foreach ((array) $value->children() as $key2 => $value2) {
-						if ($key2 == '@attributes') { continue; }
-						$testcases = array_merge($testcases, $value2);	
-					}	
+					foreach ($value as $testsuite) {
+						foreach ((array) $testsuite->children() as $key2 => $value2) {
+							if ($key2 == '@attributes') { continue; }
+							$testcases = array_merge($testcases, $value2);	
+						}	
+					}
 				} else {
 					$testcases = array_merge($testcases, $value);	
 				}
