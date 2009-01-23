@@ -127,18 +127,26 @@ foreach ($class_dirs as $class_dir) {
 				
 				if ($key == 'testsuite') {
 					foreach ($value as $testsuite) {
-						foreach ((array) $testsuite->children() as $key2 => $value2) {
+						foreach ((array) $testsuite->children() as $key2 => $testcase_array) {
 							if ($key2 == '@attributes') { continue; }
-							$testcases = array_merge($testcases, $value2);	
+							foreach ($testcase_array as $testcase) {
+								$attributes = (array) $testcase->attributes();
+								$attributes = $attributes['@attributes'];
+								$testcases[$attributes['name']] = $testcase;
+							}	
 						}	
 					}
 				} else {
-					$testcases = array_merge($testcases, $value);	
+					foreach ($value as $testcase) {
+						$attributes = (array) $testcase->attributes();
+						$attributes = $attributes['@attributes'];
+						$testcases[$attributes['name']] = $testcase;
+					}	
 				}
 			}
 			
 			// Match all of the result messages
-			preg_match_all('#^(ok|not ok) (\d+) - (Failure: |Error: )?(\w+)\((\w+)\)( with data set \#\d+ [^\n]*)?$#ims', $result, $matches, PREG_SET_ORDER);
+			preg_match_all('#^(ok|not ok) (\d+) - (Failure: |Error: )?(\w+)\((\w+)\)(( with data set \#\d+) [^\n]*)?$#ims', $result, $matches, PREG_SET_ORDER);
 			
 			foreach ($matches as $match) {
 				$result = array();
@@ -148,7 +156,8 @@ foreach ($class_dirs as $class_dir) {
 				// If there was an error, grab the message
 				if ($match[1] != 'ok') {
 					$testcase_idx = $match[2]-1;
-					$testcase = $testcases[$testcase_idx];
+					$key = $match[4] . (isset($match[7]) ? $match[7] : '');
+					$testcase = $testcases[$key];
 					
 					if ($match[3] == 'Failure: ') {
 						list($error_message) = (array) $testcase->failure;
@@ -156,13 +165,7 @@ foreach ($class_dirs as $class_dir) {
 						list($error_message) = (array) $testcase->error;
 					}
 					
-					$lines = explode("\n", $error_message);
-					$lines = array_slice($lines, 1, -2);
-					while (!$lines[count($lines)-1]) {
-						array_pop($lines);
-					}
-					
-					$result['error'] = join("\n", $lines);
+					$result['error'] = trim($error_message);
 					$failures++;
 				}
 				
