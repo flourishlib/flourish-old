@@ -21,12 +21,20 @@ if (empty($phpbin) && file_exists('/usr/bin/php') && is_executable('/usr/bin/php
 /* Determine the revision or class we are testing
 /* ------------------------------------------------------------------ */
 $revision = NULL;
-$class    = NULL;
+$classes  = array();
+$classes_to_remove = array();
+		
 if (!empty($_SERVER['argc'])) {
-	if (is_numeric($_SERVER['argv'][1])) {
+	if (sizeof($_SERVER['argv']) == 2 && is_numeric($_SERVER['argv'][1])) {
 		$revision = $_SERVER['argv'][1];	
 	} else {
-		$class = $_SERVER['argv'][1]; 		
+		foreach (array_slice($_SERVER['argv'], 1) as $class) {
+			if ($class[0] == '-') {
+				$classes_to_remove[] = substr($class, 1);	
+			} else {
+				$classes[] = $class;	
+			}
+		} 		
 	}
 }
 
@@ -35,10 +43,11 @@ if (!empty($_SERVER['argc'])) {
 /* Get the class directories to run tests for
 /* ------------------------------------------------------------------ */
 $class_root = './classes/';
-if ($class && file_exists($class_root . $class)) {
-	$class_dirs = array($class);
+if ($classes) {
+	$class_dirs = array_diff($classes, $classes_to_remove);
 } else {
 	$class_dirs = array_diff(scandir($class_root), array('.', '..', '.svn'));
+	$class_dirs = array_diff($class_dirs, $classes_to_remove);
 }
 
 $results     = array();
@@ -88,7 +97,7 @@ foreach ($class_dirs as $class_dir) {
 		/* For each different configuration, run the tests
 		/* ---------------------------------------------------------- */
 		foreach ($configs as $ext => $config) {
-			$result = trim(`$phpbin $config $phpunit --tap --log-xml ./xml $test_name $test_file`);	
+			$result = trim(`$phpbin $config $phpunit --bootstrap 'support/ob.php' --tap --log-xml ./xml $test_name $test_file`);	
 			
 			// Handle fatal errors specially since they break the rest of the code
 			if (!$revision && stripos($result, 'Fatal error')) {

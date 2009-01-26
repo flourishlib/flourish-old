@@ -1,0 +1,2 @@
+<?php
+ob_start();
