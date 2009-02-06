@@ -37,6 +37,40 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, fUTF8::explode($input, $delimiter));	
 	}
 	
+	public static function rposProvider()
+	{
+		$output = array();
+		
+		$output[] = array('', '', 0, FALSE);
+		$output[] = array(' ', '', 0, FALSE);
+		$output[] = array('abc', '', 0, FALSE);
+		
+		$output[] = array("abc", 'a', 0, 0);
+		$output[] = array("abc", 'b', 0, 1);
+		$output[] = array("abc", 'c', 0, 2);
+		$output[] = array("aaa", 'a', 0, 2);
+		
+		$output[] = array("aaa", 'a', 1, 2);
+		$output[] = array("aaa", 'a', 2, 2);
+		
+		$output[] = array("aaa", 'a', -1, 2);
+		$output[] = array("aaa", 'a', -2, 1);
+		$output[] = array("aaa", 'a', -3, 0);
+		
+		$output[] = array('Iñtërnâtiônàlizætiøn', 'â', 0, 6);
+		$output[] = array('Iñtërnâtiônàlizætiøn', 'æ', 0, 15);
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider rposProvider
+	 */
+	public function testRpos($input, $needle, $offset, $output)
+	{
+		$this->assertEquals($output, fUTF8::rpos($input, $needle, $offset));	
+	}
+	
 	public function tearDown()
 	{
 		
