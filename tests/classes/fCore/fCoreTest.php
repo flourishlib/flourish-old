@@ -10,7 +10,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 	
 	public function testBacktrace()
 	{
-		$this->assertRegExp('#\{doc_root\}/classes/fCore/fCoreTest.php\(\d+\): fCore::backtrace\(\)#', fCore::backtrace());
+		$this->assertRegExp('#\{doc_root\}(/|\\\\)classes(/|\\\\)fCore(/|\\\\)fCoreTest.php\(\d+\): fCore::backtrace\(\)#', fCore::backtrace());
 	}
 	
 	public function testCall()
@@ -134,4 +134,3 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 			
 	}
 }
-?>
