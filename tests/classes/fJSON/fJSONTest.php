@@ -27,10 +27,11 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 		return array(
 			array("", NULL),
 			array("1", 1),
-			array("true", true),
+			array("true", TRUE),
 			array("null", NULL),
 			array("\"hello\"", "hello"),
-			array("not a value", "not a value"),
+			array("not a value", NULL),
+			array(" [", NULL),
 			array("[]", array()),
 			array("[1]", array(1)),
 			array("[1.1]", array(1.1)),
@@ -58,16 +59,16 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 			array("[,]", NULL),
 			array("[,1]", NULL),
 			array("[1,,1]", NULL),
-			array("// comment here [1]", "// comment here [1]"),
+			array("// comment here [1]", NULL),
 			array("[// comment here 1]", NULL),
 			array("[1// comment here ]", NULL),
 			array("[1]// comment here ", NULL),
-			array("/*comment here*/[1]", "/*comment here*/[1]"),
+			array("/*comment here*/[1]", NULL),
 			array("[/*comment here*/1]", NULL),
 			array("[1/*comment here*/]", NULL),
 			array("[1]/*comment here*/", NULL),
-			array("/**/[1]", "/**/[1]"),
-			array("// [1]", "// [1]"),
+			array("/**/[1]", NULL),
+			array("// [1]", NULL),
 			array("[1 // comment here ]", NULL),
 			array("[ // comment here 1]", NULL),
 			array("[1]// comment here", NULL),
@@ -148,6 +149,9 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 		$class2->mytype = 0;
 		$class2->_php_class = null;
 
+		$failure_array = version_compare(PHP_VERSION, '5.2.9', '>=') || !function_exists('json_encode') ? array("Günter, Elène", 'null') : array("Günter, Elène", '"G"');
+		$failure_array_2 = version_compare(PHP_VERSION, '5.2.9', '>=') || !function_exists('json_encode') ? array(array("Günter, Elène"), '[null]') : array(array("Günter, Elène"), '["G"]');
+		
 		return array(
 			array(true, "true"),
 			array(false, "false"),
@@ -160,13 +164,14 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 			array("1", '"1"'),
 			array("20060101T12:00:00", '"20060101T12:00:00"'),
 			array("GÃ¼nter, ElÃ¨ne", '"G\u00fcnter, El\u00e8ne"'),
-			array("Günter, Elène", '"G"'),
-			array(fopen('./', 'r'), "null"),
+			$failure_array,
+			array(fopen(__FILE__, 'r'), "null"),
 			array("aGVsbG8=", '"aGVsbG8="'),
 			array($class1, '{"id":null,"content_type":"application\/json","payload":null,"methodname":"dummy","params":[],"debug":0}'),
 			array($class2, '{"me":[],"mytype":0,"_php_class":null}'),
 			array(array(), "[]"),
 			array(array("GÃ¼nter, ElÃ¨ne"), '["G\u00fcnter, El\u00e8ne"]'),
+			$failure_array_2,
 			array(array("a"), '["a"]'),
 			array(array(array(1)), '[[1]]'),
 			array(array('2'=>true,'3'=>false), '{"2":true,"3":false}'),
@@ -266,4 +271,3 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 		
 	}
 }
-?>
