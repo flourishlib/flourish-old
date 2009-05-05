@@ -29,30 +29,8 @@ class fCryptographyTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($plaintext, fCryptography::symmetricKeyDecrypt($ciphertext, $key));	
 	}
 	
-	/*public function testCustomClassTableMapping()
-	{
-		$this->assertEquals('users', fORM::tablize('User'));
-		$this->assertEquals('User', fORM::classize('users'));
-		
-		fORM::addCustomClassTableMapping('User', 'person');
-		$this->assertEquals('person', fORM::tablize('User'));
-		$this->assertEquals('User', fORM::classize('person'));
-		
-		$this->assertNotEquals('users', fORM::tablize('User'));
-		
-		$this->assertEquals('bicycles', fORM::tablize('Bicycle'));
-		$this->assertEquals('Bicycle', fORM::classize('bicycles'));
-		
-		fORM::addCustomClassTableMapping('Bicycle', 'bike');
-		$this->assertEquals('bike', fORM::tablize('Bicycle'));
-		$this->assertEquals('Bicycle', fORM::classize('bike'));
-		
-		$this->assertNotEquals('bicycles', fORM::tablize('Bicycle'));
-	}*/
-	
 	public function tearDown()
 	{
 		
 	}
 }
-?>

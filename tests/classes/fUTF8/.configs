@@ -1,0 +1,2 @@
+Flourish UTF-8;;;-d disable_functions="mb_stripos,mb_strripos,mb_stristr,mb_strlen,mb_strtolower,mb_strpos,mb_strstr,mb_substr,mb_strtoupper";
+MBString;mbstring;;;

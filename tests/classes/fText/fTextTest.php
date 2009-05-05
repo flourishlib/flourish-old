@@ -49,4 +49,3 @@ class fTextTest extends PHPUnit_Framework_TestCase
 		
 	}
 }
-?>

@@ -1,20 +1,20 @@
 CREATE TABLE users (
-	user_id SERIAL PRIMARY KEY,
+	user_id INTEGER PRIMARY KEY,
 	first_name VARCHAR(100) NOT NULL,
 	middle_initial VARCHAR(100) NOT NULL DEFAULT '',
 	last_name VARCHAR(100) NOT NULL,
 	email_address VARCHAR(200) NOT NULL UNIQUE,
-	status VARCHAR(30) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
+	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created TIMESTAMP NOT NULL,
 	birthday DATE,
 	time_of_last_login TIME,
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
-	hashed_password BYTEA NOT NULL
+	hashed_password BLOB NOT NULL
 );
 
 CREATE TABLE groups (
-	group_id SERIAL PRIMARY KEY,
+	group_id INTEGER PRIMARY KEY,
 	name VARCHAR(255) NOT NULL UNIQUE,
 	group_leader INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	group_founder INTEGER REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -27,12 +27,12 @@ CREATE TABLE users_groups (
 );
 
 CREATE TABLE artists (
-	artist_id SERIAL PRIMARY KEY,
+	artist_id INTEGER PRIMARY KEY,
 	name VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE albums (
-	album_id SERIAL PRIMARY KEY,
+	album_id INTEGER PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	year_released INTEGER NOT NULL,
 	msrp DECIMAL(10,2) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE albums (
 );
 
 CREATE TABLE songs (
-	song_id SERIAL PRIMARY KEY,
+	song_id INTEGER PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	length TIME NOT NULL,
 	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -62,11 +62,12 @@ CREATE TABLE owns_on_tape (
 	PRIMARY KEY(user_id, album_id)
 );
 
+BEGIN;
 
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, CURRENT_TIMESTAMP, '1980-09-01', '17:00:00', '1', X'5527939aca3e9e80d5ab3bee47391f0f');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, CURRENT_TIMESTAMP, '1965-02-02', '12:00:00', '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, CURRENT_TIMESTAMP, NULL, NULL, '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, CURRENT_TIMESTAMP, NULL, NULL, '0');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '17:00:00', '1', '5527939aca3e9e80d5ab3bee47391f0f');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '12:00:00', '1', 'a722c63db8ec8625af6cf71cb8c2d939');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, '2008-01-01 17:00:00', NULL, NULL, '1', 'c1572d05424d0ecb2a65ec6a82aeacbf');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, '2008-03-02 20:00:00', NULL, NULL, '0', '3afc79b597f88a72528e864cf81856d2');
 
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Music Lovers', 1, 2);
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Musicians', 2, 2);
@@ -137,3 +138,5 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+COMMIT;

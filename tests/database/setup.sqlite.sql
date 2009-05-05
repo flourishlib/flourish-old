@@ -4,7 +4,7 @@ CREATE TABLE users (
 	middle_initial VARCHAR(100) NOT NULL DEFAULT '',
 	last_name VARCHAR(100) NOT NULL,
 	email_address VARCHAR(200) NOT NULL UNIQUE,
-	status VARCHAR(30) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
+	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created TIMESTAMP NOT NULL,
 	birthday DATE,
@@ -62,6 +62,7 @@ CREATE TABLE owns_on_tape (
 	PRIMARY KEY(user_id, album_id)
 );
 
+BEGIN;
 
 INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '17:00:00', '1', X'5527939aca3e9e80d5ab3bee47391f0f');
 INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '12:00:00', '1', X'a722c63db8ec8625af6cf71cb8c2d939');
@@ -137,3 +138,5 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+COMMIT;

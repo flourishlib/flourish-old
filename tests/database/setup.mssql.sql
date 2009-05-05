@@ -4,19 +4,20 @@ CREATE TABLE users (
 	middle_initial VARCHAR(100) NOT NULL DEFAULT '',
 	last_name VARCHAR(100) NOT NULL,
 	email_address VARCHAR(200) NOT NULL UNIQUE,
-	status VARCHAR(30) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
+	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created DATETIME NOT NULL,
-	birthday DATETIME,
-	time_of_last_login DATETIME,
-	is_validated BIT NOT NULL DEFAULT '0'
+	birthday DATETIME NULL,
+	time_of_last_login DATETIME NULL,
+	is_validated BIT NOT NULL DEFAULT 0,
+	hashed_password VARBINARY(MAX) NOT NULL
 );
 
 CREATE TABLE groups (
 	group_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(255) NOT NULL UNIQUE,
-	group_leader INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_founder INTEGER REFERENCES users(user_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+	group_leader INTEGER NULL REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	group_founder INTEGER NULL REFERENCES users(user_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE users_groups (
@@ -61,11 +62,12 @@ CREATE TABLE owns_on_tape (
 	PRIMARY KEY(user_id, album_id)
 );
 
+BEGIN TRANSACTION;
 
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, CURRENT_TIMESTAMP, '1980-09-01', '17:00:00', '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, CURRENT_TIMESTAMP, '1965-02-02', '12:00:00', '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, CURRENT_TIMESTAMP, NULL, NULL, '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, CURRENT_TIMESTAMP, NULL, NULL, '0');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '1970-01-01 17:00:00', '1', 0x5527939aca3e9e80d5ab3bee47391f0f);
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '1970-01-01 12:00:00', '1', 0xa722c63db8ec8625af6cf71cb8c2d939);
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, '2008-01-01 17:00:00', NULL, NULL, '1', 0xc1572d05424d0ecb2a65ec6a82aeacbf);
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, '2008-03-02 20:00:00', NULL, NULL, '0', 0x3afc79b597f88a72528e864cf81856d2);
 
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Music Lovers', 1, 2);
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Musicians', 2, 2);
@@ -136,3 +138,5 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+COMMIT;

@@ -1,0 +1,4 @@
+File;;;;;classes/fCache/config.file.php
+APC;;apc;xcache;-d apc.enable_cli="1";classes/fCache/config.apc.php
+Memcache;;memcache;;;classes/fCache/config.memcache.php
+XCache;;xcache;apc;-d xcache.var_size="4M" -d xcache.admin.enable_auth="Off";classes/fCache/config.xcache.php

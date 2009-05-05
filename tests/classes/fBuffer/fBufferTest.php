@@ -143,4 +143,3 @@ class fBufferTest extends PHPUnit_Framework_TestCase
 		}
 	}
 }
-?>

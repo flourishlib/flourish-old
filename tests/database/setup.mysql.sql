@@ -9,19 +9,24 @@ CREATE TABLE users (
 	date_created DATETIME NOT NULL,
 	birthday DATE,
 	time_of_last_login TIME,
-	is_validated BOOLEAN NOT NULL DEFAULT FALSE
+	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
+	hashed_password BLOB NOT NULL
 )ENGINE=InnoDB;
 
 CREATE TABLE groups (
 	group_id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL UNIQUE,
-	group_leader INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_founder INTEGER REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+	group_leader INTEGER,
+	FOREIGN KEY (group_leader) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	group_founder INTEGER,
+	FOREIGN KEY (group_founder) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 )ENGINE=InnoDB;
 
 CREATE TABLE users_groups (
-	user_id INTEGER NOT NULL REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_id INTEGER NOT NULL REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	group_id INTEGER NOT NULL,
+	FOREIGN KEY (group_id) REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, group_id)
 )ENGINE=InnoDB;
 
@@ -36,7 +41,8 @@ CREATE TABLE albums (
 	year_released INTEGER NOT NULL,
 	msrp DECIMAL(10,2) NOT NULL,
 	genre VARCHAR(100) NOT NULL DEFAULT '',
-	artist_id INTEGER NOT NULL REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	artist_id INTEGER NOT NULL,
+	FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE (artist_id, name)
 )ENGINE=InnoDB;
 
@@ -44,28 +50,34 @@ CREATE TABLE songs (
 	song_id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL,
 	length TIME NOT NULL,
-	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	album_id INTEGER NOT NULL,
+	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	track_number INTEGER NOT NULL,
 	UNIQUE(track_number, album_id)
 )ENGINE=InnoDB;
 
 CREATE TABLE owns_on_cd (
-	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	album_id INTEGER REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	album_id INTEGER NOT NULL,
+	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, album_id)
 )ENGINE=InnoDB;
 
 CREATE TABLE owns_on_tape (
-	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	album_id INTEGER REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	album_id INTEGER NOT NULL,
+	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, album_id)
 )ENGINE=InnoDB;
 
+BEGIN;
 
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, CURRENT_TIMESTAMP, '1980-09-01', '17:00:00', '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, CURRENT_TIMESTAMP, '1965-02-02', '12:00:00', '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, CURRENT_TIMESTAMP, NULL, NULL, '1');
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, CURRENT_TIMESTAMP, NULL, NULL, '0');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '17:00:00', '1', x'5527939aca3e9e80d5ab3bee47391f0f');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '12:00:00', '1', x'a722c63db8ec8625af6cf71cb8c2d939');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, '2008-01-01 17:00:00', NULL, NULL, '1', x'c1572d05424d0ecb2a65ec6a82aeacbf');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, '2008-03-02 20:00:00', NULL, NULL, '0', x'3afc79b597f88a72528e864cf81856d2');
 
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Music Lovers', 1, 2);
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Musicians', 2, 2);
@@ -136,3 +148,5 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+COMMIT;

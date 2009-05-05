@@ -76,4 +76,3 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 		
 	}
 }
-?>
