@@ -1,6 +1,6 @@
-PostgreSQL;;;;;database/config.postgresql.php
+PostgreSQL;;pgsql|pdo_pgsql;;;database/config.postgresql.php
 SQLite 3;;pdo_sqlite;sqlite;;database/config.sqlite.php
 SQLite 2;;sqlite;pdo_sqlite;;database/config.sqlite2.php
-MySQL;;;;;database/config.mysql.php
-MSSQL;;;;;database/config.mssql.php
-Oracle;;;;;database/config.oracle.php
+MySQL;;mysql|mysqli|pdo_mysql;;;database/config.mysql.php
+MSSQL;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql.php
+Oracle;;oci8|pdo_oci;;;database/config.oracle.php

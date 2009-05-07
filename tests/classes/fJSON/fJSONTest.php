@@ -266,6 +266,38 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(print_r($output, true), print_r(fJSON::decode($input), true));	
 	}
 	
+	public function testDecodeObjectToAssoc()
+	{
+		$output = fJSON::decode(
+			'{
+				 "level1_key1": {
+					 "level2_key1": {
+						 "level3_key1": true,
+						 "level3_key2": false
+					 },
+					 "level2_key2": {
+						 "level3_key3": true,
+						 "level3_key4": false,
+						 "level3_key5": null
+					 }
+				 }
+			 }', TRUE);
+		$expected = array(
+			'level1_key1' => array(
+				'level2_key1' => array(
+					'level3_key1' => TRUE,
+					'level3_key2' => FALSE
+				),
+				'level2_key2' => array(
+					'level3_key3' => TRUE,
+					'level3_key4' => FALSE,
+					'level3_key5' => NULL
+				)
+			)
+		);
+		$this->assertEquals($expected, $output);	
+	}
+	
 	public function tearDown()
 	{
 		

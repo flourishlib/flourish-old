@@ -65,6 +65,9 @@ foreach ($paths as $path) {
 		if (strtolower(substr($line, 0, 9)) != 'extension' && strtolower(substr($line, 0, 14)) != 'zend_extension') {
 			continue;	
 		}
+		if (stripos($line, 'zend_extension_manager') !== FALSE || stripos($line, 'ZendExtensionManager') !== FALSE) {
+			continue;	
+		}
 		if (stripos($line, 'extension_dir') === 0) {
 			continue;
 		}
@@ -170,23 +173,33 @@ foreach ($class_dirs as $class_dir) {
 			$options = file($class_path . DIRECTORY_SEPARATOR . '.configs');
 			foreach ($options as $option) {
 				if ($option && $option[0] == '#') { continue; }
-				list($name, $os, $required_ext, $disabled_exts, $defines, $bootstrap) = explode(';', trim($option));
+				list($name, $os, $required_exts, $disabled_exts, $defines, $bootstrap) = explode(';', trim($option));
 				if ($config_regex && !preg_match($config_regex, $name)) {
 					continue;	
 				}
 				if ($os && stripos(php_uname('s'), $os) === FALSE) {
 					continue;
 				}
-				$disabled_exts = explode(',', $disabled_exts);
 				if ($windows) {
-					$new_disabled_exts = array();
-					foreach ($disabled_exts as $disabled_ext) {
-						$new_disabled_exts[] = str_replace('pdo_dblib', 'pdo_mssql', $disabled_ext);
-					}
-					$disabled_exts = $new_disabled_exts;
-					$required_ext = str_replace('pdo_dblib', 'pdo_mssql', $required_ext);	
+					$disabled_exts = str_replace('pdo_dblib', 'pdo_mssql', $disabled_exts);
+					$required_exts = str_replace('pdo_dblib', 'pdo_mssql', $required_exts);
 				}
-				if (!$required_ext || extension_loaded($required_ext)) {
+				$disabled_exts = explode(',', $disabled_exts);
+				$has_ext = !$required_exts;
+				if ($required_exts) {
+					foreach (explode('|', $required_exts) as $required_ext) {
+						if (strpos($required_ext, '&') !== FALSE) {
+							$has_all = TRUE;
+							foreach (explode('&', $required_ext) as $one_required_ext) {
+								$has_all = $has_all && extension_loaded($one_required_ext);
+							}	
+							$has_ext = $has_ext || $has_all;
+						} else {
+							$has_ext = $has_ext || extension_loaded($required_ext);
+						}
+					}
+				}
+				if ($has_ext) {
 					$defines2 = make_defines($exts, $disabled_exts);
 					$configs[$name] = "$phpbin -n $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '') ;
 				}
