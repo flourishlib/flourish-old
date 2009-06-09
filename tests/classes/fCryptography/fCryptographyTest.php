@@ -29,6 +29,14 @@ class fCryptographyTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($plaintext, fCryptography::symmetricKeyDecrypt($ciphertext, $key));	
 	}
 	
+	
+	public function testRandomString()
+	{
+		$random_string = fCryptography::randomString(8, 'alpha');
+		$this->assertEquals(8, strlen($random_string));
+		$this->assertEquals(TRUE, ctype_alpha($random_string));	
+	}
+	
 	public function tearDown()
 	{
 		
