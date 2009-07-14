@@ -132,8 +132,6 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testInsertFetchAllRows()
 	{
-		$this->setExpectedException('fNoRowsException');
-		
 		$res = $this->db->query(
 			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
 			'John',
@@ -148,7 +146,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 			TRUE,
 			'password'
 		);
-		$res->fetchAllRows();
+		$this->assertEquals(array(), $res->fetchAllRows());
 	}
 	
 	public function testDeleteAffectedRows()
@@ -323,10 +321,8 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testFetchAllRows2()
 	{
-		$this->setExpectedException('fNoRowsException');
-		
 		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
-		$res->fetchAllRows();
+		$this->assertEquals(array(), $res->fetchAllRows());
 	}
 	
 	public function testIteration()
