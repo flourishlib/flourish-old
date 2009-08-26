@@ -26,3 +26,28 @@ function __autoload($class_name)
 	
 	die('The class ' . $class_name . ' could not be loaded');
 }
+
+
+/**
+ * This cleans up all class configurations by calling static reset methods
+ * 
+ * @param  array $ignore_classes  These classes will not be reset
+ * @return void
+ */
+function __reset($ignore_classes=array())
+{
+	$classes = scandir('../classes/');
+	$classes = array_diff($classes, array('.', '..'));
+	
+	foreach ($classes as $class) {
+		if (!class_exists($class, FALSE)) {
+			continue;
+		}
+		if (in_array($class, $ignore_classes)) {
+			continue;	
+		}
+		if (method_exists($class, 'reset')) {
+			call_user_func(array($class, 'reset'));	
+		}
+	}	
+}
