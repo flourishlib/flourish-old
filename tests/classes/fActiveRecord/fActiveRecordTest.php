@@ -8,7 +8,8 @@ class Album extends fActiveRecord { }
 class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
-class FavoriteAlbum extends fActiveRecord { } 
+class FavoriteAlbum extends fActiveRecord { }
+class InvalidTable extends fActiveRecord { }
  
 class fActiveRecordTest extends PHPUnit_Framework_TestSuite
 {
@@ -49,6 +50,13 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	public function setUp()
 	{	
 		fORMDatabase::attach($this->sharedFixture);	
+	}
+	
+	public function testMissingPrimaryKey()
+	{
+		$this->setExpectedException('fProgrammerException');
+		
+		$invalid_table = new InvalidTable();
 	}
 	
 	public function testSimpleConstruct()
