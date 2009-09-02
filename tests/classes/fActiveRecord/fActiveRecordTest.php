@@ -260,6 +260,28 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 			$user->setUserId(2) instanceof User	
 		);		
 	}
+	
+	public function testBadMapping()
+	{
+		$this->setExpectedException('fProgrammerException');
+		
+		eval("class BadUser extends fActiveRecord {	}");
+		$user = new BadUser(1);		
+	}
+	
+	public function testCustomMapping()
+	{
+		eval("class TestUser extends fActiveRecord {
+			protected function configure() {
+				fORM::addCustomClassTableMapping(\$this, 'users');
+			}	
+		}");
+		$user = new TestUser(1);
+		$this->assertEquals(
+			1,
+			$user->getUserId()	
+		);		
+	}
 
 	public function tearDown()
 	{
