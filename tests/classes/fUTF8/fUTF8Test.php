@@ -71,6 +71,30 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, fUTF8::rpos($input, $needle, $offset));	
 	}
 	
+	public static function ucwordsProvider()
+	{
+		$output = array();
+		
+		$output[] = array('hello', 'Hello');
+		$output[] = array('This is a longer phrase', 'This Is A Longer Phrase');
+		$output[] = array('This phrase (contains some) punctuation/that might cause "issues"', 'This Phrase (Contains Some) Punctuation/That Might Cause "Issues"');
+		$output[] = array("Single prime \"apostrophes\" aren't an issue, and 'single prime' quotes work", "Single Prime \"Apostrophes\" Aren't An Issue, And 'Single Prime' Quotes Work");
+		$output[] = array("Apostrophes aren’t an issue", "Apostrophes Aren’t An Issue");
+		$output[] = array("‘single’ and “double” quotes are handled too", "‘Single’ And “Double” Quotes Are Handled Too");
+		$output[] = array("Hyphens-get-handled-too", "Hyphens-Get-Handled-Too");
+		$output[] = array("\\'Backslashed single quote'", "\\'Backslashed Single Quote'");
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider ucwordsProvider
+	 */
+	public function testUcwords($input, $output)
+	{
+		$this->assertEquals($output, fUTF8::ucwords($input));	
+	}
+	
 	public function tearDown()
 	{
 		
