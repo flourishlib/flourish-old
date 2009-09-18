@@ -25,6 +25,13 @@ CREATE TABLE invalid_tables (
 	not_primary_key VARCHAR
 );
 
+CREATE TABLE events (
+	event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	title VARCHAR(255) NOT NULL,
+	start_date DATE NOT NULL,
+	end_date DATE
+);
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
@@ -43,5 +50,15 @@ INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('will@fl
 INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('will@flourishlib.com', 3, 3);
 
 INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('john@smith.com', 2, 1);
+
+INSERT INTO events (title, start_date, end_date) VALUES ('First Event',   '2008-01-01', '2008-01-01');
+INSERT INTO events (title, start_date, end_date) VALUES ('Second Event',  '2008-02-01', '2008-02-08');
+INSERT INTO events (title, start_date, end_date) VALUES ('Third Event',   '2008-02-01', '2008-02-02');
+INSERT INTO events (title, start_date, end_date) VALUES ('Fourth Event',  '2009-01-01', '2010-01-01');
+INSERT INTO events (title, start_date, end_date) VALUES ('Fifth Event',   '2005-06-03', '2008-06-02');
+INSERT INTO events (title, start_date, end_date) VALUES ('Sixth Event',   '2009-05-29', '2009-05-30');
+INSERT INTO events (title, start_date, end_date) VALUES ('Seventh Event', '2008-01-02', '2008-01-03');
+INSERT INTO events (title, start_date, end_date) VALUES ('Eight Event',   '2008-01-01', NULL);
+INSERT INTO events (title, start_date, end_date) VALUES ('Ninth Event',   '2008-02-02', NULL); 
 
 COMMIT;
