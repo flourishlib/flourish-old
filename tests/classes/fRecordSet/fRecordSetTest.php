@@ -424,11 +424,29 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildWithWhereConditionIntersectNoSecondValue()
+	{
+		$set = fRecordSet::build('Event', array('start_date|end_date><' => array('2008-02-02', NULL)));
+		$this->assertEquals(
+			array(2, 3, 5, 9),
+			$set->getPrimaryKeys()
+		);
+	}
+	
 	public function testBuildWithWhereConditionMultiColumnLike()
 	{
 		$set = fRecordSet::build('User', array('last_name|email_address~' => 'bar'));
 		$this->assertEquals(
 			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionMultiColumnSearchStringLike()
+	{
+		$set = fRecordSet::build('User', array('last_name|email_address~' => '.com b'));
+		$this->assertEquals(
+			array(1, 3, 4),
 			$set->getPrimaryKeys()
 		);
 	}
@@ -639,6 +657,226 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			array(1),
 			$set->filter(array('getEmailAddress=' => 'will@flourishlib.com'))->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqual()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!' => NULL));
+		$this->assertEquals(
+			array(1, 2, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqualType2()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!=' => 'will@flourishlib.com'));
+		$this->assertEquals(
+			array(2, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqualType3()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress<>' => 'john@smith.com'));
+		$this->assertEquals(
+			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress~' => 'EXAMPLE'));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!~' => 'EXAMPLE'));
+		$this->assertEquals(
+			array(1, 2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterLessThan()
+	{
+		$set = fRecordSet::build('Song');
+		$set = $set->filter(array('getTrackNumber<' => 2));
+		$this->assertEquals(
+			array(1, 11, 27),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterLessThanOrEqual()
+	{
+		$set = fRecordSet::build('Song');
+		$set = $set->filter(array('getTrackNumber<=' => 1));
+		$this->assertEquals(
+			array(1, 11, 27),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterGreaterThan()
+	{
+		$set = fRecordSet::build('Song');
+		$set = $set->filter(array('getTrackNumber>' => 13));
+		$this->assertEquals(
+			array(24, 25, 26),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterGreaterThanOrEqual()
+	{
+		$set = fRecordSet::build('Song');
+		$set = $set->filter(array('getTrackNumber>=' => 13));
+		$this->assertEquals(
+			array(23, 24, 25, 26, 39),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterEqualMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress=' => array('john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			array(1, 2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqualMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!' => array('john@smith.com', NULL)));
+		$this->assertEquals(
+			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqualMultiValueType2()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!=' => array('john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotEqualMultiValueType3()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress<>' => array('foo@example.com', 'john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			array(3),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterLikeMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress~' => array('example', 'flourish')));
+		$this->assertEquals(
+			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterAndLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress&~' => array('example', 'bar')));
+		$this->assertEquals(
+			array(3),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterNotLikeMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress!~' => array('EXAMPLE', 'flourish')));
+		$this->assertEquals(
+			array(2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterOrConditions()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getLastName=|getEmailAddress!=' => array('Bond', 'bar@example.com')));
+		$this->assertEquals(
+			array(1, 2, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterIntersect()
+	{
+		$set = fRecordSet::build('Event');
+		$set = $set->filter(array('getStartDate|getEndDate><' => array('2007-12-31', '2008-02-05')));
+		$this->assertEquals(
+			array(1, 2, 3, 5, 7, 8, 9),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterIntersectNoSecondValue()
+	{
+		$set = fRecordSet::build('Event');
+		$set = $set->filter(array('getStartDate|getEndDate><' => array('2008-02-02', NULL)));
+		$this->assertEquals(
+			array(2, 3, 5, 9),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterMultiColumnLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getLastName|getEmailAddress~' => 'bar'));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterMultiColumnSearchStringLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getLastName|getEmailAddress~' => '.com b'));
+		$this->assertEquals(
+			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testFilterMultiColumnMultiValueLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getLastName|getEmailAddress~' => array('.com', 'b')));
+		$this->assertEquals(
+			array(1, 3, 4),
+			$set->getPrimaryKeys()
 		);
 	}
 	
