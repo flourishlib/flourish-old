@@ -597,6 +597,20 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildFromCall2()
+	{
+		$set          = fRecordSet::build('User');
+		$user_details = $set->buildFromCall('createUserDetail');
+		$this->assertEquals(
+			TRUE,
+			$user_details instanceof fRecordSet
+		);
+		$this->assertEquals(
+			4,
+			$user_details->count()
+		);
+	}
+	
 	public function testBuildFromMap()
 	{
 		$set = fRecordSet::build('Song', array('track_number=' => 1));
