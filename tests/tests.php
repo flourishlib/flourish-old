@@ -169,8 +169,8 @@ foreach ($class_dirs as $class_dir) {
 		
 		// Look for a .configs file so we can test different configurations
 		$configs = array();
-		if (file_exists($class_path . DIRECTORY_SEPARATOR . '.configs')) {
-			$options = file($class_path . DIRECTORY_SEPARATOR . '.configs');
+		if (file_exists($class_path . DIRECTORY_SEPARATOR . $test_name . '.configs')) {
+			$options = file($class_path . DIRECTORY_SEPARATOR . $test_name . '.configs');
 			foreach ($options as $option) {
 				if ($option && $option[0] == '#') { continue; }
 				list($name, $os, $required_exts, $disabled_exts, $defines, $bootstrap) = explode(';', trim($option));

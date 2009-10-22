@@ -34,7 +34,7 @@ class fRecordSetTest extends PHPUnit_Framework_TestSuite
 	{
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents('./database/setup-extended.sqlite.sql'));
+		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		fORMDatabase::attach($db);
 		$this->sharedFixture = $db;
 	}
@@ -42,7 +42,7 @@ class fRecordSetTest extends PHPUnit_Framework_TestSuite
 	protected function tearDown()
 	{
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents('./database/teardown-extended.sqlite.sql'));		
+		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
 		$db->query(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
@@ -54,6 +54,12 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->db = $this->sharedFixture;
+	}
+	
+	public function tearDown()
+	{
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		fORMRelated::reset();
 	}
 	
 	public function testCount()
@@ -199,6 +205,206 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals(4, count($records));
 	}
 	
+	public function testPrebuildManyToMany()
+	{
+		fORMRelated::setOrderBys('User', 'Group', array('group_id' => 'desc'), 'users_groups');
+		
+		$set = fRecordSet::build('User');
+		$set->prebuildGroups('users_groups');
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $user) {
+			$group_ids = $user->listGroups('users_groups');
+			switch ($user->getUserId()) {
+				case 1:
+					$expected_group_ids = array(2, 1);
+					break;
+				case 2:
+					$expected_group_ids = array(2, 1);
+					break;
+				case 3:
+					$expected_group_ids = array(1);
+					break;
+				case 4:
+					$expected_group_ids = array(1);
+					break;				
+			}
+			$this->assertEquals($expected_group_ids, $group_ids);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
+	public function testPrebuildOneToMany()
+	{
+		fORMRelated::setOrderBys('Artist', 'Album', array('album_id' => 'desc'));
+		
+		$set = fRecordSet::build('Artist');
+		$set->prebuildAlbums();
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $artist) {
+			$album_ids = $artist->listAlbums();
+			switch ($artist->getArtistId()) {
+				case 1:
+					$expected_album_ids = array(1);
+					break;
+				case 2:
+					$expected_album_ids = array(3, 2);
+					break;
+				case 3:
+					$expected_album_ids = array(7, 6, 5, 4);
+					break;		
+			}
+			$this->assertEquals($expected_album_ids, $album_ids);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
+	public function testPrebuildOneToManyMultiColumn()
+	{
+		fORMRelated::setOrderBys('User', 'FavoriteAlbum', array('album_id' => 'desc'));
+		
+		$set = fRecordSet::build('User');
+		$set->prebuildFavoriteAlbums();
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $user) {
+			$primary_keys = $user->listFavoriteAlbums();
+			switch ($user->getUserId()) {
+				case 1:
+					$expected_primary_keys = array(
+						array('email' => 'will@flourishlib.com', 'album_id' => 7), 
+						array('email' => 'will@flourishlib.com', 'album_id' => 4),
+						array('email' => 'will@flourishlib.com', 'album_id' => 3),
+						array('email' => 'will@flourishlib.com', 'album_id' => 2),
+						array('email' => 'will@flourishlib.com', 'album_id' => 1)
+					);
+					break;
+				case 2:
+					$expected_primary_keys = array(
+						array('email' => 'john@smith.com', 'album_id' => 2)
+					);
+					break;
+				case 3:
+					$expected_primary_keys = array();
+					break;
+				case 4:
+					$expected_primary_keys = array();
+					break;		
+			}
+			$this->assertEquals($expected_primary_keys, $primary_keys);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
+	public function testPrecountManyToMany()
+	{
+		$set = fRecordSet::build('User');
+		$set->precountGroups('users_groups');
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $user) {
+			$count = $user->countGroups('users_groups');
+			switch ($user->getUserId()) {
+				case 1:
+					$expected_count = 2;
+					break;
+				case 2:
+					$expected_count = 2;
+					break;
+				case 3:
+					$expected_count = 1;
+					break;
+				case 4:
+					$expected_count = 1;
+					break;		
+			}
+			$this->assertEquals($expected_count, $count);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
+	public function testPrecountOneToMany()
+	{
+		$set = fRecordSet::build('Artist');
+		$set->precountAlbums();
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $artist) {
+			$count = $artist->countAlbums();
+			switch ($artist->getArtistId()) {
+				case 1:
+					$expected_count = 1;
+					break;
+				case 2:
+					$expected_count = 2;
+					break;
+				case 3:
+					$expected_count = 4;
+					break;	
+			}
+			$this->assertEquals($expected_count, $count);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
+	public function testPrecountOneToManyMultiColumn()
+	{
+		$set = fRecordSet::build('User');
+		$set->precountFavoriteAlbums();
+		
+		ob_start();
+		
+		fORMDatabase::retrieve()->enableDebugging(TRUE);
+		foreach ($set as $user) {
+			$count = $user->countFavoriteAlbums();
+			switch ($user->getUserId()) {
+				case 1:
+					$expected_count = 5;
+					break;
+				case 2:
+					$expected_count = 1;
+					break;
+				case 3:
+					$expected_count = 0;
+					break;
+				case 4:
+					$expected_count = 0;
+					break;		
+			}
+			$this->assertEquals($expected_count, $count);
+		}
+		fORMDatabase::retrieve()->enableDebugging(FALSE);
+		
+		$output = ob_get_clean();
+		$this->assertEquals('', $output);
+	}
+	
 	public function testBuild()
 	{
 		$set = fRecordSet::build('User');
@@ -211,6 +417,24 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	public function testBuildWithWhereCondition()
 	{
 		$set = fRecordSet::build('User', array('email_address=' => 'will@flourishlib.com'));
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnConcat()
+	{
+		$set = fRecordSet::build('User', array('first_name||last_name=' => 'WillBond'));
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnConcatWithString()
+	{
+		$set = fRecordSet::build('User', array("first_name||' '||last_name=" => 'Will Bond'));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -456,6 +680,81 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$set = fRecordSet::build('User', array('last_name|email_address~' => array('.com', 'b')));
 		$this->assertEquals(
 			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionMultiple()
+	{
+		$set = fRecordSet::build(
+			'Event',
+			array(
+				'start_date|end_date><' => array('2008-02-02', NULL),
+				'title~'                => 'th'
+			)
+		);
+		$this->assertEquals(
+			array(3, 5, 9),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateFunctionCount()
+	{
+		$set = fRecordSet::build('User', array('count(albums{owns_on_cd}.album_id)=' => 3));
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateFunctionSum()
+	{
+		$set = fRecordSet::build('User', array('sum(albums{owns_on_cd}.album_id)=' => 6));
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateFunctionMin()
+	{
+		$set = fRecordSet::build('User', array('min(albums{owns_on_cd}.album_id)=' => 1));
+		$this->assertEquals(
+			array(1, 2, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateFunctionMax()
+	{
+		$set = fRecordSet::build('User', array('max(albums{owns_on_cd}.album_id)=' => 3));
+		$this->assertEquals(
+			array(1, 3),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateFunctionAvg()
+	{
+		$set = fRecordSet::build('User', array('avg(albums{owns_on_cd}.album_id)=' => 2));
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionAggregateAndRegular()
+	{
+		$set = fRecordSet::build(
+			'User',
+			array(
+				'max(albums{owns_on_cd}.album_id)=' => 3,
+				'first_name=' => 'Will'
+			)
+		);
+		$this->assertEquals(
+			array(1),
 			$set->getPrimaryKeys()
 		);
 	}
@@ -857,7 +1156,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	public function testFilterIntersectNoSecondValue()
 	{
 		$set = fRecordSet::build('Event');
-		$set = $set->filter(array('getStartDate|getEndDate><' => array('2008-02-02', NULL)));
+		$set = $set->filter(array('getStartDate|getEndDate><' => array(DB_TYPE == 'mssql' ? '2008-02-02 00:00:00' : '2008-02-02', NULL)));
 		$this->assertEquals(
 			array(2, 3, 5, 9),
 			$set->getPrimaryKeys()

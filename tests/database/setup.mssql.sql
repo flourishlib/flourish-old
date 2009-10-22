@@ -10,7 +10,7 @@ CREATE TABLE users (
 	birthday DATETIME NULL,
 	time_of_last_login DATETIME NULL,
 	is_validated BIT NOT NULL DEFAULT 0,
-	hashed_password VARBINARY(MAX) NOT NULL
+	hashed_password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE groups (
@@ -62,12 +62,17 @@ CREATE TABLE owns_on_tape (
 	PRIMARY KEY(user_id, album_id)
 );
 
+CREATE TABLE blobs (
+	blob_id INTEGER PRIMARY KEY,
+	data VARBINARY(MAX) NOT NULL
+);
+
 BEGIN TRANSACTION;
 
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '1970-01-01 17:00:00', '1', 0x5527939aca3e9e80d5ab3bee47391f0f);
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '1970-01-01 12:00:00', '1', 0xa722c63db8ec8625af6cf71cb8c2d939);
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, '2008-01-01 17:00:00', NULL, NULL, '1', 0xc1572d05424d0ecb2a65ec6a82aeacbf);
-INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, '2008-03-02 20:00:00', NULL, NULL, '0', 0x3afc79b597f88a72528e864cf81856d2);
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '1970-01-01 17:00:00', '1', '5527939aca3e9e80d5ab3bee47391f0f');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('John', '', 'Smith', 'john@smith.com', 'Active', 1, '2008-02-12 08:00:00', '1965-02-02', '1970-01-01 12:00:00', '1', 'a722c63db8ec8625af6cf71cb8c2d939');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Bar', '', 'Sheba', 'bar@example.com', 'Inactive', 0, '2008-01-01 17:00:00', NULL, NULL, '1', 'c1572d05424d0ecb2a65ec6a82aeacbf');
+INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Foo', '', 'Barish', 'foo@example.com', 'Active', 0, '2008-03-02 20:00:00', NULL, NULL, '0', '3afc79b597f88a72528e864cf81856d2');
 
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Music Lovers', 1, 2);
 INSERT INTO groups (name, group_leader, group_founder) VALUES ('Musicians', 2, 2);
@@ -138,5 +143,7 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+INSERT INTO blobs (blob_id, data) VALUES (1, 0x5527939aca3e9e80d5ab3bee47391f0f);
 
 COMMIT;

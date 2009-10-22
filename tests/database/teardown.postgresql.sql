@@ -1,3 +1,4 @@
+DROP TABLE blobs;
 DROP TABLE owns_on_tape;
 DROP TABLE owns_on_cd;
 DROP TABLE songs;

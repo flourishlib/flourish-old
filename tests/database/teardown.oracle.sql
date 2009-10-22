@@ -1,3 +1,4 @@
+DROP TABLE blobs PURGE;
 DROP TABLE owns_on_tape PURGE;
 DROP TABLE owns_on_cd PURGE;
 DROP TABLE songs PURGE;

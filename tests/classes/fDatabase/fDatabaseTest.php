@@ -164,6 +164,69 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 		$this->assertSame($output, $this->db->escape('%d', $input));
 	}
 	
+	public static function escapeIdentifierProvider()
+	{
+		$output = array();
+		
+		$output[] = array('users');
+		$output[] = array('"users"');
+		
+		switch (DB_TYPE) {
+			case 'postgresql':
+				$output[] = array('public.users');
+				$output[] = array('"public".users');
+				$output[] = array('public."users"');
+				$output[] = array('"public"."users"');
+				break;
+				
+			case 'mssql':
+				$output[] = array('dbo.users');
+				$output[] = array('"dbo".users');
+				$output[] = array('dbo."users"');
+				$output[] = array('"dbo"."users"');
+				break;
+				
+			case 'oracle':
+				$output[] = array('flourish.users');
+				$output[] = array('"flourish".users');
+				$output[] = array('flourish."users"');
+				$output[] = array('"flourish"."users"');
+				break;	
+		}
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider escapeIdentifierProvider
+	 */
+	public function testEscapeIdentifier($input)
+	{
+		$this->db->query('SELECT user_id FROM ' . $this->db->escape('%r', $input));
+	}
+	
+	public static function escapeIntegerProvider()
+	{
+		$output = array();
+		
+		$output[] = array(1, '1');
+		$output[] = array(4, '4');              
+		$output[] = array("2", '2');
+		$output[] = array("Abc", 'NULL');
+		$output[] = array('+25.289', '25');
+		$output[] = array("-5055", '-5055');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider escapeIntegerProvider
+	 */
+	public function testEscapeInteger($input, $output)
+	{
+		$this->assertEquals($output, $this->db->escape('%i', $input));
+	}
+	
 	public static function escapeStringProvider()
 	{
 		$output = array();
@@ -254,9 +317,9 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testUnescapeBlob()
 	{
-		$res = $this->db->query('SELECT hashed_password FROM users WHERE user_id = 1');
+		$res = $this->db->query('SELECT data FROM blobs WHERE blob_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescape('%l', $row['hashed_password']));
+		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescape('%l', $row['data']));
 	}
 	
 	public function testUnescapeBoolean()

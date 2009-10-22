@@ -3,6 +3,7 @@ ob_start();
 define('TEST_EXIT_SCRIPT', './support/test_exit.php');
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 date_default_timezone_set('America/New_York');
 error_reporting(E_ALL | E_STRICT);
@@ -40,6 +41,7 @@ function __reset($ignore_classes=array())
 	$classes = array_diff($classes, array('.', '..'));
 	
 	foreach ($classes as $class) {
+		$class = str_replace('.php', '', $class);
 		if (!class_exists($class, FALSE)) {
 			continue;
 		}

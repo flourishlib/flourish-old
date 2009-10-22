@@ -10,7 +10,7 @@ CREATE TABLE users (
 	birthday DATE,
 	time_of_last_login TIME,
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
-	hashed_password BLOB NOT NULL
+	hashed_password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE groups (
@@ -60,6 +60,11 @@ CREATE TABLE owns_on_tape (
 	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	album_id INTEGER REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, album_id)
+);
+
+CREATE TABLE blobs (
+	blob_id INTEGER PRIMARY KEY,
+	data BLOB NOT NULL
 );
 
 BEGIN;
@@ -138,5 +143,7 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+INSERT INTO blobs (blob_id, data) VALUES (1, '5527939aca3e9e80d5ab3bee47391f0f');
 
 COMMIT;

@@ -1,0 +1,5 @@
+SQLite-Backed;;pdo_sqlite|sqlite;;;database/config.sqlite.php
+PostgreSQL-Backed;;pdo_pgsql|pgsql;;;database/config.postgresql.php
+MySQL-Backed;;pdo_mysql|mysql|mysqli;;;database/config.mysql.php
+MSSQL-Backed;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql.php
+Oracle-Backed;;oci8|pdo_oci;;;database/config.oracle.php

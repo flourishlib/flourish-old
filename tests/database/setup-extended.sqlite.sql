@@ -8,21 +8,27 @@ CREATE TABLE record_labels (
 );
 
 CREATE TABLE record_deals (
-	record_label VARCHAR(8) NOT NULL REFERENCES record_labels(name) ON UPDATE CASCADE ON DELETE CASCADE,
+	record_label VARCHAR(255) NOT NULL REFERENCES record_labels(name) ON UPDATE CASCADE ON DELETE CASCADE,
 	artist_id INTEGER NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
 	PRIMARY KEY (record_label, artist_id)
 );
 
 CREATE TABLE favorite_albums (
-	email_address VARCHAR(200) NOT NULL REFERENCES users(email_address) ON UPDATE CASCADE ON DELETE CASCADE,
+	email VARCHAR(200) NOT NULL REFERENCES users(email_address) ON UPDATE CASCADE ON DELETE CASCADE,
 	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON DELETE CASCADE,
 	position INTEGER NOT NULL,
-	UNIQUE (email_address, position),
-	PRIMARY KEY (email_address, album_id)
+	UNIQUE (email, position),
+	PRIMARY KEY (email, album_id)
+);
+
+CREATE TABLE top_albums (
+	top_album_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	album_id INTEGER NOT NULL UNIQUE REFERENCES albums(album_id) ON DELETE CASCADE,
+	position INTEGER NOT NULL UNIQUE
 );
 
 CREATE TABLE invalid_tables (
-	not_primary_key VARCHAR
+	not_primary_key VARCHAR(200)
 );
 
 CREATE TABLE events (
@@ -45,11 +51,19 @@ INSERT INTO record_labels (name) VALUES ('Sony Music Entertainment');
 INSERT INTO record_deals (record_label, artist_id) VALUES ('EMI', 1);
 INSERT INTO record_deals (record_label, artist_id) VALUES ('Sony Music Entertainment', 2);
 
-INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('will@flourishlib.com', 2, 1);
-INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('will@flourishlib.com', 1, 2);
-INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('will@flourishlib.com', 3, 3);
+INSERT INTO artists (name) VALUES ('Relient K');
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Mmhmm', 2004, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Five Score and Seven Years Ago', 2007, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Forget and Not Slow Down', 2009, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Two Lefts Don''t Make a Right...but Three Do', 2003, '11.99', 'Alternative', 3);
 
-INSERT INTO favorite_albums (email_address, album_id, position) VALUES ('john@smith.com', 2, 1);
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 2, 1);
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 1, 2);
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 3, 3);
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 7, 4);
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 4, 5);
+
+INSERT INTO favorite_albums (email, album_id, position) VALUES ('john@smith.com', 2, 1);
 
 INSERT INTO events (title, start_date, end_date) VALUES ('First Event',   '2008-01-01', '2008-01-01');
 INSERT INTO events (title, start_date, end_date) VALUES ('Second Event',  '2008-02-01', '2008-02-08');
@@ -60,5 +74,14 @@ INSERT INTO events (title, start_date, end_date) VALUES ('Sixth Event',   '2009-
 INSERT INTO events (title, start_date, end_date) VALUES ('Seventh Event', '2008-01-02', '2008-01-03');
 INSERT INTO events (title, start_date, end_date) VALUES ('Eight Event',   '2008-01-01', NULL);
 INSERT INTO events (title, start_date, end_date) VALUES ('Ninth Event',   '2008-02-02', NULL); 
+
+INSERT INTO top_albums (album_id, position) VALUES (1, 1);
+INSERT INTO top_albums (album_id, position) VALUES (4, 2);
+INSERT INTO top_albums (album_id, position) VALUES (5, 3);
+INSERT INTO top_albums (album_id, position) VALUES (6, 4);
+INSERT INTO top_albums (album_id, position) VALUES (2, 5);
+INSERT INTO top_albums (album_id, position) VALUES (3, 6);
+
+
 
 COMMIT;

@@ -7,6 +7,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -16,6 +17,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -25,6 +27,7 @@
 				"default": null,
 				"max_length": "100",
 				"not_null": false,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -34,6 +37,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%f",
 				"type": "float",
 				"valid_values": null
 			},
@@ -43,6 +47,7 @@
 				"default": null,
 				"max_length": "255",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -52,6 +57,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			}
@@ -63,6 +69,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -72,6 +79,7 @@
 				"default": null,
 				"max_length": "255",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			}
@@ -83,6 +91,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": false,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -92,6 +101,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -101,6 +111,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": false,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -110,6 +121,7 @@
 				"default": null,
 				"max_length": "255",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			}
@@ -121,6 +133,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -130,6 +143,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			}
@@ -141,6 +155,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -149,6 +164,7 @@
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
+				"placeholder": "%i",
 				"not_null": true,
 				"type": "integer",
 				"valid_values": null
@@ -161,6 +177,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -170,6 +187,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%p",
 				"type": "timestamp",
 				"valid_values": null
 			},
@@ -179,6 +197,7 @@
 				"default": null,
 				"max_length": "255",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -188,6 +207,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -197,6 +217,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			}
@@ -208,6 +229,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": false,
+				"placeholder": "%d",
 				"type": "date",
 				"valid_values": null
 			},
@@ -217,6 +239,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%p",
 				"type": "timestamp",
 				"valid_values": null
 			},
@@ -226,6 +249,7 @@
 				"default": null,
 				"max_length": "200",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -235,6 +259,7 @@
 				"default": null,
 				"max_length": "100",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -242,9 +267,10 @@
 				"auto_increment": false,
 				"decimal_places": null,
 				"default": null,
-				"max_length": null,
+				"max_length": 100,
 				"not_null": true,
-				"type": "blob",
+				"placeholder": "%s",
+				"type": "varchar",
 				"valid_values": null
 			},
 			"is_validated": {
@@ -253,6 +279,7 @@
 				"default": false,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%b",
 				"type": "boolean",
 				"valid_values": null
 			},
@@ -262,6 +289,7 @@
 				"default": null,
 				"max_length": "100",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -271,6 +299,7 @@
 				"default": null,
 				"max_length": "100",
 				"not_null": false,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": null
 			},
@@ -280,6 +309,7 @@
 				"default": "Active",
 				"max_length": "8",
 				"not_null": true,
+				"placeholder": "%s",
 				"type": "varchar",
 				"valid_values": ["Active", "Inactive", "Pending"]
 			},
@@ -289,6 +319,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": false,
+				"placeholder": "%p",
 				"type": "timestamp",
 				"valid_values": null
 			},
@@ -298,6 +329,7 @@
 				"default": "0",
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -307,6 +339,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			}
@@ -318,6 +351,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			},
@@ -327,6 +361,7 @@
 				"default": null,
 				"max_length": null,
 				"not_null": true,
+				"placeholder": "%i",
 				"type": "integer",
 				"valid_values": null
 			}
@@ -601,5 +636,5 @@
 			"one-to-one": []
 		}
 	},
-	"tables": ["albums", "artists", "groups", "owns_on_cd", "owns_on_tape", "songs", "users", "users_groups"]
+	"tables": ["albums", "artists", "blobs", "groups", "owns_on_cd", "owns_on_tape", "songs", "users", "users_groups"]
 }

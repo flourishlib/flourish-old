@@ -7,6 +7,7 @@ class Artist extends fActiveRecord { }
 class Album extends fActiveRecord { }
 class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
+class RecordDeal extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
 class FavoriteAlbum extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
@@ -22,14 +23,14 @@ class fActiveRecordTest extends PHPUnit_Framework_TestSuite
 	{
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents('./database/setup-extended.sqlite.sql'));
+		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		$this->sharedFixture = $db;
 	}
  
 	protected function tearDown()
 	{
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents('./database/teardown-extended.sqlite.sql'));		
+		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
 		$db->query(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
@@ -88,10 +89,10 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testMultiColumnConstruct()
 	{
-		$album = new FavoriteAlbum(array('email_address' => 'will@flourishlib.com', 'album_id' => 1));
+		$album = new FavoriteAlbum(array('email' => 'will@flourishlib.com', 'album_id' => 1));
 		$this->assertEquals(
 			'will@flourishlib.com',
-			$album->getEmailAddress()	
+			$album->getEmail()	
 		);
 		$this->assertEquals(
 			2,
@@ -101,10 +102,10 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSwappedMultiColumnConstruct()
 	{
-		$album = new FavoriteAlbum(array('album_id' => 1, 'email_address' => 'will@flourishlib.com'));
+		$album = new FavoriteAlbum(array('album_id' => 1, 'email' => 'will@flourishlib.com'));
 		$this->assertEquals(
 			'will@flourishlib.com',
-			$album->getEmailAddress()	
+			$album->getEmail()	
 		);
 		$this->assertEquals(
 			2,
@@ -254,11 +255,73 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSetChain()
 	{
-		$user = new User(1);
+		$user = new User();
 		$this->assertEquals(
 			TRUE,
 			$user->setUserId(2) instanceof User	
 		);		
+	}
+	
+	public function testInsert()
+	{
+		$user = new User();
+		$user->setFirstName('testInsert');
+		$user->setLastName('User');
+		$user->setEmailAddress('testinsert@example.com');
+		$user->setDateCreated(new fTimestamp());
+		$user->setHashedPassword('abcdefgh');
+		$user->store();
+		
+		$this->assertEquals(
+			1,
+			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
+		);
+		
+		$user->delete();		
+	}
+	
+	public function testInsertSetNullNotNullColumnWithDefault()
+	{
+		$user = new User();
+		$user->setFirstName('testInsertSetNullNotNullColumnWithDefault');
+		$user->setMiddleInitial(NULL);
+		$user->setLastName('User');
+		$user->setEmailAddress('testinsert@example.com');
+		$user->setDateCreated(new fTimestamp());
+		$user->setHashedPassword('abcdefgh');
+		$user->store();
+		
+		$this->assertEquals(
+			1,
+			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
+		);
+		
+		$user->delete();		
+	}
+	
+	public function testUpdate()
+	{
+		$user = new User(1);
+		$user->setFirstName('William');
+		$user->store();
+		
+		$this->assertEquals(
+			1,
+			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'William')->countReturnedRows()
+		);
+		
+		$this->sharedFixture->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'Will', 1);		
+	}
+	
+	public function testUpdateWithNoChanges()
+	{
+		$user = new User(1);
+		$user->store();
+		
+		$this->assertEquals(
+			1,
+			$this->sharedFixture->query('SELECT * FROM users WHERE user_id = %i', 1)->countReturnedRows()
+		);	
 	}
 	
 	public function testBadMapping()

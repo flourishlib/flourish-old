@@ -1,0 +1,365 @@
+{
+   "column_info": {
+	  "flourish2.albums": {
+		 "album_id": {
+			"type": "integer",
+			"auto_increment": true,
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null
+		 },
+		 "name": {
+			"type": "varchar",
+			"max_length": "255",
+			"not_null": true,
+			"placeholder": "%s",
+			"default": null,
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "year_released": {
+			"type": "integer",
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "artist_id": {
+			"type": "integer",
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 }
+	  },
+	  "flourish2.artists": {
+		 "artist_id": {
+			"type": "integer",
+			"auto_increment": true,
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null
+		 },
+		 "name": {
+			"type": "varchar",
+			"max_length": "255",
+			"not_null": true,
+			"placeholder": "%s",
+			"default": null,
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 }
+	  },
+	  "flourish2.groups": {
+		 "group_id": {
+			"type": "integer",
+			"auto_increment": true,
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null
+		 },
+		 "name": {
+			"type": "varchar",
+			"max_length": "255",
+			"not_null": true,
+			"placeholder": "%s",
+			"default": null,
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "group_leader": {
+			"type": "integer",
+			"not_null": false,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "group_founder": {
+			"type": "integer",
+			"not_null": false,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 }
+	  },
+	  "flourish2.users": {
+		 "user_id": {
+			"type": "integer",
+			"auto_increment": true,
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null
+		 },
+		 "first_name": {
+			"type": "varchar",
+			"max_length": "100",
+			"not_null": true,
+			"placeholder": "%s",
+			"default": null,
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "middle_initial": {
+			"type": "varchar",
+			"max_length": "100",
+			"default": "",
+			"not_null": true,
+			"placeholder": "%s",
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "last_name": {
+			"type": "varchar",
+			"max_length": "100",
+			"not_null": true,
+			"placeholder": "%s",
+			"default": null,
+			"valid_values": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 }
+	  },
+	  "flourish2.users_groups": {
+		 "user_id": {
+			"type": "integer",
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 },
+		 "group_id": {
+			"type": "integer",
+			"not_null": true,
+			"placeholder": "%i",
+			"default": null,
+			"valid_values": null,
+			"max_length": null,
+			"decimal_places": null,
+			"auto_increment": false
+		 }
+	  }
+   },
+   "keys": {
+	  "flourish2.albums": {
+		 "primary": [
+			"album_id"
+		 ],
+		 "unique": [
+			[
+			   "artist_id",
+			   "name"
+			]
+		 ],
+		 "foreign": [
+			{
+			   "column": "artist_id",
+			   "foreign_table": "flourish2.artists",
+			   "foreign_column": "artist_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			}
+		 ]
+	  },
+	  "flourish2.artists": {
+		 "primary": [
+			"artist_id"
+		 ],
+		 "unique": [
+			[
+			   "name"
+			]
+		 ],
+		 "foreign": []
+	  },
+	  "flourish2.groups": {
+		 "primary": [
+			"group_id"
+		 ],
+		 "unique": [
+			[
+			   "name"
+			]
+		 ],
+		 "foreign": [
+			{
+			   "column": "group_founder",
+			   "foreign_table": "flourish2.users",
+			   "foreign_column": "user_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			},
+			{
+			   "column": "group_leader",
+			   "foreign_table": "flourish2.users",
+			   "foreign_column": "user_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			}
+		 ]
+	  },
+	  "flourish2.users": {
+		 "primary": [
+			"user_id"
+		 ],
+		 "unique": [],
+		 "foreign": []
+	  },
+	  "flourish2.users_groups": {
+		 "primary": [
+			"user_id",
+			"group_id"
+		 ],
+		 "unique": [],
+		 "foreign": [
+			{
+			   "column": "group_id",
+			   "foreign_table": "flourish2.groups",
+			   "foreign_column": "group_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			},
+			{
+			   "column": "user_id",
+			   "foreign_table": "flourish2.users",
+			   "foreign_column": "user_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			}
+		 ]
+	  }
+   },
+   "relationships": {
+	  "flourish2.albums": {
+		 "one-to-one": [],
+		 "many-to-one": [
+			{
+			   "table": "flourish2.albums",
+			   "column": "artist_id",
+			   "related_table": "flourish2.artists",
+			   "related_column": "artist_id"
+			}
+		 ],
+		 "one-to-many": [],
+		 "many-to-many": []
+	  },
+	  "flourish2.artists": {
+		 "one-to-one": [],
+		 "many-to-one": [],
+		 "one-to-many": [
+			{
+			   "table": "flourish2.artists",
+			   "column": "artist_id",
+			   "related_table": "flourish2.albums",
+			   "related_column": "artist_id",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			}
+		 ],
+		 "many-to-many": []
+	  },
+	  "flourish2.groups": {
+		 "one-to-one": [],
+		 "many-to-one": [
+			{
+			   "table": "flourish2.groups",
+			   "column": "group_founder",
+			   "related_table": "flourish2.users",
+			   "related_column": "user_id"
+			},
+			{
+			   "table": "flourish2.groups",
+			   "column": "group_leader",
+			   "related_table": "flourish2.users",
+			   "related_column": "user_id"
+			}
+		 ],
+		 "one-to-many": [],
+		 "many-to-many": [
+			{
+			   "table": "flourish2.groups",
+			   "column": "group_id",
+			   "related_table": "flourish2.users",
+			   "related_column": "user_id",
+			   "join_table": "flourish2.users_groups",
+			   "join_column": "group_id",
+			   "join_related_column": "user_id",
+			   "on_update": "cascade",
+			   "on_delete": "cascade"
+			}
+		 ]
+	  },
+	  "flourish2.users": {
+		 "one-to-one": [],
+		 "many-to-one": [],
+		 "one-to-many": [
+			{
+			   "table": "flourish2.users",
+			   "column": "user_id",
+			   "related_table": "flourish2.groups",
+			   "related_column": "group_founder",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			},
+			{
+			   "table": "flourish2.users",
+			   "column": "user_id",
+			   "related_table": "flourish2.groups",
+			   "related_column": "group_leader",
+			   "on_delete": "cascade",
+			   "on_update": "cascade"
+			}
+		 ],
+		 "many-to-many": [
+			{
+			   "table": "flourish2.users",
+			   "column": "user_id",
+			   "related_table": "flourish2.groups",
+			   "related_column": "group_id",
+			   "join_table": "flourish2.users_groups",
+			   "join_column": "user_id",
+			   "join_related_column": "group_id",
+			   "on_update": "cascade",
+			   "on_delete": "cascade"
+			}
+		 ]
+	  },
+	  "flourish2.users_groups": {
+		 "one-to-one": [],
+		 "many-to-one": [],
+		 "one-to-many": [],
+		 "many-to-many": []
+	  }
+   }
+}

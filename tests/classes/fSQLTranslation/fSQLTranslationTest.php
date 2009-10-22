@@ -21,13 +21,17 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
 	{
 		$db = $this->sharedFixture;
 		
-		// Clean up the testCreateTable() tables
-		$db->query('DROP TABLE unicode_test');
-		$db->query('DROP TABLE translation_test_2');
-		$db->query('DROP TABLE translation_test');
-		if ($db->getType() == 'oracle') {
-			$db->query('DROP SEQUENCE unicode_test_unicode_test__seq');
-			$db->query('DROP SEQUENCE translation_test_translati_seq');
+		try {
+			// Clean up the testCreateTable() tables
+			$db->query('DROP TABLE unicode_test');
+			$db->query('DROP TABLE translation_test_2');
+			$db->query('DROP TABLE translation_test');
+			if ($db->getType() == 'oracle') {
+				$db->query('DROP SEQUENCE unicode_test_unicode_test__seq');
+				$db->query('DROP SEQUENCE translation_test_translati_seq');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();	
 		}
 		
 		$sql = file_get_contents(DB_TEARDOWN_FILE);        
@@ -368,41 +372,6 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
-	public function testDiffSeconds()
-	{
-		$res = $this->db->translatedQuery("SELECT diff_seconds('2009-04-23 00:00:00', '2009-04-23 00:01:00') FROM users");
-		$this->assertEquals(
-			60,
-			$res->fetchScalar()
-		);
-	}
-	
-	public function testDiffSeconds2()
-	{
-		$res = $this->db->translatedQuery("SELECT diff_seconds('2009-04-23', '2009-04-24') FROM users");
-		$this->assertEquals(
-			86400,
-			$res->fetchScalar()
-		);
-	}
-	
-	public function testAddInterval()
-	{
-		$res = $this->db->translatedQuery("SELECT add_interval('2009-04-23 00:00:00', '+1 minutes') FROM users");
-		$this->assertEquals(
-			'2009-04-23 00:01:00',
-			$this->db->unescape('timestamp', $res->fetchScalar())
-		);
-	}
-	
-	public function testAddInterval2()
-	{
-		$res = $this->db->translatedQuery("SELECT add_interval(CURRENT_TIMESTAMP, '+1 minutes') FROM users");
-		$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
-		$this->assertGreaterThanOrEqual(time(), $current_timestamp);
-		$this->assertLessThanOrEqual(time()+120, $current_timestamp);
-	}
-	
 	public function testLimit()
 	{
 		$res = $this->db->translatedQuery("SELECT * FROM users LIMIT 3");
@@ -525,6 +494,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
 				),
@@ -534,6 +504,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => "%l",
 					"type"           => "blob",
 					"valid_values"   => NULL
 				),
@@ -543,6 +514,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => "%b",
 					"type"           => "boolean",
 					"valid_values"   => NULL
 				),
@@ -552,6 +524,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => 40,
 					"not_null"       => FALSE,
+					"placeholder"    => "%s",
 					"type"           => "char",
 					"valid_values"   => NULL
 				),
@@ -561,6 +534,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => ($this->db->getType() == 'mssql') ? "%p" : "%d",
 					"type"           => ($this->db->getType() == 'mssql') ? "timestamp" : "date",
 					"valid_values"   => NULL
 				),
@@ -570,6 +544,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => "%s",
 					"type"           => "text",
 					"valid_values"   => NULL
 				),
@@ -579,6 +554,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "%p" : "%t",
 					"type"           => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "timestamp" : "time",
 					"valid_values"   => NULL
 				),
@@ -588,6 +564,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => FALSE,
+					"placeholder"    => "%p",
 					"type"           => "timestamp",
 					"valid_values"   => NULL
 				),
@@ -597,6 +574,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => TRUE,
+					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
 				),
@@ -606,6 +584,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => 100,
 					"not_null"       => FALSE,
+					"placeholder"    => "%s",
 					"type"           => "varchar",
 					"valid_values"   => NULL
 				)
@@ -628,6 +607,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => 100,
 					"not_null"       => FALSE,
+					"placeholder"    => "%s",
 					"type"           => "varchar",
 					"valid_values"   => NULL
 				),
@@ -637,6 +617,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => TRUE,
+					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
 				),
@@ -646,6 +627,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"default"        => NULL,
 					"max_length"     => NULL,
 					"not_null"       => TRUE,
+					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
 				)

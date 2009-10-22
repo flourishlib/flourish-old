@@ -10,7 +10,7 @@ CREATE TABLE users (
 	birthday DATE,
 	time_of_last_login TIMESTAMP,
 	is_validated NUMBER(1) DEFAULT 0 NOT NULL CHECK(is_validated IN (0,1)),
-	hashed_password BLOB NOT NULL
+	hashed_password VARCHAR2(100) NOT NULL
 );
 
 CREATE SEQUENCE users_user_id_seq;
@@ -128,6 +128,11 @@ CREATE TABLE owns_on_tape (
 	PRIMARY KEY(user_id, album_id)
 );
 
+CREATE TABLE blobs (
+	blob_id INTEGER PRIMARY KEY,
+	data BLOB NOT NULL
+);
+
 BEGIN;
 
 INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '1970-01-01 17:00:00', 1, '5527939aca3e9e80d5ab3bee47391f0f');
@@ -204,5 +209,7 @@ INSERT INTO owns_on_cd (user_id, album_id) VALUES (4, 2);
 
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 1);
 INSERT INTO owns_on_tape (user_id, album_id) VALUES (3, 2);   
+
+INSERT INTO blobs (blob_id, data) VALUES (1, '5527939aca3e9e80d5ab3bee47391f0f');
 
 COMMIT;
