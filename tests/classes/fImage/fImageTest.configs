@@ -1,0 +1,2 @@
+GD;;gd;;-d disable_functions="exec";classes/fImage/config.gd.php
+ImageMagick;;;;;classes/fImage/config.imagemagick.php
