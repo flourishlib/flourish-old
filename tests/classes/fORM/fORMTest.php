@@ -1,11 +1,11 @@
 <?php
 require_once('./support/init.php');
- 
+
 class fORMTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-		fORM::reset();	
+			
 	}
 	
 	public static function classizeTablizeProvider()
@@ -50,7 +50,7 @@ class fORMTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('users', fORM::tablize('User'));
 		$this->assertEquals('User', fORM::classize('users'));
 		
-		fORM::addCustomClassTableMapping('User', 'person');
+		fORM::mapClassToTable('User', 'person');
 		$this->assertEquals('person', fORM::tablize('User'));
 		$this->assertEquals('User', fORM::classize('person'));
 		
@@ -59,15 +59,24 @@ class fORMTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('bicycles', fORM::tablize('Bicycle'));
 		$this->assertEquals('Bicycle', fORM::classize('bicycles'));
 		
-		fORM::addCustomClassTableMapping('Bicycle', 'bike');
+		fORM::mapClassToTable('Bicycle', 'bike');
 		$this->assertEquals('bike', fORM::tablize('Bicycle'));
 		$this->assertEquals('Bicycle', fORM::classize('bike'));
 		
 		$this->assertNotEquals('bicycles', fORM::tablize('Bicycle'));
 	}
 	
+	public function testClassToDatabaseMapping()
+	{
+		$this->assertEquals('default', fORM::getDatabaseName('User'));
+		$this->assertEquals('default', fORM::getDatabaseName('PhotoGallery'));
+		
+		fORM::mapClassToDatabase('User', 'second_db');
+		$this->assertEquals('second_db', fORM::getDatabaseName('User'));
+	}
+	
 	public function tearDown()
 	{
-		
+		__reset();		
 	}
 }

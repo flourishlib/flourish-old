@@ -56,10 +56,10 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 	public function setUp()
 	{	
 		fORMDatabase::attach($this->sharedFixture);
-		fORM::addCustomClassTableMapping('Flourish2User', 'flourish2.users');
-		fORM::addCustomClassTableMapping('Flourish2Group', 'flourish2.groups');
-		fORM::addCustomClassTableMapping('Flourish2Artist', 'flourish2.artists');
-		fORM::addCustomClassTableMapping('Flourish2Album', 'flourish2.albums');
+		fORM::mapClassToTable('Flourish2User', 'flourish2.users');
+		fORM::mapClassToTable('Flourish2Group', 'flourish2.groups');
+		fORM::mapClassToTable('Flourish2Artist', 'flourish2.artists');
+		fORM::mapClassToTable('Flourish2Album', 'flourish2.albums');
 	}
 	
 	public function testSimpleConstruct()

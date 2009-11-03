@@ -336,7 +336,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	{
 		eval("class TestUser extends fActiveRecord {
 			protected function configure() {
-				fORM::addCustomClassTableMapping(\$this, 'users');
+				fORM::mapClassToTable(\$this, 'users');
 			}	
 		}");
 		$user = new TestUser(1);
