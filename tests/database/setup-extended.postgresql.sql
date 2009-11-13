@@ -21,6 +21,15 @@ CREATE TABLE favorite_albums (
 	PRIMARY KEY (email, album_id)
 );
 
+CREATE TABLE year_favorite_albums (
+	email VARCHAR(200) NOT NULL REFERENCES users(email_address) ON UPDATE CASCADE ON DELETE CASCADE,
+	year INTEGER NOT NULL,
+	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON DELETE CASCADE,
+	position INTEGER NOT NULL,
+	UNIQUE (email, year, position),
+	PRIMARY KEY (email, year, album_id)
+);
+
 CREATE TABLE top_albums (
 	top_album_id SERIAL PRIMARY KEY,
 	album_id INTEGER NOT NULL UNIQUE REFERENCES albums(album_id) ON DELETE CASCADE,
@@ -62,6 +71,12 @@ INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishli
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 3, 3);
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 7, 4);
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 4, 5);
+
+INSERT INTO year_favorite_albums (email, year, album_id, position) VALUES ('will@flourishlib.com', 2009, 2, 1);
+INSERT INTO year_favorite_albums (email, year, album_id, position) VALUES ('will@flourishlib.com', 2009, 1, 2);
+INSERT INTO year_favorite_albums (email, year, album_id, position) VALUES ('will@flourishlib.com', 2009, 3, 3);
+INSERT INTO year_favorite_albums (email, year, album_id, position) VALUES ('will@flourishlib.com', 2009, 7, 4);
+INSERT INTO year_favorite_albums (email, year, album_id, position) VALUES ('will@flourishlib.com', 2009, 4, 5);
 
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('john@smith.com', 2, 1);
 

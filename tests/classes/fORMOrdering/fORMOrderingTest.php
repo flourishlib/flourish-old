@@ -9,6 +9,7 @@ class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
 class FavoriteAlbum extends fActiveRecord { }
+class YearFavoriteAlbum extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
 class TopAlbum extends fActiveRecord { }
 
@@ -25,6 +26,7 @@ class fORMOrderingTest extends PHPUnit_Framework_TestCase
 		fORMDatabase::attach($this->sharedFixture);
 		fORMOrdering::configureOrderingColumn('TopAlbum', 'position');
 		fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+		fORMOrdering::configureOrderingColumn('YearFavoriteAlbum', 'position');
 	}
 	
 	
@@ -308,6 +310,126 @@ class fORMOrderingTest extends PHPUnit_Framework_TestCase
 		$actual_destination_result = $this->sharedFixture->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $destination_email)->fetchAllRows();
 		
 		$this->assertEquals($expected_destination_result, $actual_destination_result);
+	}
+	
+	
+	static public function reorderThreeColumnProvider()
+	{
+		$output = array();
+		// Original order
+		//$output[] = array('will@flourishlib.com', 2009, 1, 2, array(2, 1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 1, 1, array(1, 2, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 2, 2, array(1, 2, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 4, 4, array(2, 1, 3, 4, 7));
+		$output[] = array('will@flourishlib.com', 2009, 7, 5, array(2, 1, 3, 4, 7));
+		$output[] = array('will@flourishlib.com', 2009, 2, 5, array(1, 3, 7, 4, 2));
+		$output[] = array('will@flourishlib.com', 2009, 1, 5, array(2, 3, 7, 4, 1));
+		
+		return $output;
+	}	
+	
+	/**
+	 * @dataProvider reorderThreeColumnProvider
+	 */
+	public function testReorderThreeColumn($email, $year, $album_id, $end_position, $resulting_order)
+	{
+		$favorite_album = new YearFavoriteAlbum(array('email' => $email, 'year' => $year, 'album_id' => $album_id));
+		$favorite_album->setPosition($end_position);
+		$favorite_album->store();
+		
+		$expected_result = array();
+		foreach ($resulting_order as $index => $album_id) {
+			$expected_result[] = array(
+				'email'    => $email,
+				'position' => $index+1,
+				'album_id' => $album_id
+			);
+		}
+		
+		$actual_result = $this->sharedFixture->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		
+		$this->assertEquals($expected_result, $actual_result);
+	}
+	
+	
+	static public function addThreeColumnProvider()
+	{
+		$output = array();
+		// Original order
+		//$output[] = array('will@flourishlib.com', 2009, 6, 1, array(2, 1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 1, array(6, 2, 1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 2, array(2, 6, 1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 3, array(2, 1, 6, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 4, array(2, 1, 3, 6, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 5, array(2, 1, 3, 7, 6, 4));
+		$output[] = array('will@flourishlib.com', 2009, 6, 6, array(2, 1, 3, 7, 4, 6));
+		$output[] = array('will@flourishlib.com', 2009, 6, NULL, array(2, 1, 3, 7, 4, 6));
+		$output[] = array('will@flourishlib.com', 2009, 6, 9, array(2, 1, 3, 7, 4, 6));
+		
+		return $output;
+	}	
+	
+	/**
+	 * @dataProvider addThreeColumnProvider
+	 */
+	public function testAddThreeColumn($email, $year, $album_id, $position, $resulting_order)
+	{
+		$favorite_album = new YearFavoriteAlbum();
+		$favorite_album->setAlbumId($album_id);
+		$favorite_album->setEmail($email);
+		$favorite_album->setPosition($position);
+		$favorite_album->setYear($year);
+		$favorite_album->store();
+		
+		$expected_result = array();
+		foreach ($resulting_order as $index => $album_id) {
+			$expected_result[] = array(
+				'email'    => $email,
+				'position' => $index+1,
+				'album_id' => $album_id
+			);
+		}
+		
+		$actual_result = $this->sharedFixture->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		
+		$this->assertEquals($expected_result, $actual_result);
+	}
+	
+	
+	static public function deleteThreeColumnProvider()
+	{
+		$output = array();
+		// Original order
+		//$output[] = array('will@flourishlib.com', 2009, 1, array(2, 1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 2, array(1, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 1, array(2, 3, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 3, array(2, 1, 7, 4));
+		$output[] = array('will@flourishlib.com', 2009, 7, array(2, 1, 3, 4));
+		$output[] = array('will@flourishlib.com', 2009, 4, array(2, 1, 3, 7));
+		
+		return $output;
+	}	
+	
+	/**
+	 * @dataProvider deleteThreeColumnProvider
+	 */
+	public function testDeleteThreeColumn($email, $year, $album_id, $resulting_order)
+	{
+		$favorite_album = new YearFavoriteAlbum(array('email' => $email, 'year' => $year, 'album_id' => $album_id));
+		$favorite_album->delete();
+		
+		$expected_result = array();
+		foreach ($resulting_order as $index => $album_id) {
+			$expected_result[] = array(
+				'email'    => $email,
+				'position' => $index+1,
+				'album_id' => $album_id
+			);
+		}
+		
+		$actual_result = $this->sharedFixture->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		
+		$this->assertEquals($expected_result, $actual_result);
 	}
 	
 	
