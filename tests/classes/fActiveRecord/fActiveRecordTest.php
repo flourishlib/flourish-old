@@ -13,6 +13,10 @@ class FavoriteAlbum extends fActiveRecord { }
 class YearFavoriteAlbum extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
  
+function changed($object, &$values, &$old_values, &$related_records, &$cache, $method, &$parameters) {
+	return fActiveRecord::changed($values, $old_values, $parameters[0]);	
+}
+ 
 class fActiveRecordTest extends PHPUnit_Framework_TestSuite
 {
 	public static function suite()
@@ -51,7 +55,8 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{	
-		fORMDatabase::attach($this->sharedFixture);	
+		fORMDatabase::attach($this->sharedFixture);
+		fORM::registerActiveRecordMethod('User', 'hasChanged', 'changed');	
 	}
 	
 	public function testMissingPrimaryKey()
@@ -322,6 +327,61 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			1,
 			$this->sharedFixture->query('SELECT * FROM users WHERE user_id = %i', 1)->countReturnedRows()
+		);	
+	}
+	
+	public function testChanged()
+	{
+		$user = $this->createUser();
+		$user->setMiddleInitial('A');
+		
+		$this->assertEquals(
+			TRUE,
+			$user->hasChanged('middle_initial')
+		);	
+	}
+	
+	public function testNullChangedToZero()
+	{
+		$user = $this->createUser();
+		$user->setMiddleInitial(0);
+		
+		$this->assertEquals(
+			TRUE,
+			$user->hasChanged('middle_initial')
+		);	
+	}
+	
+	public function testNullChangedToFalse()
+	{
+		$user = $this->createUser();
+		$user->setMiddleInitial(FALSE);
+		
+		$this->assertEquals(
+			TRUE,
+			$user->hasChanged('middle_initial')
+		);	
+	}
+	
+	public function testNullChanged()
+	{
+		$user = $this->createUser();
+		$user->setMiddleInitial('');
+		
+		$this->assertEquals(
+			FALSE,
+			$user->hasChanged('middle_initial')
+		);	
+	}
+	
+	public function testNullChangedBlankStringFromDatabase()
+	{
+		$user = new User(1);
+		$user->setMiddleInitial('');
+		
+		$this->assertEquals(
+			FALSE,
+			$user->hasChanged('middle_initial')
 		);	
 	}
 	
