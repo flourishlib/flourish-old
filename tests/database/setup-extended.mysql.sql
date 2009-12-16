@@ -52,6 +52,27 @@ CREATE TABLE events (
 	end_date DATE
 )ENGINE=InnoDB;
 
+CREATE TABLE registrations (
+	event_id INTEGER NOT NULL,
+	name VARCHAR(255) NOT NULL,
+	PRIMARY KEY(event_id, name),
+	FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE RESTRICT
+)ENGINE=InnoDB;
+
+CREATE TABLE event_details (
+	event_id INTEGER NOT NULL PRIMARY KEY,
+	allows_registration BOOLEAN NOT NULL,
+	FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE RESTRICT
+)ENGINE=InnoDB;
+
+CREATE TABLE events_artists (
+	event_id INTEGER NOT NULL,
+	artist_id INTEGER NOT NULL,
+	PRIMARY KEY(event_id, artist_id),
+	FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE RESTRICT,
+	FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE
+)ENGINE=InnoDB;
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');

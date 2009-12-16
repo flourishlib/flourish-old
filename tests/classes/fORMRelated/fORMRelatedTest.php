@@ -101,6 +101,98 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 	}
 	
 	
+	static public function hasOneToOneProvider()
+	{
+		$output = array();
+		$output[] = array(1, TRUE);
+		$output[] = array(2, TRUE);
+		$output[] = array(3, TRUE);
+		$output[] = array(4, TRUE);
+		
+		return $output;	
+	}
+	
+	/**
+	 * @dataProvider hasOneToOneProvider
+	 */
+	public function testHasOneToOne($user_id, $output)
+	{
+		$user = new User($user_id);
+		$this->assertEquals($output, $user->hasUserDetail());
+	}
+	
+	
+	public function testHasOneToOnePlural()
+	{
+		$this->setExpectedException('fProgrammerException');
+		$user = new User(1);
+		$user->hasUserDetails();
+	}
+	
+	
+	static public function hasOneToManyProvider()
+	{
+		$output = array();
+		$output[] = array(1, TRUE);
+		$output[] = array(2, TRUE);
+		$output[] = array(3, FALSE);
+		$output[] = array(4, FALSE);
+		
+		return $output;	
+	}
+	
+	/**
+	 * @dataProvider hasOneToManyProvider
+	 */
+	public function testHasOneToMany($user_id, $output)
+	{
+		$user = new User($user_id);
+		$this->assertEquals($output, $user->hasFavoriteAlbums());
+	}
+	
+	public function testHasOneToManySingular()
+	{
+		$this->setExpectedException('fProgrammerException');
+		$user = new User(1);
+		$user->hasFavoriteAlbum();
+	}
+	
+	static public function hasManyToManyProvider()
+	{
+		$output = array();
+		$output[] = array(1, TRUE);
+		$output[] = array(2, TRUE);
+		$output[] = array(3, TRUE);
+		$output[] = array(4, TRUE);
+		
+		return $output;	
+	}
+	
+	/**
+	 * @dataProvider hasManyToManyProvider
+	 */
+	public function testHasManyToMany($user_id, $output)
+	{
+		$user = new User($user_id);
+		$this->assertEquals($output, $user->hasGroups('users_groups'));
+	}
+	
+	
+	public function testHasManyToManyMultipleRoutesNotSpecified()
+	{
+		$this->setExpectedException('fProgrammerException');
+		$user = new User(1);
+		$user->hasGroups();
+	}
+	
+	public function testHasManyToManySingular()
+	{
+		$this->setExpectedException('fProgrammerException');
+		$user = new User(1);
+		$user->hasGroup();
+	}
+	
+	
 	static public function listOneToManyProvider()
 	{
 		$output = array();

@@ -759,6 +759,87 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildWithWhereConditionColumnCompareEqual()
+	{
+		$set = fRecordSet::build('User', array('user_id=:' => 'groups{users_groups}.group_id'));
+		$this->assertEquals(
+			array(1, 2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareNotEqual()
+	{
+		$set = fRecordSet::build('Event', array('start_date!:' => 'end_date'));
+		$this->assertEquals(
+			array(2, 3, 4, 5, 6, 7),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareNotEqual2()
+	{
+		$set = fRecordSet::build('Event', array('start_date!=:' => 'end_date'));
+		$this->assertEquals(
+			array(2, 3, 4, 5, 6, 7),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareNotEqual3()
+	{
+		$set = fRecordSet::build('Event', array('start_date<>:' => 'end_date'));
+		$this->assertEquals(
+			array(2, 3, 4, 5, 6, 7),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareLessThan()
+	{
+		$set = fRecordSet::build('Album', array('album_id<:' => 'top_albums.position'));
+		$this->assertEquals(
+			array(2, 3),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareLessThanEqual()
+	{
+		$set = fRecordSet::build('Album', array('album_id<=:' => 'top_albums.position'));
+		$this->assertEquals(
+			array(1, 2, 3),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareGreaterThan()
+	{
+		$set = fRecordSet::build('Album', array('album_id>:' => 'top_albums.position'));
+		$this->assertEquals(
+			array(4, 5, 6),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareGreaterThanEqual()
+	{
+		$set = fRecordSet::build('Album', array('album_id>=:' => 'top_albums.position'));
+		$this->assertEquals(
+			array(1, 4, 5, 6),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionColumnCompareAggregate()
+	{
+		$set = fRecordSet::build('User', array('count(groups{users_groups}.group_id)=:' => 'count(groups{group_founder}.group_id)'));
+		$this->assertEquals(
+			array(2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
 	public function testBuildWithWhereConditionInvalidColumn()
 	{
 		$this->setExpectedException('fProgrammerException');

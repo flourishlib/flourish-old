@@ -1,3 +1,6 @@
+DROP TABLE events_artists PURGE;
+DROP TABLE event_details PURGE;
+DROP TABLE registrations PURGE;
 DROP TABLE events PURGE;
 DROP SEQUENCE events_event_id_seq;
 DROP TABLE invalid_tables PURGE;

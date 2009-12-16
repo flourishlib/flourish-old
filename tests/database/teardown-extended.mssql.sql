@@ -1,3 +1,6 @@
+DROP TABLE events_artists;
+DROP TABLE event_details;
+DROP TABLE registrations;
 DROP TABLE events;
 DROP TABLE invalid_tables;
 DROP TABLE top_albums;

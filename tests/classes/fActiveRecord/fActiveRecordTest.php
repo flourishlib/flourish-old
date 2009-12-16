@@ -10,7 +10,16 @@ class UserDetail extends fActiveRecord { }
 class RecordDeal extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
 class FavoriteAlbum extends fActiveRecord { }
-class YearFavoriteAlbum extends fActiveRecord { }
+class YearFavoriteAlbum extends fActiveRecord
+{
+	public function getTwoDigitYear()
+	{
+		return '<em>"' . substr($this->getYear(), -2) . '"</em>';
+	}	
+}
+class Event extends fActiveRecord { }
+class Registration extends fActiveRecord { }
+class EventDetail extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
  
 function changed($object, &$values, &$old_values, &$related_records, &$cache, $method, &$parameters) {
@@ -29,6 +38,7 @@ class fActiveRecordTest extends PHPUnit_Framework_TestSuite
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->query(file_get_contents(DB_SETUP_FILE));
 		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		$db->clearCache();
 		$this->sharedFixture = $db;
 	}
  
@@ -385,6 +395,26 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		);	
 	}
 	
+	public function testEncodeOnCustomGetMethod()
+	{
+		$user = new YearFavoriteAlbum(array('email' => 'will@flourishlib.com', 'year' => '2009', 'position' => 1));
+			
+		$this->assertEquals(
+			'&lt;em&gt;&quot;09&quot;&lt;/em&gt;',
+			$user->encodeTwoDigitYear()
+		);	
+	}
+	
+	public function testPrepareOnCustomGetMethod()
+	{
+		$user = new YearFavoriteAlbum(array('email' => 'will@flourishlib.com', 'year' => '2009', 'position' => 1));
+			
+		$this->assertEquals(
+			'<em>&quot;09&quot;</em>',
+			$user->prepareTwoDigitYear()
+		);	
+	}
+	
 	public function testBadMapping()
 	{
 		$this->setExpectedException('fProgrammerException');
@@ -406,9 +436,113 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 			$user->getUserId()	
 		);		
 	}
+	
+	public function testDeleteRestrictOneToMany()
+	{
+		$this->setExpectedException('fValidationException');
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->store();
+		
+		$registration = new Registration();
+		$registration->setEventId($event->getEventId());
+		$registration->setName('Will');
+		$registration->store();
+		
+		$event->delete();		
+	}
+	
+	public function testDeleteForceCascadeOneToMany()
+	{
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->store();
+		
+		$registration = new Registration();
+		$registration->setEventId($event->getEventId());
+		$registration->setName('Will');
+		$registration->store();
+		
+		$event->delete(TRUE);
+		
+		$this->assertEquals(
+			FALSE,
+			$event->exists()	
+		);		
+	}
+	
+	public function testDeleteRestrictOneToOne()
+	{
+		$this->setExpectedException('fValidationException');
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->store();
+		
+		$event_detail = new EventDetail();
+		$event_detail->setEventId($event->getEventId());
+		$event_detail->setAllowsRegistration(TRUE);
+		$event_detail->store();
+		
+		$event->delete();		
+	}
+	
+	public function testDeleteForceCascadeOneToOne()
+	{
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->store();
+		
+		$event_detail = new EventDetail();
+		$event_detail->setEventId($event->getEventId());
+		$event_detail->setAllowsRegistration(TRUE);
+		$event_detail->store();
+		
+		$event->delete(TRUE);
+		
+		$this->assertEquals(
+			FALSE,
+			$event->exists()	
+		);		
+	}
+	
+	public function testDeleteRestrictManyToMany()
+	{
+		$this->setExpectedException('fValidationException');
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->associateArtists(array(1));
+		$event->store();
+		
+		$event->delete();		
+	}
+	
+	public function testDeleteForceCascadeManyToMany()
+	{
+		$event = new Event();
+		$event->setTitle('Delete Restrict Event');
+		$event->setStartDate(new fDate());
+		$event->associateArtists(array(1));
+		$event->store();
+		
+		$event->delete(TRUE);
+		
+		$this->assertEquals(
+			FALSE,
+			$event->exists()	
+		);		
+	}
 
 	public function tearDown()
 	{
+		$this->sharedFixture->query('DELETE FROM events_artists');
+		$this->sharedFixture->query('DELETE FROM event_details');
+		$this->sharedFixture->query('DELETE FROM registrations');
+		$this->sharedFixture->query('DELETE FROM events WHERE event_id > 9');
 		$this->sharedFixture->query('DELETE FROM users WHERE user_id > 4');
 		__reset();	
 	}

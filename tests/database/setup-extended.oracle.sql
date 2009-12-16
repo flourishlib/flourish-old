@@ -71,6 +71,23 @@ BEGIN
 END\;
 ;
 
+CREATE TABLE registrations (
+	event_id INTEGER NOT NULL REFERENCES events(event_id),
+	name VARCHAR(255) NOT NULL,
+	PRIMARY KEY(event_id, name)
+);
+
+CREATE TABLE event_details (
+	event_id INTEGER NOT NULL PRIMARY KEY REFERENCES events(event_id),
+	allows_registration NUMBER(1) NOT NULL CHECK(allows_registration IN (0,1))
+);
+
+CREATE TABLE events_artists (
+	event_id INTEGER NOT NULL REFERENCES events(event_id),
+	artist_id INTEGER NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+	PRIMARY KEY(event_id, artist_id)
+);
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');

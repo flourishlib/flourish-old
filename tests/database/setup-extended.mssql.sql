@@ -47,6 +47,23 @@ CREATE TABLE events (
 	end_date DATETIME NULL
 );
 
+CREATE TABLE registrations (
+	event_id INTEGER NOT NULL REFERENCES events(event_id) ON DELETE NO ACTION,
+	name VARCHAR(255) NOT NULL,
+	PRIMARY KEY(event_id, name)
+);
+
+CREATE TABLE event_details (
+	event_id INTEGER NOT NULL PRIMARY KEY REFERENCES events(event_id) ON DELETE NO ACTION,
+	allows_registration BIT NOT NULL
+);
+
+CREATE TABLE events_artists (
+	event_id INTEGER NOT NULL REFERENCES events(event_id) ON DELETE NO ACTION,
+	artist_id INTEGER NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+	PRIMARY KEY(event_id, artist_id)
+);
+
 BEGIN TRANSACTION;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
