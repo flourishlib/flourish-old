@@ -28,7 +28,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$image = new fImage($file_path);
 		$new_image = $image->duplicate('output/');
 		
-		list ($base, $extension) = explode('.', $new_image->getFilename());
+		list ($base, $extension) = explode('.', $new_image->getName());
 		$new_image->rename($base . FILE_PREFIX . '_resize_200x200.' . $extension, FALSE);
 		
 		$new_image->resize(200, 200);
@@ -43,7 +43,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$image = new fImage($file_path);
 		$new_image = $image->duplicate('output/');
 		
-		list ($base, $extension) = explode('.', $new_image->getFilename());
+		list ($base, $extension) = explode('.', $new_image->getName());
 		$new_image->rename($base . FILE_PREFIX . '_desaturate.' . $extension, FALSE);
 		
 		$new_image->desaturate();
@@ -58,7 +58,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$image = new fImage($file_path);
 		$new_image = $image->duplicate('output/');
 		
-		list ($base, $extension) = explode('.', $new_image->getFilename());
+		list ($base, $extension) = explode('.', $new_image->getName());
 		$new_image->rename($base . FILE_PREFIX . '_crop_to_ratio_1x2.' . $extension, FALSE);
 		
 		$new_image->cropToRatio(100, 200);
@@ -73,7 +73,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$image = new fImage($file_path);
 		$new_image = $image->duplicate('output/');
 		
-		list ($base, $extension) = explode('.', $new_image->getFilename());
+		list ($base, $extension) = explode('.', $new_image->getName());
 		$new_image->rename($base . FILE_PREFIX . '_crop_300x300-200x200.' . $extension, FALSE);
 		
 		$new_image->crop(300, 300, 200, 200);
