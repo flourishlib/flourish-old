@@ -24,6 +24,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
 		try {
 			// Clean up the testCreateTable() tables
 			$db->query('DROP TABLE unicode_test');
+			$db->query('DROP TABLE unicode_test_2');
 			$db->query('DROP TABLE translation_test_2');
 			$db->query('DROP TABLE translation_test');
 			if ($db->getType() == 'oracle') {
@@ -698,6 +699,54 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				'varchar_col_2'   => "সুকুমার রায়",
 				'char_col'        => "Ελλάς",
 				'text_col'        => "Ђорђе Балашевић"
+			),
+			$res->fetchRow()	
+		);
+	}
+	
+	
+	public function testUnicodeSubSelect()
+	{
+		$this->db->translatedQuery(
+			"CREATE TABLE unicode_test_2 (
+				unicode_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
+				varchar_col VARCHAR(100) NULL,
+				varchar_col_2 VARCHAR(100) NULL,
+				char_col VARCHAR(10) NULL,
+				text_col VARCHAR(100) NULL
+			)"
+		);
+		
+		$this->db->getSQLTranslation()->clearCache();
+		$this->db->clearCache();
+		
+		$this->db->translatedQuery(
+			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
+			"Արամ Խաչատրյան",
+			"সুকুমার রায়",
+			"Ελλάς",
+			"Ђорђе Балашевић"
+		);
+		$this->db->translatedQuery(
+			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
+			"Արամ Խաչատրյան",
+			"Test1",
+			"Test1",
+			"Test1"
+		);
+		$this->db->translatedQuery(
+			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
+			"ամ Խաչատրյան",
+			"Test2",
+			"Test2",
+			"Test2"
+		);
+		
+		$res = $this->db->translatedQuery("SELECT varchar_col, varchar_col_2 FROM unicode_test_2 ut INNER JOIN (SELECT ut2.varchar_col AS varchar_col_3 FROM unicode_test_2 ut2 inner join unicode_test_2 ut3 ON ut2.unicode_test_id = ut3.unicode_test_id) ss ON ut.varchar_col = ss.varchar_col_3");
+		$this->assertEquals(
+			array(
+				'varchar_col'     => "Արամ Խաչատրյան",
+				'varchar_col_2'   => "সুকুমার রায়"
 			),
 			$res->fetchRow()	
 		);
