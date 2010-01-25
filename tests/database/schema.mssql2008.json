@@ -1,0 +1,640 @@
+{
+	"column_info": {
+		"albums": {
+			"album_id": {
+				"auto_increment": true,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"artist_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"genre": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": "",
+				"max_length": 100,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"msrp": {
+				"auto_increment": false,
+				"decimal_places": 2,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%f",
+				"type": "float",
+				"valid_values": null
+			},
+			"name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"year_released": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		},
+		"artists": {
+			"artist_id": {
+				"auto_increment": true,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			}
+		},
+		"groups": {
+			"group_founder": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"group_id": {
+				"auto_increment": true,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"group_leader": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			}
+		},
+		"owns_on_cd": {
+			"album_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"user_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		},
+		"owns_on_tape": {
+			"album_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"user_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		},
+		"songs": {
+			"album_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"length": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%t",
+				"type": "time",
+				"valid_values": null
+			},
+			"name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"song_id": {
+				"auto_increment": true,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"track_number": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		},
+		"users": {
+			"birthday": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%d",
+				"type": "date",
+				"valid_values": null
+			},
+			"date_created": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%p",
+				"type": "timestamp",
+				"valid_values": null
+			},
+			"email_address": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 200,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"first_name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 100,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"hashed_password": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 100,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"is_validated": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": false,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%b",
+				"type": "boolean",
+				"valid_values": null
+			},
+			"last_name": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": 100,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"middle_initial": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": "",
+				"max_length": 100,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null
+			},
+			"status": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": "Active",
+				"max_length": 8,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": ["Active", "Inactive", "Pending"]
+			},
+			"time_of_last_login": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%t",
+				"type": "time",
+				"valid_values": null
+			},
+			"times_logged_in": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": 0,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"user_id": {
+				"auto_increment": true,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		},
+		"users_groups": {
+			"group_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			},
+			"user_id": {
+				"auto_increment": false,
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null
+			}
+		}
+	},
+	"keys": {
+		"albums": {
+			"foreign": [{
+				"column": "artist_id",
+				"foreign_table": "artists",
+				"foreign_column": "artist_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["album_id"],
+			"unique": [["artist_id", "name"]]
+		},
+		"artists": {
+			"foreign": [],
+			"primary": ["artist_id"],
+			"unique": [["name"]]
+		},
+		"groups": {
+			"foreign": [{
+				"column": "group_founder",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			},
+			{
+				"column": "group_leader",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["group_id"],
+			"unique": [["name"]]
+		},
+		"owns_on_cd": {
+			"foreign": [{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			},
+			{
+				"column": "user_id",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["album_id", "user_id"],
+			"unique": []
+		},
+		"owns_on_tape": {
+			"foreign": [{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			},
+			{
+				"column": "user_id",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["album_id", "user_id"],
+			"unique": []
+		},
+		"songs": {
+			"foreign": [{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["song_id"],
+			"unique": [["track_number", "album_id"]]
+		},
+		"users": {
+			"foreign": [],
+			"primary": ["user_id"],
+			"unique": [["email_address"]]
+		},
+		"users_groups": {
+			"foreign": [{
+				"column": "group_id",
+				"foreign_table": "groups",
+				"foreign_column": "group_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			},
+			{
+				"column": "user_id",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"primary": ["group_id", "user_id"],
+			"unique": []
+		}
+	},
+	"relationships": {
+		"albums": {
+			"many-to-many": [{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "users",
+				"related_column": "user_id",
+				"join_table": "owns_on_cd",
+				"join_column": "album_id",
+				"join_related_column": "user_id",
+				"on_update": "cascade",
+				"on_delete": "cascade"
+			},
+			{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "users",
+				"related_column": "user_id",
+				"join_table": "owns_on_tape",
+				"join_column": "album_id",
+				"join_related_column": "user_id",
+				"on_update": "cascade",
+				"on_delete": "cascade"
+			}],
+			"many-to-one": [{
+				"table": "albums",
+				"column": "artist_id",
+				"related_table": "artists",
+				"related_column": "artist_id"
+			}],
+			"one-to-many": [{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "songs",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"one-to-one": []
+		},
+		"artists": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [{
+				"table": "artists",
+				"column": "artist_id",
+				"related_table": "albums",
+				"related_column": "artist_id",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"one-to-one": []
+		},
+		"groups": {
+			"many-to-many": [{
+				"table": "groups",
+				"column": "group_id",
+				"related_table": "users",
+				"related_column": "user_id",
+				"join_table": "users_groups",
+				"join_column": "group_id",
+				"join_related_column": "user_id",
+				"on_update": "no_action",
+				"on_delete": "no_action"
+			}],
+			"many-to-one": [{
+				"table": "groups",
+				"column": "group_founder",
+				"related_table": "users",
+				"related_column": "user_id"
+			},
+			{
+				"table": "groups",
+				"column": "group_leader",
+				"related_table": "users",
+				"related_column": "user_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"owns_on_cd": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"owns_on_tape": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"songs": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "songs",
+				"column": "album_id",
+				"related_table": "albums",
+				"related_column": "album_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"users": {
+			"many-to-many": [{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "albums",
+				"related_column": "album_id",
+				"join_table": "owns_on_cd",
+				"join_column": "user_id",
+				"join_related_column": "album_id",
+				"on_update": "cascade",
+				"on_delete": "cascade"
+			},
+			{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "albums",
+				"related_column": "album_id",
+				"join_table": "owns_on_tape",
+				"join_column": "user_id",
+				"join_related_column": "album_id",
+				"on_update": "cascade",
+				"on_delete": "cascade"
+			},
+			{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "groups",
+				"related_column": "group_id",
+				"join_table": "users_groups",
+				"join_column": "user_id",
+				"join_related_column": "group_id",
+				"on_update": "cascade",
+				"on_delete": "cascade"
+			}],
+			"many-to-one": [],
+			"one-to-many": [{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "groups",
+				"related_column": "group_founder",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			},
+			{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "groups",
+				"related_column": "group_leader",
+				"on_delete": "cascade",
+				"on_update": "cascade"
+			}],
+			"one-to-one": []
+		},
+		"users_groups": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		}
+	},
+	"tables": ["albums", "artists", "blobs", "groups", "owns_on_cd", "owns_on_tape", "songs", "users", "users_groups"]
+}

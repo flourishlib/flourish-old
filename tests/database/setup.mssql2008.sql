@@ -7,8 +7,8 @@ CREATE TABLE users (
 	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created DATETIME NOT NULL,
-	birthday DATETIME NULL,
-	time_of_last_login DATETIME NULL,
+	birthday DATE NULL,
+	time_of_last_login TIME NULL,
 	is_validated BIT NOT NULL DEFAULT 0,
 	hashed_password VARCHAR(100) NOT NULL
 );
@@ -44,7 +44,7 @@ CREATE TABLE albums (
 CREATE TABLE songs (
 	song_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
-	length DATETIME NOT NULL,
+	length TIME NOT NULL,
 	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	track_number INTEGER NOT NULL,
 	UNIQUE(track_number, album_id)

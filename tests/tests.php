@@ -32,6 +32,8 @@ if (!$phpbin) {
 	$phpbin  = trim(`which php`);
 }
 
+$phpunit_version = preg_replace('#[^0-9\.]+#', '', `$phpunit --version`);
+
 
 /* ------------------------------------------------------------------ */
 /* Find dynmically loaded extensions
@@ -41,32 +43,42 @@ $output = `$phpbin $params -r "phpinfo(INFO_GENERAL);"`;
 preg_match('#^Configuration File \(php.ini\) Path => (.*)$#m', $output, $matches);
 $path = $matches[1];
 if (is_dir($path)) {
-	$path .= DIRECTORY_SEPARATOR . 'php.ini';	
+	$path .= DIRECTORY_SEPARATOR . 'php.ini';
 }
 if (!file_exists($path) && preg_match('#^Loaded Configuration File => (.+)$#m', $output, $matches)) {
-	$path = $matches[1]; 		
+	$path = $matches[1]; 
 }
 
 preg_match('#additional \.ini files parsed => ((?!\(none\))[^\n]+(\n[a-zA-Z0-9\.\-\_\\\\\/\:]+,?[^\n]*)*)#', $output, $matches);
 if (!empty($matches)) {
 	$paths = array_map('trim', explode(',', $matches[1]));
 } else {
-	$paths = array();	
+	$paths = array();
 }
 array_unshift($paths, $path);
 
 $exts = array();
+
+// These are extensions that may conflict with one another such as APC/XCache that should only be loaded if required
+$lazy_load_exts = array();
+
 foreach ($paths as $path) {
 	foreach (file($path) as $line) {
 		$line = trim($line);
+		$lazy_load = FALSE;
+		if ($line && (substr($line, 0, 19) == '#flourish extension' || substr($line, 0, 24) == '#flourish zend_extension')) {
+			$lazy_load = TRUE;
+			$line = substr($line, 10);
+			
+		}
 		if (!$line || $line[0] == '[' || $line[0] == ';' || $line[0] == '#') {
 			continue;
 		}	
 		if (strtolower(substr($line, 0, 9)) != 'extension' && strtolower(substr($line, 0, 14)) != 'zend_extension') {
-			continue;	
+			continue;
 		}
 		if (stripos($line, 'zend_extension_manager') !== FALSE || stripos($line, 'ZendExtensionManager') !== FALSE) {
-			continue;	
+			continue;
 		}
 		if (stripos($line, 'extension_dir') === 0) {
 			continue;
@@ -74,15 +86,18 @@ foreach ($paths as $path) {
 		$line = trim(preg_replace('/[;#].*$/m', '', $line));
 		list($type,$file) = array_map('trim', explode('=', $line));
 		if (preg_match('#^(\'|").*(\'|")$#', $file)) {
-			$file = substr($file, 1, -1);	
+			$file = substr($file, 1, -1);
 		}
 		preg_match('#(?:php_)?([a-zA-Z0-9\_\-\.]+)\.\w+$#', $file, $match);
 		$ext = $match[1];
 		if ($ext == 'gd2') {
-			$ext = 'gd';	
+			$ext = 'gd';
 		}
 		if ($ext == 'sqlsrv_ts') {
-			$ext = 'sqlsrv';	
+			$ext = 'sqlsrv';
+		}
+		if ($lazy_load) {
+			$lazy_load_exts[] = $ext;
 		}
 		$exts[$ext] = '-d ' . $type . '="' . $file . '"';
 	}
@@ -101,24 +116,39 @@ function make_defines($exts, $exts_to_remove) {
 /* ------------------------------------------------------------------ */
 /* Determine the revision or class we are testing
 /* ------------------------------------------------------------------ */
-$revision = NULL;
-$classes  = array();
+$revision          = NULL;
+$classes           = array();
 $classes_to_remove = array();
-$config_matches = array();
+$config_matches    = array();
+$format            = 'shell';
+$db_name           = 'flourish';
 		
 if (!empty($_SERVER['argc'])) {
-	if (sizeof($_SERVER['argv']) == 2 && is_numeric($_SERVER['argv'][1])) {
-		$revision = $_SERVER['argv'][1];	
-	} else {
-		foreach (array_slice($_SERVER['argv'], 1) as $class) {
-			if ($class[0] == '-') {
-				$classes_to_remove[] = substr($class, 1);	
-			} elseif ($class[0] == ':') {
-				$config_matches[] = str_replace('*', '.*', substr($class, 1));
-			} else {
-				$classes[] = $class;	
-			}
-		} 		
+	foreach (array_slice($_SERVER['argv'], 1) as $arg) {
+		// Numeric params are the revision to test
+		if (is_numeric($arg)) {
+			$revision = $arg;
+		
+		// Params that start with - remove a class from the list
+		} elseif ($arg[0] == '-') {
+			$classes_to_remove[] = substr($arg, 1);	
+			
+		// Params that start with : filter the configs for a class
+		} elseif ($arg[0] == ':') {
+			$config_matches[] = str_replace('*', '.*', substr($arg, 1));
+		
+		// Params that start with . are the output format
+		} elseif ($arg[0] == '.') {
+			$format = substr($arg, 1);
+		
+		// Params that start with @ are the db name
+		} elseif ($arg[0] == '#') {
+			$db_name = substr($arg, 1);
+			
+		// All other params are classes
+		} else {
+			$classes[] = $arg;
+		}
 	}
 }
 
@@ -160,7 +190,7 @@ foreach ($class_dirs as $class_dir) {
 		// Ignore anything that isn't a PHP script with Test in the filename
 		// this allows us to ignore .configs and other supporting files
 		if (!preg_match('#^.*Test.*\.php$#', $class_test)) {
-			continue;	
+			continue;
 		}
 		
 		$test_name = preg_replace('#\.php$#i', '', $class_test);
@@ -175,7 +205,7 @@ foreach ($class_dirs as $class_dir) {
 				if ($option && $option[0] == '#') { continue; }
 				list($name, $os, $required_exts, $disabled_exts, $defines, $bootstrap) = explode(';', trim($option));
 				if ($config_regex && !preg_match($config_regex, $name)) {
-					continue;	
+					continue;
 				}
 				if ($os && stripos(php_uname('s'), $os) === FALSE) {
 					continue;
@@ -191,21 +221,32 @@ foreach ($class_dirs as $class_dir) {
 						if (strpos($required_ext, '&') !== FALSE) {
 							$has_all = TRUE;
 							foreach (explode('&', $required_ext) as $one_required_ext) {
-								$has_all = $has_all && extension_loaded($one_required_ext);
+								$has_all = $has_all && (extension_loaded($one_required_ext) || isset($exts[$required_ext]));
 							}	
 							$has_ext = $has_ext || $has_all;
 						} else {
-							$has_ext = $has_ext || extension_loaded($required_ext);
+							$has_ext = $has_ext || extension_loaded($required_ext) || isset($exts[$required_ext]);
 						}
 					}
 				}
 				if ($has_ext) {
-					$defines2 = make_defines($exts, $disabled_exts);
+					$defines2 = make_defines(
+						$exts,
+						// Add any non-required lazy-load extensions
+						// to the list of disabled extensions for this run
+						array_merge(
+							$disabled_exts,
+							array_diff(
+								$lazy_load_exts,
+								explode('|', $required_exts)
+							)
+						)
+					);
 					$configs[$name] = "$phpbin -n $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '') ;
 				}
 			}	
 		} else {
-			$configs[''] = "$phpunit";	
+			$configs[''] = "$phpunit";
 		}
 		
 		/* ---------------------------------------------------------- */
@@ -218,7 +259,8 @@ foreach ($class_dirs as $class_dir) {
 			}
 			
 			//echo "$config --log-tap ./tap --log-xml ./xml $test_name $test_file\n";
-			$output = trim(`$config --log-tap tap --log-xml xml $test_name $test_file 2> errors`);	
+			$xml_flag = version_compare($phpunit_version, '3.4', '<') ? '--log-xml' : '--log-junit';
+			$output = trim(`$config --log-tap tap $xml_flag xml $test_name $test_file 2> errors`);
 			
 			//echo $output;
 			
@@ -231,7 +273,7 @@ foreach ($class_dirs as $class_dir) {
 			
 			if (preg_match_all('#<pre class="exposed">(.*?)</pre>#ims', $output, $matches)) {
 				foreach ($matches[1] as $match) {
-					echo html_entity_decode($match, ENT_COMPAT, 'utf-8') . "\n";	
+					echo html_entity_decode($match, ENT_COMPAT, 'utf-8') . "\n";
 				}
 			}
 			
@@ -253,7 +295,7 @@ foreach ($class_dirs as $class_dir) {
 					unlink('./tap');
 				}
 				$php_errors++;
-				continue;		
+				continue;
 			}
 			
 			// Read the XML file in
@@ -299,16 +341,21 @@ foreach ($class_dirs as $class_dir) {
 			}
 			
 			// Match all of the result messages
-			preg_match_all('#^(ok|not ok) (\d+) - (Failure: |Error: )?(\w+)\((\w+)\)(?:(( with data set \#\d+) [^\n]*)?|\s*)$#ims', $result, $matches, PREG_SET_ORDER);
+			preg_match_all('#^(ok|not ok) (\d+) - (Failure: |Error: )?(?:(\w+)\((\w+)\)|(\w+::\w+))(?:(( with data set \#\d+) [^\n]*)?|\s*)$#ims', $result, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$result = array();
 				$result['success'] = ($match[1] == 'ok') ? TRUE : FALSE;
-				$result['name'] = $match[5] . '::' . $match[4] . "()" . (isset($match[6]) ? $match[6] : '');
+				
+				if (!empty($match[6])) {
+					list($match[5], $match[4]) = explode('::', $match[6]);
+				}
+				
+				$result['name'] = $match[5] . '::' . $match[4] . "()" . (isset($match[7]) ? $match[7] : '');
 				
 				// If there was an error, grab the message
 				if ($match[1] != 'ok') {
 					$testcase_idx = $match[2]-1;
-					$key = $match[4] . (isset($match[7]) ? $match[7] : '');
+					$key = $match[4] . (isset($match[8]) ? $match[8] : '');
 					$testcase = $testcases[$key];
 					
 					if ($match[3] == 'Failure: ') {
@@ -330,9 +377,7 @@ foreach ($class_dirs as $class_dir) {
 }
 
 
-// If a revision is passed the output is for the unit test
-// page on the site, so let's make some HTML
-if ($revision) {
+if ($format == 'html') {
 	
 	?>
 	<div class="revision <?php echo ($failures == 0) ? 'success' : 'failure'  ?>">
@@ -345,8 +390,22 @@ if ($revision) {
 	</div>
 	<?php	
 	
-// If the script was called without a revision number, this is probably
-// being used during developement, so we format for terminal output
+} elseif ($format == 'php') {
+	
+	$output = array();
+	$output['failures'] = array();
+	
+	foreach ($results as $result) {
+		if (!$result['success']) {
+			$key   = $result['config_name'] . " " . $result['name'];
+			$error = $result['error'];
+			$output['failures'][$key] = $error;
+		}
+	}	
+	$output['total_tests'] = $total_tests;
+	$output['php_errors']  = $php_errors;
+	echo serialize($output);
+	
 } else {
 	
 	if ($failures) { echo "\n"; }
@@ -366,10 +425,10 @@ if ($revision) {
 	}
 	echo ($total_tests-$failures) . '/' . $total_tests . " TESTS SUCCEEDED";
 	if ($php_errors) {
-		echo ", " . $php_errors . " PHP " . ($php_errors == 1 ? 'ERROR' : 'ERRORS');		
+		echo ", " . $php_errors . " PHP " . ($php_errors == 1 ? 'ERROR' : 'ERRORS');
 	}
 	if (!$windows) {
 		echo "\033[0m";
 	}
 	echo "\n";
-}      
+}

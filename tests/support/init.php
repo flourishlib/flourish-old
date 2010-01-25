@@ -23,9 +23,7 @@ function __autoload($class_name)
 	if (file_exists($file)) {
 		require_once($file);
 		return;
-	}        
-	
-	die('The class ' . $class_name . ' could not be loaded');
+	}
 }
 
 

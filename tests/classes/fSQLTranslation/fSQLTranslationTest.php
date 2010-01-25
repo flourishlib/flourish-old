@@ -30,6 +30,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
 			if ($db->getType() == 'oracle') {
 				$db->query('DROP SEQUENCE unicode_test_unicode_test__seq');
 				$db->query('DROP SEQUENCE translation_test_translati_seq');
+				$db->query('DROP SEQUENCE unicode_test_2_unicode_tes_seq');
+				$db->query('DROP SEQUENCE translation_test_2_transla_seq');
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();	

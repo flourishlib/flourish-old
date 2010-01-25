@@ -929,7 +929,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildFromSQLDistinct()
 	{
-		$set = fRecordSet::buildFromSQL('User', "SELECT DISTINCT users.* FROM users");
+		$set = fRecordSet::buildFromSQL('User', "SELECT DISTINCT users.* FROM users ORDER BY users.user_id ASC");
 		$this->assertEquals(
 			array(1, 2, 3, 4),
 			$set->getPrimaryKeys()

@@ -8,6 +8,9 @@ MySQL;;mysql;mysqli,pdo_mysql;;database/config.mysql.php
 MSSQL;;mssql;sqlsrv,pdo_dblib;;database/config.mssql.php
 MSSQL SQLSRV;;sqlsrv;mssql,pdo_dblib;;database/config.mssql.php
 MSSQL PDO;;pdo_dblib;mssql;;database/config.mssql.php
+MSSQL 2008;;mssql;sqlsrv,pdo_dblib;;database/config.mssql2008.php
+MSSQL 2008 SQLSRV;;sqlsrv;mssql,pdo_dblib;;database/config.mssql2008.php
+MSSQL 2008 PDO;;pdo_dblib;mssql;;database/config.mssql2008.php
 MSSQL ODBC;windows;odbc;pdo_odbc;;database/config.mssqlodbc.php
 MSSQL PDO ODBC;windows;pdo_odbc;odbc;;database/config.mssqlodbc.php
 Oracle OCI8;;oci8;pdo_oci;;database/config.oracle.php
