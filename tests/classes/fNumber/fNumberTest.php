@@ -5,7 +5,9 @@ class fNumberTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-		
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}	
 	}
 	
 	public static function constructProvider()

@@ -10,10 +10,11 @@ class fSchemaTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		
-		$sql = file_get_contents(DB_SETUP_FILE);
-		$result = $db->query($sql);
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		
 		$this->sharedFixture = array(
 			'db' => $db,
@@ -23,9 +24,11 @@ class fSchemaTest extends PHPUnit_Framework_TestSuite
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture['db'];
-		$sql = file_get_contents(DB_TEARDOWN_FILE);        
-		$result = $db->query($sql);
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
  
@@ -37,6 +40,9 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db         = $this->sharedFixture['db'];
 		$this->schema_obj = new fSchema($this->db);
 		$this->schema     = $this->sharedFixture['schema'];

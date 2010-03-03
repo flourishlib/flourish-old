@@ -86,12 +86,6 @@ INSERT INTO record_labels (name) VALUES ('Sony Music Entertainment');
 INSERT INTO record_deals (record_label, artist_id) VALUES ('EMI', 1);
 INSERT INTO record_deals (record_label, artist_id) VALUES ('Sony Music Entertainment', 2);
 
-INSERT INTO artists (name) VALUES ('Relient K');
-INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Mmhmm', 2004, '12.99', 'Alternative', 3);
-INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Five Score and Seven Years Ago', 2007, '12.99', 'Alternative', 3);
-INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Forget and Not Slow Down', 2009, '12.99', 'Alternative', 3);
-INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Two Lefts Don''t Make a Right...but Three Do', 2003, '11.99', 'Alternative', 3);
-
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 2, 1);
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 1, 2);
 INSERT INTO favorite_albums (email, album_id, position) VALUES ('will@flourishlib.com', 3, 3);

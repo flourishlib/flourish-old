@@ -5,7 +5,9 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-		
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}	
 	}
 	
 	public static function decode2Provider()
@@ -149,8 +151,8 @@ class fJSONTest extends PHPUnit_Framework_TestCase
 		$class2->mytype = 0;
 		$class2->_php_class = null;
 
-		$failure_array = version_compare(PHP_VERSION, '5.2.9', '>=') || !function_exists('json_encode') ? array("Günter, Elène", 'null') : array("Günter, Elène", '"G"');
-		$failure_array_2 = version_compare(PHP_VERSION, '5.2.9', '>=') || !function_exists('json_encode') ? array(array("Günter, Elène"), '[null]') : array(array("Günter, Elène"), '["G"]');
+		$failure_array = version_compare(PHP_VERSION, '5.2.8', '>=') || !function_exists('json_encode') ? array("Günter, Elène", 'null') : array("Günter, Elène", '"G"');
+		$failure_array_2 = version_compare(PHP_VERSION, '5.2.8', '>=') || !function_exists('json_encode') ? array(array("Günter, Elène"), '[null]') : array(array("Günter, Elène"), '["G"]');
 		
 		return array(
 			array(true, "true"),

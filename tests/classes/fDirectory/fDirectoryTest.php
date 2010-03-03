@@ -37,7 +37,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 	public function testToString()
 	{
 		$dir = new fDirectory('output/fDirectory/');
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/', $dir->__toString());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/'), $dir->__toString());
 	}
 	
 	public function testGetName()
@@ -56,7 +56,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 	public function testGetPath()
 	{
 		$dir = new fDirectory('output/fDirectory/');
-		$this->assertEquals('/output/fDirectory/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $dir->getPath()));
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, '/output/fDirectory/'), str_replace($_SERVER['DOCUMENT_ROOT'], '', $dir->getPath()));
 	}
 	
 	public function testGetSize()
@@ -70,7 +70,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		$dir = new fDirectory('output/fDirectory/');
 		$dir->rename('fDirectory3', TRUE);
 		$this->assertEquals('fDirectory3', $dir->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/', $dir->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/'), $dir->getParent()->getPath());
 	}
 	
 	public function testRenameAnotherDirectory()
@@ -78,7 +78,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		$dir = fDirectory::create('output/fDirectory2/');
 		$dir->rename('output/fDirectory/fDirectory3', TRUE);
 		$this->assertEquals('fDirectory3', $dir->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/', $dir->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/'), $dir->getParent()->getPath());
 	}
 	
 	public function testMove()
@@ -86,7 +86,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		$dir = fDirectory::create('output/fDirectory2/');
 		$dir->move('output/fDirectory/', TRUE);
 		$this->assertEquals('fDirectory2', $dir->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/', $dir->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fDirectory/'), $dir->getParent()->getPath());
 	}
 	
 	public function tearDown()

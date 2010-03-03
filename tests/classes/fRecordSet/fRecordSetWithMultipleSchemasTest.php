@@ -28,6 +28,15 @@ function _tally($value, $record)
 	return $value;	
 }
 
+function fix_schema($input)
+{
+	if (DB_TYPE != 'oracle') {
+		return $input;	
+	}
+	$input = str_replace('flourish2.', DB_SECOND_SCHEMA . '.', $input);
+	return str_replace('flourish_role', DB_NAME . '_role', $input);	
+}
+
 class fRecordSetWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 {
 	public static function suite()
@@ -37,26 +46,32 @@ class fRecordSetWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 	
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		$db->query(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE));
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
 		$db->clearCache();
 		fORMDatabase::attach($db);
 		$this->sharedFixture = $db;
 		
-		fORM::mapClassToTable('Flourish2User', 'flourish2.users');
-		fORM::mapClassToTable('Flourish2Group', 'flourish2.groups');
-		fORM::mapClassToTable('Flourish2Artist', 'flourish2.artists');
-		fORM::mapClassToTable('Flourish2Album', 'flourish2.albums');
+		fORM::mapClassToTable('Flourish2User', fix_schema('flourish2.users'));
+		fORM::mapClassToTable('Flourish2Group', fix_schema('flourish2.groups'));
+		fORM::mapClassToTable('Flourish2Artist', fix_schema('flourish2.artists'));
+		fORM::mapClassToTable('Flourish2Album', fix_schema('flourish2.albums'));
 	}
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
+		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
 
@@ -66,11 +81,27 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		// There seems to be an issue with the sybase driver on netbsd which this
+		// test triggers, causing a segfault
+		if (DB_TYPE == 'mssql' && fCore::checkOS('netbsd')) {
+			$this->markTestSkipped();
+		}
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
 	{
+		// There seems to be an issue with the sybase driver on netbsd which this
+		// test triggers, causing a segfault
+		if (DB_TYPE == 'mssql' && fCore::checkOS('netbsd')) {
+			return;
+		}
+		if (defined('SKIPPING')) {
+			return;
+		}
 		fORMDatabase::retrieve()->enableDebugging(FALSE);
 		fORMRelated::reset();
 	}
@@ -108,16 +139,16 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testPrebuildManyToMany()
 	{
-		fORMRelated::setOrderBys('Flourish2User', 'Flourish2Group', array('group_id' => 'desc'), 'flourish2.users_groups');
+		fORMRelated::setOrderBys('Flourish2User', 'Flourish2Group', array('group_id' => 'desc'), fix_schema('flourish2.users_groups'));
 		
 		$set = fRecordSet::build('Flourish2User');
-		$set->prebuildFlourish2Groups('flourish2.users_groups');
+		$set->prebuildFlourish2Groups(fix_schema('flourish2.users_groups'));
 		
 		ob_start();
 		
 		fORMDatabase::retrieve()->enableDebugging(TRUE);
 		foreach ($set as $user) {
-			$group_ids = $user->listFlourish2Groups('flourish2.users_groups');
+			$group_ids = $user->listFlourish2Groups(fix_schema('flourish2.users_groups'));
 			switch ($user->getUserId()) {
 				case 1:
 					$expected_group_ids = array(1);
@@ -168,13 +199,13 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	public function testPrecountManyToMany()
 	{
 		$set = fRecordSet::build('Flourish2User');
-		$set->precountFlourish2Groups('flourish2.users_groups');
+		$set->precountFlourish2Groups(fix_schema('flourish2.users_groups'));
 		
 		ob_start();
 		
 		fORMDatabase::retrieve()->enableDebugging(TRUE);
 		foreach ($set as $user) {
-			$count = $user->countFlourish2Groups('flourish2.users_groups');
+			$count = $user->countFlourish2Groups(fix_schema('flourish2.users_groups'));
 			switch ($user->getUserId()) {
 				case 1:
 					$expected_count = 1;
@@ -210,7 +241,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 					break;
 				case 3:
 					$expected_count = 1;
-					break;	
+					break;
 			}
 			$this->assertEquals($expected_count, $count);
 		}
@@ -249,7 +280,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableManyToManyRoute()
 	{
-		$set = fRecordSet::build('Flourish2User', array('flourish2.groups{flourish2.users_groups}.name=' => 'Sound Engineers'));
+		$set = fRecordSet::build('Flourish2User', array(fix_schema('flourish2.groups{flourish2.users_groups}.name=') => 'Sound Engineers'));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -258,7 +289,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableOneToManyRoute()
 	{
-		$set = fRecordSet::build('Flourish2User', array('flourish2.groups{group_leader}.name=' => 'Sound Engineers'));
+		$set = fRecordSet::build('Flourish2User', array(fix_schema('flourish2.groups{group_leader}.name=') => 'Sound Engineers'));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -267,7 +298,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableOneToManyRoute2()
 	{
-		$set = fRecordSet::build('Flourish2User', array('flourish2.groups{group_founder}.name=' => 'Sound Engineers'));
+		$set = fRecordSet::build('Flourish2User', array(fix_schema('flourish2.groups{group_founder}.name=') => 'Sound Engineers'));
 		$this->assertEquals(
 			array(2),
 			$set->getPrimaryKeys()
@@ -276,7 +307,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionCount()
 	{
-		$set = fRecordSet::build('Flourish2User', array('count(flourish2.groups{flourish2.users_groups}.group_id)=' => 1));
+		$set = fRecordSet::build('Flourish2User', array(fix_schema('count(flourish2.groups{flourish2.users_groups}.group_id)=') => 1));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -294,7 +325,7 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildFromSQL()
 	{
-		$set = fRecordSet::buildFromSQL('Flourish2User', "SELECT * FROM flourish2.users");
+		$set = fRecordSet::buildFromSQL('Flourish2User', fix_schema("SELECT * FROM flourish2.users"));
 		$this->assertEquals(
 			array(1, 2),
 			$set->getPrimaryKeys()

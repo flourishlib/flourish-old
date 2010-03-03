@@ -10,35 +10,39 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$sql = file_get_contents(DB_SETUP_FILE);
-		$result = $db->query($sql);
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		
 		$this->sharedFixture = $db;
 	}
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture;
 		
 		try {
 			// Clean up the testCreateTable() tables
-			$db->query('DROP TABLE unicode_test');
-			$db->query('DROP TABLE unicode_test_2');
-			$db->query('DROP TABLE translation_test_2');
-			$db->query('DROP TABLE translation_test');
+			$db->execute('DROP TABLE unicode_test');
+			$db->execute('DROP TABLE unicode_test_2');
+			$db->execute('DROP TABLE translation_test_2');
+			$db->execute('DROP TABLE translation_test');
 			if ($db->getType() == 'oracle') {
-				$db->query('DROP SEQUENCE unicode_test_unicode_test__seq');
-				$db->query('DROP SEQUENCE translation_test_translati_seq');
-				$db->query('DROP SEQUENCE unicode_test_2_unicode_tes_seq');
-				$db->query('DROP SEQUENCE translation_test_2_transla_seq');
+				$db->execute('DROP SEQUENCE unicode_test_unicode_test__seq');
+				$db->execute('DROP SEQUENCE translation_test_translati_seq');
+				$db->execute('DROP SEQUENCE unicode_test_2_unicode_tes_seq');
+				$db->execute('DROP SEQUENCE translation_test_2_transla_seq');
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();	
 		}
 		
-		$sql = file_get_contents(DB_TEARDOWN_FILE);        
-		$result = $db->query($sql);
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
  
@@ -48,6 +52,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;	
 	}
 	
@@ -347,6 +354,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCurrentTimestamp()
 	{
+		if (DB_TYPE == 'oracle' && ($this->db->getExtension() == 'odbc' || ($this->db->getExtension() == 'pdo' || substr($this->db->getDatabase(), 0, 4) == 'dsn:'))) {
+			$this->markTestSkipped();
+		}
 		$res = $this->db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
 		$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
 		$this->assertGreaterThanOrEqual(time()-60, $current_timestamp);

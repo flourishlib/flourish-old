@@ -1,6 +1,7 @@
 <?php
 ob_start();
 define('TEST_EXIT_SCRIPT', './support/test_exit.php');
+include_once 'support/constants.php';
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
@@ -26,6 +27,14 @@ function __autoload($class_name)
 	}
 }
 
+function __cache()
+{
+	static $cache = NULL;
+	if (!$cache) {
+		$cache = new fCache('file', 'output/db.cache');
+	}
+	return $cache;	
+}
 
 /**
  * This cleans up all class configurations by calling static reset methods

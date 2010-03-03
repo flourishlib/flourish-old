@@ -83,6 +83,12 @@ BEGIN
 END\;
 ;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON flourish2.users TO flourish_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON flourish2.groups TO flourish_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON flourish2.users_groups TO flourish_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON flourish2.artists TO flourish_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON flourish2.albums TO flourish_role;
+
 BEGIN;
 
 INSERT INTO flourish2.users (first_name, middle_initial, last_name) VALUES ('James', '', 'Doe');

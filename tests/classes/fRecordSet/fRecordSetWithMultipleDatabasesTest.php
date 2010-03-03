@@ -30,13 +30,14 @@ class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
 	
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->clearCache();
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		
 		$db2 = new fDatabase(DB_TYPE, DB_2, DB_2_USERNAME, DB_2_PASSWORD, DB_2_HOST, DB_2_PORT); 
-		$db2->query(file_get_contents(DB_2_SETUP_FILE));
-		$db2->clearCache();
+		$db2->execute(file_get_contents(DB_2_SETUP_FILE));
 		
 		$this->sharedFixture = array($db, $db2);
 		
@@ -50,11 +51,14 @@ class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture[0];
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 		
 		$db2 = $this->sharedFixture[1];
-		$db2->query(file_get_contents(DB_2_TEARDOWN_FILE));
+		$db2->execute(file_get_contents(DB_2_TEARDOWN_FILE));
 		
 		__reset();
 	}
@@ -62,6 +66,13 @@ class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
 
 class fRecordSetWithMultipleDatabasesTestChild extends PHPUnit_Framework_TestCase
 {
+	public function setUp()
+	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+	}
+	
 	public function testCount()
 	{
 		$set = fRecordSet::build('Db2User');

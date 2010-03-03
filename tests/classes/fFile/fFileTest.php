@@ -68,7 +68,7 @@ class fFileTest extends PHPUnit_Framework_TestCase
 	public function testGetPath()
 	{
 		$file = new fFile('output/fFile/one.txt');
-		$this->assertEquals('/output/fFile/one.txt', str_replace($_SERVER['DOCUMENT_ROOT'], '', $file->getPath()));
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, '/output/fFile/one.txt'), str_replace($_SERVER['DOCUMENT_ROOT'], '', $file->getPath()));
 	}
 	
 	public function testGetSize()
@@ -82,7 +82,7 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$file = new fFile('output/fFile/one.txt');
 		$file->rename('three.txt', TRUE);
 		$this->assertEquals('three.txt', $file->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fFile/', $file->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fFile/'), $file->getParent()->getPath());
 	}
 	
 	public function testRenameAnotherDirectory()
@@ -90,7 +90,7 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$file = new fFile('output/fFile/one.txt');
 		$file->rename('output/fFile2/two.txt', TRUE);
 		$this->assertEquals('two.txt', $file->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fFile2/', $file->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fFile2/'), $file->getParent()->getPath());
 	}
 	
 	public function testMove()
@@ -98,7 +98,7 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$file = new fFile('output/fFile/one.txt');
 		$file->move('output/fFile2/', TRUE);
 		$this->assertEquals('one.txt', $file->getName());
-		$this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/output/fFile2/', $file->getParent()->getPath());
+		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fFile2/'), $file->getParent()->getPath());
 	}
 	
 	public function tearDown()

@@ -7,13 +7,13 @@ MySQLi;;mysqli;pdo_mysql,mysql;;database/config.mysql.php
 MySQL;;mysql;mysqli,pdo_mysql;;database/config.mysql.php
 MSSQL;;mssql;sqlsrv,pdo_dblib;;database/config.mssql.php
 MSSQL SQLSRV;;sqlsrv;mssql,pdo_dblib;;database/config.mssql.php
-MSSQL PDO;;pdo_dblib;mssql;;database/config.mssql.php
-MSSQL 2008;;mssql;sqlsrv,pdo_dblib;;database/config.mssql2008.php
-MSSQL 2008 SQLSRV;;sqlsrv;mssql,pdo_dblib;;database/config.mssql2008.php
-MSSQL 2008 PDO;;pdo_dblib;mssql;;database/config.mssql2008.php
+MSSQL PDO;;pdo_dblib;sqlsrv,mssql;;database/config.mssql.php
+#MSSQL 2008;;mssql;sqlsrv,pdo_dblib;;database/config.mssql2008.php
+#MSSQL 2008 SQLSRV;;sqlsrv;mssql,pdo_dblib;;database/config.mssql2008.php
+#MSSQL 2008 PDO;;pdo_dblib;sqlsrv,mssql;;database/config.mssql2008.php
 MSSQL ODBC;windows;odbc;pdo_odbc;;database/config.mssqlodbc.php
 MSSQL PDO ODBC;windows;pdo_odbc;odbc;;database/config.mssqlodbc.php
 Oracle OCI8;;oci8;pdo_oci;;database/config.oracle.php
 Oracle PDO;;pdo_oci;oci8;;database/config.oracle.php
 Oracle ODBC;windows;odbc;pdo_odbc;;database/config.oracleodbc.php
-Oracle PDO ODBC;windows;pdo_odbc;obdc;;database/config.oracleodbc.php
+Oracle PDO ODBC;windows;pdo_odbc;odbc;;database/config.oracleodbc.php

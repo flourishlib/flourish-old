@@ -86,10 +86,15 @@ INSERT INTO users_groups (user_id, group_id) VALUES (4, 1);
 
 INSERT INTO artists (name) VALUES ('The Postal Service');
 INSERT INTO artists (name) VALUES ('Rustic Overtones');
+INSERT INTO artists (name) VALUES ('Relient K');
 
 INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Give Up', 2003, '13.98', 'Alternative', 1);
 INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Viva Nueva!', 2001, '15.99', 'Rock', 2);
 INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Long Division', 1996, '9.99', 'Rock', 2);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Mmhmm', 2004, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Five Score and Seven Years Ago', 2007, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Forget and Not Slow Down', 2009, '12.99', 'Alternative', 3);
+INSERT INTO albums (name, year_released, msrp, genre, artist_id) VALUES ('Two Lefts Don''t Make a Right...but Three Do', 2003, '11.99', 'Alternative', 3);
 
 INSERT INTO songs (name, length, album_id, track_number) VALUES ('The District Sleeps Alone Tonight', '00:04:44', 1, 1);
 INSERT INTO songs (name, length, album_id, track_number) VALUES ('Such Great Heights', '00:04:26', 1, 2);

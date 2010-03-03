@@ -16,7 +16,16 @@ class Flourish2User extends fActiveRecord { }
 class Flourish2Group extends fActiveRecord { }
 class Flourish2Artist extends fActiveRecord { }
 class Flourish2Album extends fActiveRecord { }
- 
+
+function fix_schema($input)
+{
+	if (DB_TYPE != 'oracle') {
+		return $input;	
+	}
+	$input = str_replace('flourish2.', DB_SECOND_SCHEMA . '.', $input);
+	return str_replace('flourish_role', DB_NAME . '_role', $input);
+}
+
 class fActiveRecordWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 {
 	public static function suite()
@@ -26,20 +35,31 @@ class fActiveRecordWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		$db->query(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE));
-		$db->clearCache();
-		$this->sharedFixture = $db;
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
+		
+		$schema = new fSchema($db);
+		
+		$this->sharedFixture = array(
+			'db' => $db,
+			'schema' => $schema
+		);
 	}
  
 	protected function tearDown()
 	{
-		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = $this->sharedFixture['db'];
+		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
+		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
  
@@ -55,11 +75,24 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 	
 	public function setUp()
 	{	
-		fORMDatabase::attach($this->sharedFixture);
-		fORM::mapClassToTable('Flourish2User', 'flourish2.users');
-		fORM::mapClassToTable('Flourish2Group', 'flourish2.groups');
-		fORM::mapClassToTable('Flourish2Artist', 'flourish2.artists');
-		fORM::mapClassToTable('Flourish2Album', 'flourish2.albums');
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		fORMDatabase::attach($this->sharedFixture['db']);
+		fORMSchema::attach($this->sharedFixture['schema']);
+		fORM::mapClassToTable('Flourish2User', fix_schema('flourish2.users'));
+		fORM::mapClassToTable('Flourish2Group', fix_schema('flourish2.groups'));
+		fORM::mapClassToTable('Flourish2Artist', fix_schema('flourish2.artists'));
+		fORM::mapClassToTable('Flourish2Album', fix_schema('flourish2.albums'));
+	}
+	
+	public function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		__reset();	
 	}
 	
 	public function testSimpleConstruct()
@@ -81,7 +114,7 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture->query('SELECT user_id FROM flourish2.users WHERE user_id = %i', $id)->countReturnedRows()
+			$this->sharedFixture['db']->query(fix_schema('SELECT user_id FROM flourish2.users WHERE user_id = %i'), $id)->countReturnedRows()
 		);		
 	}
 	
@@ -106,7 +139,7 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM flourish2.users WHERE first_name = %s', 'testInsert')->countReturnedRows()
+			$this->sharedFixture['db']->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -120,15 +153,9 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM flourish2.users WHERE first_name = %s', 'Jim')->countReturnedRows()
+			$this->sharedFixture['db']->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'Jim')->countReturnedRows()
 		);
 		
-		$this->sharedFixture->query('UPDATE flourish2.users SET first_name = %s WHERE user_id = %i', 'James', 1);		
-	}
-	
-	public function tearDown()
-	{
-		$this->sharedFixture->query('DELETE FROM users WHERE user_id > 4');
-		__reset();	
+		$this->sharedFixture['db']->query(fix_schema('UPDATE flourish2.users SET first_name = %s WHERE user_id = %i'), 'James', 1);		
 	}
 }

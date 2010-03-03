@@ -20,17 +20,29 @@ class fORMRelatedTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		$this->sharedFixture = $db;
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		
+		$schema = new fSchema($db);
+		
+		$this->sharedFixture = array(
+			'db' => $db,
+			'schema' => $schema
+		);
 	}
  
 	protected function tearDown()
 	{
-		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = $this->sharedFixture['db'];
+		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
  
@@ -49,7 +61,20 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{	
-		fORMDatabase::attach($this->sharedFixture);	
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		fORMDatabase::attach($this->sharedFixture['db']);
+		fORMSchema::attach($this->sharedFixture['schema']);
+	}
+	
+	public function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		__reset();	
 	}
 	
 	static public function countOneToManyProvider()
@@ -262,7 +287,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 			array(
 				array('group_id' => 1)
 			),
-			$this->sharedFixture->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);
 		
 		$user->associateGroups(array(1, 2), 'users_groups');
@@ -273,7 +298,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 				array('group_id' => 1),
 				array('group_id' => 2)
 			),
-			$this->sharedFixture->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);
 		
 		$user->associateGroups(array(), 'users_groups');
@@ -281,14 +306,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			array(),
-			$this->sharedFixture->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);	
-	}
-	
-
-	public function tearDown()
-	{
-		$this->sharedFixture->query('DELETE FROM users WHERE user_id > 4');
-		__reset();	
 	}
 }

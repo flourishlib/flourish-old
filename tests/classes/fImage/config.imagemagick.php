@@ -1,2 +1,5 @@
 <?php
-define('FILE_PREFIX', '_imagemagick');
+$prefix = '_imagemagick';
+define('FILE_PREFIX', $prefix);
+
+`sh clean_output.sh $prefix`;

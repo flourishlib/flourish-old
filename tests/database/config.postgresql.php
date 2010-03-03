@@ -1,6 +1,8 @@
 <?php
+include_once './support/constants.php';
+
 define('DB_TYPE',     'postgresql');
-define('DB',          'flourish');
+define('DB',          DB_NAME);
 define('DB_USERNAME', 'flourish');
 define('DB_PASSWORD', 'password');
 define('DB_HOST',     'db.flourishlib.com');
@@ -19,3 +21,8 @@ define('DB_ALTERNATE_SCHEMA_SCHEMA_FILE', './database/schema-alternate_schema.po
 
 define('DB_DATATYPES_SETUP_FILE',    './database/setup-datatypes.postgresql.sql');
 define('DB_DATATYPES_TEARDOWN_FILE', './database/teardown-datatypes.postgresql.sql');
+
+if (!defined('SKIPPING')) {
+	$db_name = DB_NAME;
+	`sh reset_databases.sh -t pgsql $db_name`;
+}

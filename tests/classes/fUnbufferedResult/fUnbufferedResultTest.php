@@ -26,9 +26,17 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$this->db->query(file_get_contents(DB_SETUP_FILE));
+		$this->db->execute(file_get_contents(DB_SETUP_FILE));
 	}
+	
+	public function tearDown()
+	{
+		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}	
 	
 	public function testTransactionRollback()
 	{
@@ -79,11 +87,6 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		}
 		$this->assertEquals(3, $i);
 	}
-	
-	public function tearDown()
-	{
-		$this->db->query(file_get_contents(DB_TEARDOWN_FILE));
-	}	
 }
 
 class fUnbufferedResultTestNoModifications extends PHPUnit_Framework_TestSuite
@@ -95,15 +98,21 @@ class fUnbufferedResultTestNoModifications extends PHPUnit_Framework_TestSuite
 	
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$this->sharedFixture = $db;
 	}
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	} 		
 }
  
@@ -113,6 +122,9 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;
 	}
 	

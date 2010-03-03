@@ -6,3 +6,4 @@ MSSQL;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql.php
 MSSQL 2008;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql2008.php
 MSSQL ODBC;windows;odbc|pdo_odbc;;;database/config.mssqlodbc.php
 Oracle;;oci8|pdo_oci;;;database/config.oracle.php
+Oracle ODBC;windows;odbc|pdo_odbc;;;database/config.oracleodbc.php

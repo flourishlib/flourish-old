@@ -19,23 +19,36 @@ class fActiveRecordWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->clearCache();
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		
 		$db2 = new fDatabase(DB_TYPE, DB_2, DB_2_USERNAME, DB_2_PASSWORD, DB_2_HOST, DB_2_PORT); 
-		$db2->query(file_get_contents(DB_2_SETUP_FILE));
-		$db2->clearCache();
+		$db2->execute(file_get_contents(DB_2_SETUP_FILE));
 		
-		$this->sharedFixture = array($db, $db2);
+		$schema = new fSchema($db);
+		
+		$schema2 = new fSchema($db2);
+		
+		$this->sharedFixture = array(
+			'db'      => $db,
+			'db2'     => $db2,
+			'schema'  => $schema,
+			'schema2' => $schema2
+		);
 	}
  
 	protected function tearDown()
 	{
-		$db = $this->sharedFixture[0];
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
-		$db2 = $this->sharedFixture[1];
-		$db2->query(file_get_contents(DB_2_TEARDOWN_FILE));
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = $this->sharedFixture['db'];
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		$db2 = $this->sharedFixture['db2'];
+		$db2->execute(file_get_contents(DB_2_TEARDOWN_FILE));
 	}
 }
  
@@ -52,12 +65,23 @@ class fActiveRecordWithMultipleDatabasesTestChild extends PHPUnit_Framework_Test
 	
 	public function setUp()
 	{	
-		fORMDatabase::attach($this->sharedFixture[0]);
-		fORMDatabase::attach($this->sharedFixture[1], 'db2');
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		fORMDatabase::attach($this->sharedFixture['db']);
+		fORMDatabase::attach($this->sharedFixture['db2'], 'db2');
+		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMSchema::attach($this->sharedFixture['schema2'], 'db2');
 		fORM::mapClassToTable('Db2User', 'users');
 		fORM::mapClassToDatabase('Db2User', 'db2');
 		fORM::mapClassToTable('Db2Group', 'groups');
 		fORM::mapClassToDatabase('Db2Group', 'db2');
+	}
+	
+	public function tearDown()
+	{
+		$this->sharedFixture['db2']->query('DELETE FROM users WHERE user_id > 2');
+		__reset();	
 	}
 	
 	public function testSimpleConstruct()
@@ -79,7 +103,7 @@ class fActiveRecordWithMultipleDatabasesTestChild extends PHPUnit_Framework_Test
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture[1]->query('SELECT user_id FROM users WHERE user_id = %i', $id)->countReturnedRows()
+			$this->sharedFixture['db2']->query('SELECT user_id FROM users WHERE user_id = %i', $id)->countReturnedRows()
 		);		
 	}
 	
@@ -105,7 +129,7 @@ class fActiveRecordWithMultipleDatabasesTestChild extends PHPUnit_Framework_Test
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture[1]->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
+			$this->sharedFixture['db2']->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -119,15 +143,9 @@ class fActiveRecordWithMultipleDatabasesTestChild extends PHPUnit_Framework_Test
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture[1]->query('SELECT * FROM users WHERE first_name = %s', 'Jim')->countReturnedRows()
+			$this->sharedFixture['db2']->query('SELECT * FROM users WHERE first_name = %s', 'Jim')->countReturnedRows()
 		);
 		
-		$this->sharedFixture[1]->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'James', 1);		
-	}
-	
-	public function tearDown()
-	{
-		$this->sharedFixture[1]->query('DELETE FROM users WHERE user_id > 2');
-		__reset();	
+		$this->sharedFixture['db2']->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'James', 1);		
 	}
 }

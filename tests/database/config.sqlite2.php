@@ -1,4 +1,6 @@
 <?php
+include_once './support/constants.php';
+
 define('DB_TYPE',     'sqlite');
 define('DB',          ':memory:');
 define('DB_USERNAME', NULL);

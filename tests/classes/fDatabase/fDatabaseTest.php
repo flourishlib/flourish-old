@@ -1,35 +1,77 @@
 <?php
 require_once('./support/init.php');
- 
+
 class fDatabaseTest extends PHPUnit_Framework_TestSuite
 {
 	public static function suite()
 	{
-		return new fDatabaseTest('fDatabaseTestChild');
-	}
- 
-	protected function setUp()
-	{
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$sql = file_get_contents(DB_SETUP_FILE);
-		$result = $db->query($sql);
-		$this->sharedFixture = $db;
-	}
- 
-	protected function tearDown()
-	{
-		$db = $this->sharedFixture;
-		$sql = file_get_contents(DB_TEARDOWN_FILE);        
-		$result = $db->query($sql);
+		$suite = new fDatabaseTest();
+		$suite->addTestSuite('fDatabaseTestNoModifications');
+//		$suite->addTestSuite('fDatabaseTestModifications');
+		return $suite;
 	}
 }
- 
-class fDatabaseTestChild extends PHPUnit_Framework_TestCase
+
+/*class fDatabaseTestModifications extends PHPUnit_Framework_TestSuite
+{
+	public static function suite()
+	{
+		return new fDatabaseTestModifications('fDatabaseTestModificationsChild');
+	}		
+}
+
+class fDatabaseTestModificationsChild extends PHPUnit_Framework_TestCase
 {
 	public $db;
 	
 	public function setUp()
 	{
+		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
+		$this->db->execute(file_get_contents(DB_SETUP_FILE));
+	}
+	
+	public function tearDown()
+	{
+		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}
+}*/
+ 
+class fDatabaseTestNoModifications extends PHPUnit_Framework_TestSuite
+{
+	public static function suite()
+	{
+		return new fDatabaseTestNoModifications('fDatabaseTestNoModificationsChild');
+	}
+ 
+	protected function setUp()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$this->sharedFixture = $db;
+	}
+ 
+	protected function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = $this->sharedFixture;
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}
+}
+ 
+class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
+{
+	public $db;
+	
+	public function setUp()
+	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;
 	}
 	
@@ -187,10 +229,10 @@ class fDatabaseTestChild extends PHPUnit_Framework_TestCase
 				break;
 				
 			case 'oracle':
-				$output[] = array('flourish.users');
-				$output[] = array('"flourish".users');
-				$output[] = array('flourish."users"');
-				$output[] = array('"flourish"."users"');
+				$output[] = array(DB_USERNAME . '.users');
+				$output[] = array('"' . DB_USERNAME . '".users');
+				$output[] = array(DB_USERNAME . '."users"');
+				$output[] = array('"' . DB_USERNAME . '"."users"');
 				break;	
 		}
 		

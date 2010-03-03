@@ -32,18 +32,24 @@ class fRecordSetTest extends PHPUnit_Framework_TestSuite
 	
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		fORMDatabase::attach($db);
 		$this->sharedFixture = $db;
 	}
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
 
@@ -53,11 +59,17 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		fORMDatabase::retrieve()->enableDebugging(FALSE);
 		fORMRelated::reset();
 	}

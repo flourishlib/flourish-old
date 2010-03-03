@@ -1,6 +1,8 @@
 <?php
+include_once './support/constants.php';
+
 define('DB_TYPE',     'mysql');
-define('DB',          'flourish');
+define('DB',          DB_NAME);
 define('DB_USERNAME', 'flourish');
 define('DB_PASSWORD', 'password');
 define('DB_HOST',     'db.flourishlib.com');
@@ -15,3 +17,8 @@ define('DB_EXTENDED_TEARDOWN_FILE', './database/teardown-extended.mysql.sql');
 
 define('DB_DATATYPES_SETUP_FILE',    './database/setup-datatypes.mysql.sql');
 define('DB_DATATYPES_TEARDOWN_FILE', './database/teardown-datatypes.mysql.sql');
+
+if (!defined('SKIPPING')) {
+	$db_name = DB_NAME;
+	`sh reset_databases.sh -t mysql $db_name`;
+}

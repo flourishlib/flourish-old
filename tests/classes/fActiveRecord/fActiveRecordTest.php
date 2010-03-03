@@ -22,7 +22,7 @@ class Registration extends fActiveRecord { }
 class EventDetail extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
  
-function changed($object, &$values, &$old_values, &$related_records, &$cache, $method, &$parameters) {
+function changed($object, &$values, &$old_values, &$related_records, &$cache, $method, $parameters) {
 	return fActiveRecord::changed($values, $old_values, $parameters[0]);	
 }
  
@@ -35,18 +35,29 @@ class fActiveRecordTest extends PHPUnit_Framework_TestSuite
  
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;	
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
-		$db->query(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		$db->clearCache();
-		$this->sharedFixture = $db;
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		
+		$schema = new fSchema($db);
+		
+		$this->sharedFixture = array(
+			'db'     => $db,
+			'schema' => $schema
+		);
 	}
  
 	protected function tearDown()
 	{
-		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		if (defined('SKIPPING')) {
+			return;	
+		}
+		$db = $this->sharedFixture['db'];
+		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
  
@@ -65,8 +76,25 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{	
-		fORMDatabase::attach($this->sharedFixture);
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		fORMDatabase::attach($this->sharedFixture['db']);
+		fORMSchema::attach($this->sharedFixture['schema']);
 		fORM::registerActiveRecordMethod('User', 'hasChanged', 'changed');	
+	}
+	
+	public function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;	
+		}
+		$this->sharedFixture['db']->query('DELETE FROM events_artists');
+		$this->sharedFixture['db']->query('DELETE FROM event_details');
+		$this->sharedFixture['db']->query('DELETE FROM registrations');
+		$this->sharedFixture['db']->query('DELETE FROM events WHERE event_id > 9');
+		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		__reset();	
 	}
 	
 	public function testMissingPrimaryKey()
@@ -203,7 +231,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture->query('SELECT user_id FROM users WHERE user_id = %i', $id)->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT user_id FROM users WHERE user_id = %i', $id)->countReturnedRows()
 		);		
 	}
 	
@@ -217,7 +245,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture->query('SELECT name FROM record_labels WHERE name = %s', 'Will’s Label')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT name FROM record_labels WHERE name = %s', 'Will’s Label')->countReturnedRows()
 		);		
 	}
 	
@@ -290,7 +318,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -309,7 +337,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -323,10 +351,10 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM users WHERE first_name = %s', 'William')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'William')->countReturnedRows()
 		);
 		
-		$this->sharedFixture->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'Will', 1);		
+		$this->sharedFixture['db']->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'Will', 1);		
 	}
 	
 	public function testUpdateWithNoChanges()
@@ -336,7 +364,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture->query('SELECT * FROM users WHERE user_id = %i', 1)->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM users WHERE user_id = %i', 1)->countReturnedRows()
 		);	
 	}
 	
@@ -535,15 +563,5 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 			FALSE,
 			$event->exists()	
 		);		
-	}
-
-	public function tearDown()
-	{
-		$this->sharedFixture->query('DELETE FROM events_artists');
-		$this->sharedFixture->query('DELETE FROM event_details');
-		$this->sharedFixture->query('DELETE FROM registrations');
-		$this->sharedFixture->query('DELETE FROM events WHERE event_id > 9');
-		$this->sharedFixture->query('DELETE FROM users WHERE user_id > 4');
-		__reset();	
 	}
 }

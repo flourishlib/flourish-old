@@ -1,2 +1,5 @@
 <?php
-define('FILE_PREFIX', '_gd');
+$prefix = '_gd';
+define('FILE_PREFIX', $prefix);
+
+`sh clean_output.sh $prefix`;

@@ -1,4 +1,5 @@
 File;;;;;classes/fCache/config.file.php
-APC;;apc;xcache;-d apc.enable_cli="1";classes/fCache/config.apc.php
+APC;;apc;xcache;-d apc.enable_cli=1 -d apc.cache_by_default=0 -d apc.slam_defense=0;classes/fCache/config.apc.php
 Memcache;;memcache;;;classes/fCache/config.memcache.php
-XCache;;xcache;apc;-d xcache.var_size="4M" -d xcache.admin.enable_auth="Off";classes/fCache/config.xcache.php
+# XCache doesn't work via CLI on windows
+XCache;!windows;xcache;apc;-d xcache.var_size="8M" -d xcache.admin.enable_auth="Off";classes/fCache/config.xcache.php

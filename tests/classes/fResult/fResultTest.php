@@ -26,8 +26,19 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$this->db->query(file_get_contents(DB_SETUP_FILE));
+		$this->db->execute(file_get_contents(DB_SETUP_FILE));
+	}
+	
+	public function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 	
 	
@@ -193,11 +204,6 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		$this->db->query("COMMIT");
 		$res = $this->db->query("SELECT user_id FROM users");
 		$this->assertEquals(3, $res->countReturnedRows());
-	}
-	
-	public function tearDown()
-	{
-		$this->db->query(file_get_contents(DB_TEARDOWN_FILE));
 	}	
 }
 
@@ -210,15 +216,21 @@ class fResultTestNoModifications extends PHPUnit_Framework_TestSuite
 	
 	protected function setUp()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->query(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$this->sharedFixture = $db;
 	}
  
 	protected function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$db = $this->sharedFixture;
-		$db->query(file_get_contents(DB_TEARDOWN_FILE));
+		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	} 		
 }
  
@@ -228,6 +240,9 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db = $this->sharedFixture;
 	}
 	

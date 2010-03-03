@@ -7,6 +7,9 @@ class fCacheTest extends PHPUnit_Framework_TestCase
 	
 	public function setUp()
 	{	
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$_SERVER['PHP_AUTH_USER'] = 'flourish';
 		$_SERVER['PHP_AUTH_PW']   = '5f4dcc3b5aa765d61d8327deb882cf99';
 		$this->cache = new fCache(CACHE_TYPE, cache_data_store());	
@@ -73,6 +76,9 @@ class fCacheTest extends PHPUnit_Framework_TestCase
 
 	public function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;
+		}
 		$this->cache->clear();
 		$this->cache->__destruct();
 	}

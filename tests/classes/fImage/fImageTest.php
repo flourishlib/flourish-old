@@ -5,7 +5,20 @@ class fImageTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-			
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		if (!extension_loaded('gd')) {
+			try {
+				$image = new fImage('resources/images/bar.gif');
+				$new_image = $image->duplicate('output/');
+				$new_image->cropToRatio(1, 1);
+				$new_image->saveChanges();
+				$new_image->delete();
+			} catch (fEnvironmentException $e) {
+				$this->markTestSkipped();
+			}
+		}
 	}
 	
 	public static function fileProvider()

@@ -1,7 +1,9 @@
 <?php
+include_once './support/constants.php';
+
 define('DB_TYPE',     'oracle');
 define('DB',          'XE');
-define('DB_USERNAME', 'flourish');
+define('DB_USERNAME', DB_NAME);
 define('DB_PASSWORD', 'password');
 define('DB_HOST',     'db.flourishlib.com');
 define('DB_PORT',     NULL);
@@ -19,3 +21,10 @@ define('DB_ALTERNATE_SCHEMA_SCHEMA_FILE', './database/schema-alternate_schema.or
 
 define('DB_DATATYPES_SETUP_FILE',    './database/setup-datatypes.oracle.sql');
 define('DB_DATATYPES_TEARDOWN_FILE', './database/teardown-datatypes.oracle.sql');
+
+define('DB_SECOND_SCHEMA', DB_NAME == 'flourish' ? 'flourish2' : DB_NAME . '_2');
+
+if (!defined('SKIPPING')) {
+	$db_name = DB_NAME;
+	`sh reset_databases.sh -t oracle $db_name`;
+}
