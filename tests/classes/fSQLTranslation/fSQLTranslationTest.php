@@ -359,8 +359,8 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 		}
 		$res = $this->db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
 		$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
-		$this->assertGreaterThanOrEqual(time()-60, $current_timestamp);
-		$this->assertLessThanOrEqual(time()+60, $current_timestamp);
+		$this->assertGreaterThanOrEqual(time()-120, $current_timestamp);
+		$this->assertLessThanOrEqual(time()+120, $current_timestamp);
 	}
 	
 	public function testBoolean()

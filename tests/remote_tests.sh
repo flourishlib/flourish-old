@@ -143,9 +143,9 @@ queue_command()
 # of the command in, instead of it being done interactively
 exec_commands()
 {
-	PORT=22
+	PORT=""
 	if [[ $1 =~ : ]]; then
-		PORT=${1##*:}
+		PORT="-p ${1##*:}"
 		SSH_HOST=${1%%:*}
 	else
 		SSH_HOST="$1"
@@ -154,11 +154,11 @@ exec_commands()
 	COMMAND_QUEUE=$(printf "%s" "$COMMAND_QUEUE" | sed "s/'/'\\\\''/g")
 	
 	if [[ $2 ]]; then
-		OUTPUT=$(ssh -A -o StrictHostKeyChecking=no -q -p $PORT $SSH_HOST "bash -l -c '$COMMAND_QUEUE'")
+		OUTPUT=$(ssh -A -q $PORT $SSH_HOST "bash -l -c '$COMMAND_QUEUE'")
 		eval "$2='$OUTPUT'"
 		
 	else
-		ssh -A -o StrictHostKeyChecking=no -tq -p $PORT $SSH_HOST "bash -l -c '$COMMAND_QUEUE'"	
+		ssh -A -tq $PORT $SSH_HOST "bash -l -c '$COMMAND_QUEUE'"	
 	fi
 	
 	COMMAND_QUEUE=""
@@ -493,14 +493,18 @@ for RHOST in $RHOSTS; do
 		
 		start_activity "[ Pushing code"
 		
-		PORT=22
+		SSH_PORT=""
+		SCP_PORT=""
+		PORT=""
 		if [[ $RHOST =~ : ]]; then
 			PORT=${RHOST##*:}
+			SSH_PORT="-p $PORT"
+			SCP_PORT="-P $PORT"
 			SSH_HOST=${RHOST%%:*}
 		else
 			SSH_HOST="$RHOST"
 		fi
-		REMOTE_INFO=$(ssh -A -o StrictHostKeyChecking=no -q -p $PORT $SSH_HOST 'echo $SHELL && which mysql psql sqlplus sqsh' 2> /dev/null)
+		REMOTE_INFO=$(ssh -A -q $SSH_PORT $SSH_HOST 'echo $SHELL && which mysql psql sqlplus sqsh' 2> /dev/null)
 		REMOTE_SHELL=$(echo "$REMOTE_INFO" | awk 'BEGIN { RS=""; FS="\n" } {print $1}')
 		if [[ $REMOTE_SHELL =~ csh ]]; then
 			IS_CSH=1
@@ -511,7 +515,7 @@ for RHOST in $RHOSTS; do
 		HAS_SQLPLUS=$(present "$REMOTE_INFO" /sqlplus)
 		HAS_SQSH=$(present "$REMOTE_INFO" /sqsh)
 		
-		scp -P $PORT -q /tmp/flourish_local.tar.gz $RHOST:/tmp/flourish_$TOKEN.tar.gz
+		scp $SCP_PORT -q /tmp/flourish_local.tar.gz $SSH_HOST:/tmp/flourish_$TOKEN.tar.gz
 		
 		queue_command cd /tmp/
 		queue_command rm -Rf flourish_$TOKEN
