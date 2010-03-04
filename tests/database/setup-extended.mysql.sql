@@ -4,6 +4,12 @@ CREATE TABLE user_details (
 	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 )ENGINE=InnoDB;
 
+CREATE TABLE other_user_details (
+	id INTEGER PRIMARY KEY,
+	avatar VARCHAR(255) NOT NULL DEFAULT '',
+	FOREIGN KEY (id) REFERENCES users(user_id) ON DELETE CASCADE
+)ENGINE=InnoDB;
+
 CREATE TABLE record_labels (
 	name VARCHAR(255) PRIMARY KEY
 )ENGINE=InnoDB;
@@ -45,11 +51,18 @@ CREATE TABLE invalid_tables (
 	not_primary_key VARCHAR(200)
 )ENGINE=InnoDB;
 
+CREATE TABLE event_slots (
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(255) NOT NULL
+)ENGINE=InnoDB;
+
 CREATE TABLE events (
 	event_id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	title VARCHAR(255) NOT NULL,
 	start_date DATE NOT NULL,
-	end_date DATE
+	end_date DATE,
+	event_slot_id INTEGER UNIQUE,
+	FOREIGN KEY (event_slot_id) REFERENCES event_slots(id) ON DELETE SET NULL
 )ENGINE=InnoDB;
 
 CREATE TABLE registrations (

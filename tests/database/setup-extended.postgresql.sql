@@ -3,6 +3,11 @@ CREATE TABLE user_details (
 	photo VARCHAR(255) NOT NULL DEFAULT ''
 );
 
+CREATE TABLE other_user_details (
+	id INTEGER PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+	avatar VARCHAR(255) NOT NULL DEFAULT ''
+);
+
 CREATE TABLE record_labels (
 	name VARCHAR(255) PRIMARY KEY
 );
@@ -40,11 +45,17 @@ CREATE TABLE invalid_tables (
 	not_primary_key VARCHAR(200)
 );
 
+CREATE TABLE event_slots (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE events (
 	event_id SERIAL PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
 	start_date DATE NOT NULL,
-	end_date DATE
+	end_date DATE,
+	event_slot_id INTEGER UNIQUE REFERENCES event_slots(id) ON DELETE SET NULL
 );
 
 CREATE TABLE registrations (

@@ -7,6 +7,7 @@ class Artist extends fActiveRecord { }
 class Album extends fActiveRecord { }
 class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
+class OtherUserDetail extends fActiveRecord { }
 class RecordDeal extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
 class FavoriteAlbum extends fActiveRecord { }

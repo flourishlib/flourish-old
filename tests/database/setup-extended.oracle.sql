@@ -3,6 +3,11 @@ CREATE TABLE user_details (
 	photo VARCHAR(255)
 );
 
+CREATE TABLE other_user_details (
+	id INTEGER PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+	avatar VARCHAR(255)
+);
+
 CREATE TABLE record_labels (
 	name VARCHAR(255) PRIMARY KEY
 );
@@ -52,11 +57,29 @@ CREATE TABLE invalid_tables (
 	not_primary_key VARCHAR(200)
 );
 
+CREATE TABLE event_slots (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR(255) NOT NULL
+);
+
+CREATE SEQUENCE event_slots_id_seq;
+
+CREATE OR REPLACE TRIGGER event_slots_id_trg
+BEFORE INSERT ON event_slots
+FOR EACH ROW
+BEGIN
+  IF :new.id IS NULL THEN
+	SELECT event_slots_id_seq.nextval INTO :new.id FROM dual\;
+  END IF\;
+END\;
+;
+
 CREATE TABLE events (
 	event_id INTEGER PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
 	start_date DATE NOT NULL,
-	end_date DATE
+	end_date DATE,
+	event_slot_id INTEGER UNIQUE REFERENCES event_slots(id) ON DELETE SET NULL
 );
 
 CREATE SEQUENCE events_event_id_seq;

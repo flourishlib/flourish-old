@@ -7,9 +7,13 @@ class Artist extends fActiveRecord { }
 class Album extends fActiveRecord { }
 class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
+class OtherUserDetail extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
 class FavoriteAlbum extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
+class Event extends fActiveRecord { }
+class EventSlot extends fActiveRecord { }
+class EventDetail extends fActiveRecord { }
  
 class fORMRelatedTest extends PHPUnit_Framework_TestSuite
 {
@@ -274,6 +278,24 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fProgrammerException');
 		$user = new User(1);
 		$user->listGroups();
+	}
+	
+	
+	public function testPopulateOneToOne()
+	{
+		$user = $this->createUser();
+		$user->populateOtherUserDetail();
+		$user->store();
+	}
+	
+	public function testPopulateReverseOneToOne()
+	{
+		$event = new Event();
+		$event->setTitle('Test Event');
+		$event->setStartDate('today');
+		$event->populateEventSlot();
+		$event->populateEventDetail();
+		$event->store();
 	}
 	
 	
