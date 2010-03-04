@@ -522,7 +522,7 @@ for RHOST in $RHOSTS; do
 		queue_command mkdir flourish_$TOKEN
 		queue_command mv flourish_$TOKEN.tar.gz flourish_$TOKEN/
 		queue_command cd flourish_$TOKEN
-		queue_command tar xzf flourish_$TOKEN.tar.gz
+		queue_command tar xzf flourish_$TOKEN.tar.gz \2\> /dev/null
 
 		CONFIG_EXCLUSIONS=""
 		
@@ -556,7 +556,7 @@ for RHOST in $RHOSTS; do
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
 		fi
 
-		if (( $SUB_CALL )); then
+		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
 		else
 			exec_commands $RHOST
@@ -574,7 +574,7 @@ for RHOST in $RHOSTS; do
 			queue_command bash
 		fi
 		
-		if (( $SUB_CALL )); then
+		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
 			echo "$OUTPUT"
 		else
@@ -610,7 +610,7 @@ for RHOST in $RHOSTS; do
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN"
 		fi
 
-		if (( $SUB_CALL )); then
+		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
 		else
 			exec_commands $RHOST
