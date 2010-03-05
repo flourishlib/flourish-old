@@ -19,6 +19,7 @@ class YearFavoriteAlbum extends fActiveRecord
 	}	
 }
 class Event extends fActiveRecord { }
+class EventSlot extends fActiveRecord { }
 class Registration extends fActiveRecord { }
 class EventDetail extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
