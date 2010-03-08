@@ -10,6 +10,21 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				
 	}
 	
+	private function createScannableFiles()
+	{
+		mkdir('output/fDirectory_scan');
+		mkdir('output/fDirectory_scan/subdir/');
+		touch('output/fDirectory_scan/file1.txt');
+		touch('output/fDirectory_scan/file.txt');
+		touch('output/fDirectory_scan/fIle2.txt');
+		touch('output/fDirectory_scan/file');
+		touch('output/fDirectory_scan/file.csv');
+		touch('output/fDirectory_scan/foo');
+		touch('output/fDirectory_scan/boo');
+		touch('output/fDirectory_scan/subdir/file1.txt');
+		touch('output/fDirectory_scan/subdir/file2.txt');
+	}
+	
 	public function testCreate()
 	{
 		$dir = fDirectory::create('output/fDirectory2/');
@@ -65,6 +80,144 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(4, $dir->getSize());
 	}
 	
+	public function testScan()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scan();
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'boo',
+				'file',
+				'file.csv',
+				'file.txt',
+				'file1.txt',
+				'fIle2.txt',
+				'foo',
+				'subdir/'
+			),
+			$filenames
+		);
+	}
+	
+	public function testScanRecursive()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scanRecursive();
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'boo',
+				'file',
+				'file.csv',
+				'file.txt',
+				'file1.txt',
+				'fIle2.txt',
+				'foo',
+				'subdir/',
+				'subdir/file1.txt',
+				'subdir/file2.txt'
+			),
+			$filenames
+		);
+	}
+	
+	public function testScanGlob()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scan('*file*');
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'file',
+				'file.csv',
+				'file.txt',
+				'file1.txt'
+			),
+			$filenames
+		);
+	}
+	
+	public function testScanRecursiveGlob()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scanRecursive('*file*');
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'file',
+				'file.csv',
+				'file.txt',
+				'file1.txt',
+				'subdir/file1.txt',
+				'subdir/file2.txt'
+			),
+			$filenames
+		);
+	}
+	
+	public function testScanRegex()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scan('#file#i');
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'file',
+				'file.csv',
+				'file.txt',
+				'file1.txt',
+				'fIle2.txt'
+			),
+			$filenames
+		);
+	}
+	
+	public function testScanRecursiveRegex()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scanRecursive('#/#');
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());	
+		}
+		
+		$this->assertEquals(
+			array(
+				'subdir/',
+				'subdir/file1.txt',
+				'subdir/file2.txt'
+			),
+			$filenames
+		);
+	}
+	
 	public function testRename()
 	{
 		$dir = new fDirectory('output/fDirectory/');
@@ -91,12 +244,16 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 	
 	public function tearDown()
 	{
-		$dirs = array('output/fDirectory/', 'output/fDirectory2/', 'output/fDirectory3/');
+		$dirs = array('output/fDirectory/', 'output/fDirectory2/', 'output/fDirectory3/', 'output/fDirectory_scan/');
 		foreach ($dirs as $dir) {
 			if (file_exists($dir)) {
 				$files = array_diff(scandir($dir), array('.', '..'));
 				foreach ($files as $file) {
 					if (is_dir($dir . $file)) {
+						$sub_files = array_diff(scandir($dir . $file), array('.', '..'));
+						foreach ($sub_files as $sub_file) {
+							unlink($dir . $file . DIRECTORY_SEPARATOR . $sub_file);	
+						}
 						rmdir($dir . $file);	
 					} else {
 						unlink($dir . $file);
