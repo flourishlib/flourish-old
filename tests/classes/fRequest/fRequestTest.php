@@ -254,6 +254,18 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('post', fRequest::get('test'));
 	}
 	
+	public function testGetFieldCastIntegerLarge()
+	{
+		$_GET['test'] = '173923263927309232632545218129';
+		$this->assertEquals('173923263927309232632545218129', fRequest::get('test', 'integer'));
+	}
+	
+	public function testGetFieldCastIntegerNegativeLarge()
+	{
+		$_GET['test'] = '-173923263927309232632545218129';
+		$this->assertEquals('-173923263927309232632545218129', fRequest::get('test', 'integer'));
+	}
+	
 	public function tearDown()
 	{
 			
