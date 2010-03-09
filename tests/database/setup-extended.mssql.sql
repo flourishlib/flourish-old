@@ -49,7 +49,8 @@ CREATE TABLE events (
 	event_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
 	start_date DATETIME NOT NULL,
-	end_date DATETIME NULL
+	end_date DATETIME NULL,
+	registration_url VARCHAR(255) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE event_slots (

@@ -62,6 +62,7 @@ CREATE TABLE events (
 	start_date DATE NOT NULL,
 	end_date DATE,
 	event_slot_id INTEGER UNIQUE,
+	registration_url VARCHAR(255) NOT NULL DEFAULT '',
 	FOREIGN KEY (event_slot_id) REFERENCES event_slots(id) ON DELETE SET NULL
 )ENGINE=InnoDB;
 

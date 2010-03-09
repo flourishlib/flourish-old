@@ -55,7 +55,8 @@ CREATE TABLE events (
 	title VARCHAR(255) NOT NULL,
 	start_date DATE NOT NULL,
 	end_date DATE,
-	event_slot_id INTEGER UNIQUE REFERENCES event_slots(id) ON DELETE SET NULL
+	event_slot_id INTEGER UNIQUE REFERENCES event_slots(id) ON DELETE SET NULL,
+	registration_url VARCHAR(255) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE registrations (
