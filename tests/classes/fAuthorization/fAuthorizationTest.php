@@ -203,6 +203,12 @@ class fAuthorizationTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('test_url2.php?query_string=TRUE', fAuthorization::getRequestedURL(TRUE, 'test_url2.php?query_string=TRUE'));
 	}
 	
+	public function testGetLoginPage()
+	{
+		fAuthorization::setLoginPage('/login/');
+		$this->assertEquals('/login/', fAuthorization::getLoginPage());
+	}
+	
 	public function tearDown()
 	{
 		fSession::reset();
