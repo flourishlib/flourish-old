@@ -99,7 +99,7 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				'file1.txt',
 				'fIle2.txt',
 				'foo',
-				'subdir/'
+				'subdir' . DIRECTORY_SEPARATOR
 			),
 			$filenames
 		);
@@ -124,9 +124,9 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				'file1.txt',
 				'fIle2.txt',
 				'foo',
-				'subdir/',
-				'subdir/file1.txt',
-				'subdir/file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
 			),
 			$filenames
 		);
@@ -169,8 +169,8 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				'file.csv',
 				'file.txt',
 				'file1.txt',
-				'subdir/file1.txt',
-				'subdir/file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
 			),
 			$filenames
 		);
@@ -210,9 +210,9 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			array(
-				'subdir/',
-				'subdir/file1.txt',
-				'subdir/file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
 			),
 			$filenames
 		);

@@ -115,7 +115,11 @@ function make_defines($exts, $exts_to_remove) {
 		if (in_array($ext, $exts_to_remove)) { continue; }
 		$use_exts[] = $define;	
 	}
-	return ' -d memory_limit="' . ini_get('memory_limit') . '" -d include_path="' . ini_get('include_path') . '" -d extension_dir="' . ini_get('extension_dir') . '" ' . join(" ", $use_exts);
+	$extra = '';
+	if (stripos(php_uname('s'), 'windows') !== FALSE) {
+		$extra = ' -d SMTP="' . ini_get('SMTP') . '" -d smtp_port="' . ini_get('smtp_port') . '" ';
+	}
+	return ' -d memory_limit="' . ini_get('memory_limit') . '" -d include_path="' . ini_get('include_path') . '" ' . $extra . ' -d extension_dir="' . ini_get('extension_dir') . '" ' . join(" ", $use_exts);
 }
 
 
@@ -129,6 +133,7 @@ $config_matches    = array();
 $config_excludes   = array();
 $format            = 'shell';
 $db_name           = 'flourish';
+$key_value_string  = '';
 		
 if (!empty($_SERVER['argc'])) {
 	foreach (array_slice($_SERVER['argv'], 1) as $arg) {
@@ -155,6 +160,10 @@ if (!empty($_SERVER['argc'])) {
 		// Params that start with # are the db name
 		} elseif ($arg[0] == '#') {
 			$db_name = substr($arg, 1);
+			
+		// Params that start with = are key=value pairs
+		} elseif ($arg[0] == '=') {
+			$key_value_string .= ',' . substr($arg, 1);
 			
 		// All other params are classes
 		} else {
@@ -268,13 +277,13 @@ foreach ($class_dirs as $class_dir) {
 							)
 						);
 						// Here we hijack the user_dir ini setting to pass data into the test
-						$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name\" $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');
+						$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name$key_value_string\" $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');
 					} else {
 						throw new Exception();	
 					}
 				} catch (Exception $e) {
 					$defines = make_defines($exts, $lazy_load_exts);
-					$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name,SKIPPING:1\" $defines $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');	
+					$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name,SKIPPING:1$key_value_string\" $defines $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');	
 				}
 			}	
 		} elseif (!$config_regex) {

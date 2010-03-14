@@ -141,7 +141,7 @@ while [ "$1" != "" ]; do
 				'-L') shift 2;;
 				'-P') PARAMS="${PARAMS} -P $2"; shift 2;;
 				'-i') PARAMS="${PARAMS} -i $2"; shift 2;;
-				'-C') PARAMS="${PARAMS} -Q '$2'"; shift 2;;
+				'-C') PARAMS="${PARAMS} -Q "\""$2"\"; shift 2;;
 				'-D') PARAMS="${PARAMS} -d $2"; shift 2;;
 				'-b') shift;;
 		esac

@@ -449,6 +449,7 @@ for RHOST in $RHOSTS; do
 		show_ext dom        $(present "$PHP_MODULES" dom)        1
 		show_ext gd         $(present "$PHP_MODULES" gd)         0
 		show_ext iconv      $(present "$PHP_MODULES" iconv)      1
+		show_ext imap       $(present "$PHP_MODULES" imap)       0
 		show_ext json       $(present "$PHP_MODULES" json)       0
 		show_ext mbstring   $(present "$PHP_MODULES" mbstring)   0
 		show_ext mcrypt     $(present "$PHP_MODULES" mcrypt)     0
@@ -550,7 +551,7 @@ for RHOST in $RHOSTS; do
 		fi
 		
 		if (( ! $NO_MSSQL && $HAS_SQSH )); then
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;"
+			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;" \| awk 'BEGIN { RS="" } {gsub(".return status = 0.", "");printf $0}'
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;"
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
