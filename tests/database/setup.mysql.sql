@@ -77,6 +77,8 @@ CREATE TABLE blobs (
 	data BLOB NOT NULL
 )ENGINE=InnoDB;
 
+CREATE VIEW view_users AS SELECT * FROM users;
+
 BEGIN;
 
 INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES ('Will', '', 'Bond', 'will@flourishlib.com', 'Active', 5, '2008-05-01 13:00:00', '1980-09-01', '17:00:00', '1', '5527939aca3e9e80d5ab3bee47391f0f');
