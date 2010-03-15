@@ -11,6 +11,36 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		file_put_contents('output/fFile/two.txt', 'two');	
 	}
 	
+	public function tearDown()
+	{
+		$dirs = array('output/fFile/', 'output/fFile2/');
+		foreach ($dirs as $dir) {
+			$files = array_diff(scandir($dir), array('.', '..'));
+			foreach ($files as $file) {
+				unlink($dir . $file);	
+			}
+			rmdir($dir);
+		}
+		fFilesystem::reset();
+	}
+	
+	public function testAppend()
+	{
+		$file = new fFile('output/fFile/one.txt');
+		$file->append('+one=two');
+		$this->assertEquals('one+one=two', file_get_contents('output/fFile/one.txt'));	
+	}
+	
+	public function testAppendRollback()
+	{
+		fFilesystem::begin();
+		$file = new fFile('output/fFile/one.txt');
+		$file->append('+one=two');
+		$this->assertEquals('one+one=two', file_get_contents('output/fFile/one.txt'));
+		fFilesystem::rollback();
+		$this->assertEquals('one', file_get_contents('output/fFile/one.txt'));
+	}
+	
 	public function testCreate()
 	{
 		$file = fFile::create('output/fFile/three.txt', 'thr33');
@@ -99,17 +129,5 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$file->move('output/fFile2/', TRUE);
 		$this->assertEquals('one.txt', $file->getName());
 		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fFile2/'), $file->getParent()->getPath());
-	}
-	
-	public function tearDown()
-	{
-		$dirs = array('output/fFile/', 'output/fFile2/');
-		foreach ($dirs as $dir) {
-			$files = array_diff(scandir($dir), array('.', '..'));
-			foreach ($files as $file) {
-				unlink($dir . $file);	
-			}
-			rmdir($dir);
-		}
 	}
 }
