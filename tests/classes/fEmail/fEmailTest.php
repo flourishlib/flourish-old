@@ -44,7 +44,7 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 				}
 			}
 			$i++;
-		} while ($i < 15);
+		} while ($i < 60);
 		
 		throw new Exception('Email message ' . $token . ' never arrived');
 	}
