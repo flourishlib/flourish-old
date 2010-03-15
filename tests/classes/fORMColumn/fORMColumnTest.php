@@ -125,4 +125,35 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		$event->setRegistrationUrl($link);
 		$event->validate();
 	}
+	
+	public static function validateEmailProvider()
+	{
+		$output = array();
+		
+		$output[] = array('tests@flourishlib.com', FALSE);
+		$output[] = array('will+foo@flourishlib.com', FALSE);
+		$output[] = array("o'brien@example.com", FALSE);
+		$output[] = array('john.smith@subdomain.example.co.uk', FALSE);
+		$output[] = array("this-is.a+strange'email@example.com", FALSE);
+		$output[] = array(' tests@flourishlib.com  ', FALSE);
+		$output[] = array('foobar', TRUE);
+		$output[] = array('john.smith@example', TRUE);
+		$output[] = array('john @ smith dot com', TRUE);
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider validateEmailProvider
+	 */
+	public function testValidateEmail($email, $throws_exception)
+	{
+		fORMColumn::configureEmailColumn('User', 'email_address');
+		if ($throws_exception) {
+			$this->setExpectedException('fValidationException');
+		}
+		$user = $this->createUser();
+		$user->setEmailAddress($email);
+		$user->validate();
+	}
 }
