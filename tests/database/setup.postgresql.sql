@@ -49,6 +49,7 @@ CREATE TABLE songs (
 	track_number INTEGER NOT NULL,
 	UNIQUE(track_number, album_id)
 );
+CREATE UNIQUE INDEX uniq_name_album_idx ON songs (album_id, (lower(name)));
 
 CREATE TABLE owns_on_cd (
 	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
