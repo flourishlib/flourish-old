@@ -125,6 +125,34 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		$event->setRegistrationUrl($link);
 		$event->validate();
 	}
+    
+    public static function prepareLinkProvider()
+    {
+        $output = array();
+        
+        $output[] = array('http://foobar', 'http://foobar');
+        $output[] = array('http://foobar.com/baz', 'http://foobar.com/baz');
+        $output[] = array('http://192.168.1.1', 'http://192.168.1.1');
+        $output[] = array('http://foo.bar.baz.co.uk/?foo=1&bar=2', 'http://foo.bar.baz.co.uk/?foo=1&amp;bar=2');
+        $output[] = array('https://foobar.com', 'https://foobar.com');
+        $output[] = array('', '');
+        $output[] = array('foobar.com/', 'http://foobar.com/');
+        $output[] = array('/', '/');
+        $output[] = array('/foo/bar', '/foo/bar');
+        
+        return $output;
+    }
+    
+    /**
+     * @dataProvider prepareLinkProvider
+     */
+    public function testPrepareLink($link, $prepared_link)
+    {
+        fORMColumn::configureLinkColumn('Event', 'registration_url');
+        $event = $this->createEvent();
+        $event->setRegistrationUrl($link);
+        $this->assertEquals($prepared_link, $event->prepareRegistrationUrl());
+    }
 	
 	public static function validateEmailProvider()
 	{
