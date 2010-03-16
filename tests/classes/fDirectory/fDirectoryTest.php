@@ -217,6 +217,24 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 			$filenames
 		);
 	}
+    
+    public function testScanDirs()
+    {
+        $this->createScannableFiles();
+        $dir   = new fDirectory('output/fDirectory_scan/');
+        $files = $dir->scan('#/$#');
+        $filenames = array();
+        foreach ($files as $file) {
+            $filenames[] = str_replace($dir->getPath(), '', $file->getPath());    
+        }
+        
+        $this->assertEquals(
+            array(
+                'subdir' . DIRECTORY_SEPARATOR
+            ),
+            $filenames
+        );
+    }
 	
 	public function testRename()
 	{
