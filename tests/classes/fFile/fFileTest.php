@@ -114,6 +114,13 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('three.txt', $file->getName());
 		$this->assertEquals(str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT'] . '/output/fFile/'), $file->getParent()->getPath());
 	}
+    
+    public function testRenameToSameName()
+    {
+        $file = new fFile('output/fFile/one.txt');
+        $file->rename('one.txt', TRUE);
+        $this->assertEquals('one.txt', $file->getName());
+    }
 	
 	public function testRenameAnotherDirectory()
 	{
