@@ -116,7 +116,12 @@ class fSchemaWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 		
 		$column_info = $this->schema_obj->getColumnInfo($table);
 		foreach ($column_info as $col => &$info) {
-			ksort($info);	
+			ksort($info);
+			foreach ($info as $key => $value) {
+				if ($value instanceof fNumber) {
+					$info[$key] = $value->__toString();	
+				}
+			}	
 		}
 		ksort($column_info);
 		

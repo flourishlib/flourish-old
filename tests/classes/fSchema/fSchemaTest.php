@@ -1,6 +1,6 @@
 <?php
 require_once('./support/init.php');
- 
+
 class fSchemaTest extends PHPUnit_Framework_TestSuite
 {
 	public static function suite()
@@ -31,7 +31,7 @@ class fSchemaTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 }
- 
+
 class fSchemaTestChild extends PHPUnit_Framework_TestCase
 {
 	public $db;
@@ -90,13 +90,18 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	{
 		$schema_column_info = $this->schema['column_info'][$table];
 		foreach ($schema_column_info as $col => &$info) {
-			ksort($info);	
+			ksort($info);
 		}
 		ksort($schema_column_info);
 		
 		$column_info = $this->schema_obj->getColumnInfo($table);
 		foreach ($column_info as $col => &$info) {
-			ksort($info);	
+			ksort($info);
+			foreach ($info as $key => $value) {
+				if ($value instanceof fNumber) {
+					$info[$key] = $value->__toString();	
+				}
+			}
 		}
 		ksort($column_info);
 		
@@ -150,5 +155,68 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 			$schema_relationships,
 			$relationships
 		);
+	}
+	
+	public static function numericRangeProvider()
+	{
+		$output = array();
+		
+		if (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') {
+			$output[] = array('albums', 'year_released', "INSERT INTO albums (name, year_released, msrp, artist_id) VALUES ('Test Album', %i, 9.99, 3)");
+		}
+		$output[] = array('albums', 'msrp', "INSERT INTO albums (name, year_released, msrp, artist_id) VALUES ('Test Album', 2010, %f, 3)");
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider numericRangeProvider
+	 */
+	public function testNumericRanges($table, $column, $query)
+	{
+		$info = $this->schema_obj->getColumnInfo($table, $column);
+		
+		$values = array(
+			$info['min_value']->sub(1)->__toString() => TRUE,
+			$info['min_value']->__toString()         => FALSE,
+			$info['min_value']->add(3)->__toString() => FALSE,
+			$info['max_value']->sub(1)->__toString() => FALSE,
+			$info['max_value']->__toString()         => FALSE,
+			$info['max_value']->add(1)->__toString() => TRUE
+		);
+		foreach ($values as $value => $should_catch) {
+			$this->db->query('BEGIN');
+			$exception = FALSE;
+			try {
+				$res = $this->db->query($query, $value);
+				
+				// Since MySQL silently mutates data to fit into columns, we have to check the actual value
+				if (DB_TYPE == 'mysql') {
+					$primary_key = current($this->schema_obj->getKeys($table, 'primary'));
+					
+					$inserted_value = $this->db->query(
+						"SELECT %r FROM %r WHERE %r = %i",
+						$column,
+						$table,
+						$primary_key,
+						$res->getAutoIncrementedValue()
+					)->fetchScalar();
+					
+					if ($inserted_value != $value) {
+						throw new fSQLException();
+					}   
+				}
+				
+				// SQLite will never reject a value, so we just hard code the rejection here for the tests
+				if (DB_TYPE == 'sqlite' && ($info['max_value']->lt($value) || $info['min_value']->gt($value))) {
+					throw new fSQLException();
+				}
+			
+			} catch (fSQLException $e) {
+				$exception = TRUE;
+			}
+			$this->db->query('ROLLBACK');
+			$this->assertEquals($should_catch, $exception);
+		}
 	}
 }

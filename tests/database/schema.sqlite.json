@@ -9,7 +9,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"artist_id": {
 				"auto_increment": false,
@@ -19,7 +21,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"genre": {
 				"auto_increment": false,
@@ -29,7 +33,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"msrp": {
 				"auto_increment": false,
@@ -39,7 +45,9 @@
 				"not_null": true,
 				"placeholder": "%f",
 				"type": "float",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": 99999999.99,
+				"min_value": -99999999.99
 			},
 			"name": {
 				"auto_increment": false,
@@ -49,7 +57,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"year_released": {
 				"auto_increment": false,
@@ -59,7 +69,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"artists": {
@@ -71,7 +83,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"name": {
 				"auto_increment": false,
@@ -81,7 +95,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"groups": {
@@ -93,7 +109,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"group_id": {
 				"auto_increment": true,
@@ -103,7 +121,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"group_leader": {
 				"auto_increment": false,
@@ -113,7 +133,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"name": {
 				"auto_increment": false,
@@ -123,7 +145,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"owns_on_cd": {
@@ -135,7 +159,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"user_id": {
 				"auto_increment": false,
@@ -145,7 +171,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"owns_on_tape": {
@@ -157,7 +185,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"user_id": {
 				"auto_increment": false,
@@ -167,7 +197,9 @@
 				"not_null": false,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"songs": {
@@ -179,7 +211,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"length": {
 				"auto_increment": false,
@@ -189,7 +223,9 @@
 				"not_null": true,
 				"placeholder": "%t",
 				"type": "time",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"name": {
 				"auto_increment": false,
@@ -199,7 +235,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"song_id": {
 				"auto_increment": true,
@@ -209,7 +247,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"track_number": {
 				"auto_increment": false,
@@ -219,7 +259,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"users": {
@@ -231,7 +273,9 @@
 				"not_null": false,
 				"placeholder": "%d",
 				"type": "date",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"date_created": {
 				"auto_increment": false,
@@ -241,7 +285,9 @@
 				"not_null": true,
 				"placeholder": "%p",
 				"type": "timestamp",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"email_address": {
 				"auto_increment": false,
@@ -251,7 +297,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"first_name": {
 				"auto_increment": false,
@@ -261,7 +309,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"hashed_password": {
 				"auto_increment": false,
@@ -271,7 +321,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"is_validated": {
 				"auto_increment": false,
@@ -281,7 +333,9 @@
 				"not_null": true,
 				"placeholder": "%b",
 				"type": "boolean",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"last_name": {
 				"auto_increment": false,
@@ -291,7 +345,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"middle_initial": {
 				"auto_increment": false,
@@ -301,7 +357,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"status": {
 				"auto_increment": false,
@@ -311,7 +369,9 @@
 				"not_null": true,
 				"placeholder": "%s",
 				"type": "varchar",
-				"valid_values": ["Active", "Inactive", "Pending"]
+				"valid_values": ["Active", "Inactive", "Pending"],
+				"max_value": null,
+				"min_value": null
 			},
 			"time_of_last_login": {
 				"auto_increment": false,
@@ -321,7 +381,9 @@
 				"not_null": false,
 				"placeholder": "%t",
 				"type": "time",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"times_logged_in": {
 				"auto_increment": false,
@@ -331,7 +393,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"user_id": {
 				"auto_increment": true,
@@ -341,7 +405,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		},
 		"users_groups": {
@@ -353,7 +419,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			},
 			"user_id": {
 				"auto_increment": false,
@@ -363,7 +431,9 @@
 				"not_null": true,
 				"placeholder": "%i",
 				"type": "integer",
-				"valid_values": null
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
 			}
 		}
 	},

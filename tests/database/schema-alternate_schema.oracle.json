@@ -9,6 +9,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null
 		 },
 		 "name": {
@@ -19,7 +21,9 @@
 			"default": null,
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 },
 		 "year_released": {
 			"type": "integer",
@@ -28,6 +32,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -38,6 +44,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 }
@@ -51,6 +59,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null
 		 },
 		 "name": {
@@ -61,7 +71,9 @@
 			"default": null,
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 }
 	  },
 	  "flourish2.groups": {
@@ -73,6 +85,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null
 		 },
 		 "name": {
@@ -83,7 +97,9 @@
 			"default": null,
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 },
 		 "group_leader": {
 			"type": "integer",
@@ -92,6 +108,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -102,6 +120,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 }
@@ -115,6 +135,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null
 		 },
 		 "first_name": {
@@ -125,7 +147,9 @@
 			"default": null,
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 },
 		 "middle_initial": {
 			"type": "varchar",
@@ -135,7 +159,9 @@
 			"placeholder": "%s",
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 },
 		 "last_name": {
 			"type": "varchar",
@@ -145,7 +171,9 @@
 			"default": null,
 			"valid_values": null,
 			"decimal_places": null,
-			"auto_increment": false
+			"auto_increment": false,
+			"max_value": null,
+			"min_value": null
 		 }
 	  },
 	  "flourish2.users_groups": {
@@ -156,6 +184,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -166,6 +196,8 @@
 			"default": null,
 			"valid_values": null,
 			"max_length": null,
+			"max_value": null,
+			"min_value": null,
 			"decimal_places": null,
 			"auto_increment": false
 		 }
