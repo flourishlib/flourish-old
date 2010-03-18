@@ -48,6 +48,14 @@ class fORMValidationTest extends PHPUnit_Framework_TestSuite
  
 class fORMValidationTestChild extends PHPUnit_Framework_TestCase
 {
+	protected function createAlbum()
+	{
+		$album = new Album();
+		$album->setName('Test Album');
+		$album->setArtistId(3);
+		return $album;	
+	}
+	
 	protected function createUser()
 	{
 		$user = new User();
@@ -77,6 +85,46 @@ class fORMValidationTestChild extends PHPUnit_Framework_TestCase
 		__reset();	
 	}
 		
+	
+	public static function numberValueProvider()
+	{
+		$output = array();
+		
+		$output[] = array("2010", '-99999999.99', FALSE);
+		$output[] = array("2010", '99999999.99', FALSE);
+		$output[] = array("2010", '100000000.00', TRUE);
+		$output[] = array("2010", '0.00', FALSE);
+		$output[] = array("2010", '9.9999999999999999', FALSE);
+		$output[] = array("2010", '-100000000.00', TRUE);
+		
+		if (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') {
+			$output[] = array("2010", '9.99', FALSE);
+			$output[] = array("0", '9.99', FALSE);
+			$output[] = array("2147483647", '9.99', FALSE);
+			$output[] = array("-2147483648", '9.99', FALSE);
+			$output[] = array("-2147483649", '9.99', TRUE);
+			$output[] = array("2147483648", '9.99', TRUE);
+			$output[] = array("4294967295", '9.99', TRUE);
+		}
+		
+		return $output;
+	}
+	
+	
+	/**
+	 * @dataProvider numberValueProvider
+	 */
+	public function testNumberValues($year, $msrp, $should_throw_exception)
+	{
+		if ($should_throw_exception) {
+			$this->setExpectedException('fValidationException');	
+		}
+		$album = $this->createAlbum();
+		$album->setYearReleased($year);
+		$album->setMsrp($msrp);
+		$album->validate();
+	}
+	
 	
 	public function testOneOrMoreNoValues()
 	{
