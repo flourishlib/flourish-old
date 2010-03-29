@@ -176,15 +176,21 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	{
 		$info = $this->schema_obj->getColumnInfo($table, $column);
 		
+		// Concatting the numbers with : prevents PHP 5.3's poor implicit
+		// casting of integer-like strings
 		$values = array(
-			$info['min_value']->sub(1)->__toString() => TRUE,
-			$info['min_value']->__toString()         => FALSE,
-			$info['min_value']->add(3)->__toString() => FALSE,
-			$info['max_value']->sub(1)->__toString() => FALSE,
-			$info['max_value']->__toString()         => FALSE,
-			$info['max_value']->add(1)->__toString() => TRUE
+			$info['min_value']->sub(1)->__toString() . ':' => TRUE,
+			$info['min_value']->__toString() . ':'         => FALSE,
+			$info['min_value']->add(3)->__toString() . ':' => FALSE,
+			$info['max_value']->sub(1)->__toString() . ':' => FALSE,
+			$info['max_value']->__toString() . ':'         => FALSE,
+			$info['max_value']->add(1)->__toString() . ':' => TRUE
 		);
+		
+		$bad_value = FALSE;
+		
 		foreach ($values as $value => $should_catch) {
+			$value = substr($value, 0, -1);
 			$this->db->query('BEGIN');
 			$exception = FALSE;
 			try {
@@ -216,7 +222,13 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 				$exception = TRUE;
 			}
 			$this->db->query('ROLLBACK');
-			$this->assertEquals($should_catch, $exception);
+			if ($should_catch != $exception) {
+				$bad_value = TRUE;
+			} else {
+				$this->assertEquals($should_catch, $exception);
+			}
 		}
+		
+		$this->assertEquals(FALSE, $bad_value);
 	}
 }

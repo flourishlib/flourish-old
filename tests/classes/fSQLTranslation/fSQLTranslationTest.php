@@ -499,6 +499,35 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 		}
 		ksort($translation_test_schema);
 		
+        $max_blob_length = 0;
+        $max_text_length = 0;
+        switch (DB_TYPE) {
+            case 'sqlite':
+                $max_blob_length = 1000000000;
+                $max_text_length = 1000000000;
+                break;
+            
+            case 'oracle':
+                $max_blob_length = 4294967295;
+                $max_text_length = 4294967295;
+                break;
+            
+            case 'mysql':
+                $max_blob_length = 4294967295;
+                $max_text_length = 16777215;
+                break;
+            
+            case 'postgresql':
+                $max_blob_length = 1073741824;
+                $max_text_length = 1073741824;
+                break;
+            
+            case 'mssql':
+                $max_blob_length = 2147483647;
+                $max_text_length = 1073741823;
+                break;
+        }
+        
 		$this->assertEquals(
 			array(
 				'bigint_col' => array(
@@ -506,7 +535,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => FALSE,
+                    "max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber('9223372036854775807') : null,
+                    "min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber('-9223372036854775808') : null,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
@@ -515,8 +546,10 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"auto_increment" => FALSE,
 					"decimal_places" => NULL,
 					"default"        => NULL,
-					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_length"     => $max_blob_length,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%l",
 					"type"           => "blob",
 					"valid_values"   => NULL
@@ -526,7 +559,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%b",
 					"type"           => "boolean",
 					"valid_values"   => NULL
@@ -536,7 +571,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 40,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%s",
 					"type"           => "char",
 					"valid_values"   => NULL
@@ -546,7 +583,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => ($this->db->getType() == 'mssql') ? "%p" : "%d",
 					"type"           => ($this->db->getType() == 'mssql') ? "timestamp" : "date",
 					"valid_values"   => NULL
@@ -555,8 +594,10 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"auto_increment" => FALSE,
 					"decimal_places" => NULL,
 					"default"        => NULL,
-					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_length"     => $max_text_length,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%s",
 					"type"           => "text",
 					"valid_values"   => NULL
@@ -566,7 +607,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "%p" : "%t",
 					"type"           => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "timestamp" : "time",
 					"valid_values"   => NULL
@@ -576,7 +619,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%p",
 					"type"           => "timestamp",
 					"valid_values"   => NULL
@@ -586,7 +631,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => TRUE,
+					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
+                    "min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
+                    "not_null"       => TRUE,
 					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
@@ -596,7 +643,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 100,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%s",
 					"type"           => "varchar",
 					"valid_values"   => NULL
@@ -619,7 +668,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 100,
-					"not_null"       => FALSE,
+					"max_value"      => NULL,
+                    "min_value"      => NULL,
+                    "not_null"       => FALSE,
 					"placeholder"    => "%s",
 					"type"           => "varchar",
 					"valid_values"   => NULL
@@ -629,7 +680,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => TRUE,
+					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
+                    "min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
+                    "not_null"       => TRUE,
 					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
@@ -639,7 +692,9 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
-					"not_null"       => TRUE,
+					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
+                    "min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
+                    "not_null"       => TRUE,
 					"placeholder"    => "%i",
 					"type"           => "integer",
 					"valid_values"   => NULL
