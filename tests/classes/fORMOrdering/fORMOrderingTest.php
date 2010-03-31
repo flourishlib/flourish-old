@@ -60,6 +60,12 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 		fORMOrdering::configureOrderingColumn('TopAlbum', 'position');
 		fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
 		fORMOrdering::configureOrderingColumn('YearFavoriteAlbum', 'position');
+		if (defined('MAP_TABLES')) {
+			fORM::mapClassToTable('User', 'user');
+			fORM::mapClassToTable('Group', 'group');
+			fORM::mapClassToTable('Artist', 'popular_artists');
+			fORM::mapClassToTable('Album', 'records');
+		}
 	}
 	
 	public function tearDown()

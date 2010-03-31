@@ -70,6 +70,12 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		}
 		fORMDatabase::attach($this->sharedFixture['db']);
 		fORMSchema::attach($this->sharedFixture['schema']);
+		if (defined('MAP_TABLES')) {
+			fORM::mapClassToTable('User', 'user');
+			fORM::mapClassToTable('Group', 'group');
+			fORM::mapClassToTable('Artist', 'popular_artists');
+			fORM::mapClassToTable('Album', 'records');
+		}
 	}
 	
 	public function tearDown()
@@ -77,7 +83,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 	

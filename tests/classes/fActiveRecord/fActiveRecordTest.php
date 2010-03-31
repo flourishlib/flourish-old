@@ -83,6 +83,12 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		}
 		fORMDatabase::attach($this->sharedFixture['db']);
 		fORMSchema::attach($this->sharedFixture['schema']);
+		if (defined('MAP_TABLES')) {
+			fORM::mapClassToTable('User', 'user');
+			fORM::mapClassToTable('Group', 'group');
+			fORM::mapClassToTable('Artist', 'popular_artists');
+			fORM::mapClassToTable('Album', 'records');
+		}
 		fORM::registerActiveRecordMethod('User', 'hasChanged', 'changed');	
 	}
 	
@@ -95,7 +101,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		$this->sharedFixture['db']->query('DELETE FROM event_details');
 		$this->sharedFixture['db']->query('DELETE FROM registrations');
 		$this->sharedFixture['db']->query('DELETE FROM events WHERE event_id > 9');
-		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 	
@@ -170,7 +176,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testIteratorConstruct()
 	{
-		$user = new User(fORMDatabase::retrieve()->query("SELECT * FROM users WHERE user_id = 1"));
+		$user = new User(fORMDatabase::retrieve()->query("SELECT * FROM %r WHERE user_id = 1", fORM::tablize('User')));
 		$this->assertEquals(
 			1,
 			$user->getUserId()	
@@ -233,7 +239,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture['db']->query('SELECT user_id FROM users WHERE user_id = %i', $id)->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT user_id FROM %r WHERE user_id = %i', fORM::tablize('User'), $id)->countReturnedRows()
 		);		
 	}
 	
@@ -320,7 +326,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'testInsert')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -339,7 +345,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -353,10 +359,10 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM users WHERE first_name = %s', 'William')->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'William')->countReturnedRows()
 		);
 		
-		$this->sharedFixture['db']->query('UPDATE users SET first_name = %s WHERE user_id = %i', 'Will', 1);		
+		$this->sharedFixture['db']->query('UPDATE %r SET first_name = %s WHERE user_id = %i', fORM::tablize('User'), 'Will', 1);		
 	}
 	
 	public function testUpdateWithNoChanges()
@@ -366,7 +372,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM users WHERE user_id = %i', 1)->countReturnedRows()
+			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE user_id = %i', fORM::tablize('User'), 1)->countReturnedRows()
 		);	
 	}
 	
@@ -457,7 +463,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 	{
 		eval("class TestUser extends fActiveRecord {
 			protected function configure() {
-				fORM::mapClassToTable(\$this, 'users');
+				fORM::mapClassToTable(\$this, '" .  fORM::tablize('User') . "');
 			}	
 		}");
 		$user = new TestUser(1);

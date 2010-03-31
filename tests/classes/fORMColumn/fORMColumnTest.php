@@ -78,6 +78,12 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		}
 		fORMDatabase::attach($this->sharedFixture['db']);
 		fORMSchema::attach($this->sharedFixture['schema']);
+		if (defined('MAP_TABLES')) {
+			fORM::mapClassToTable('User', 'user');
+			fORM::mapClassToTable('Group', 'group');
+			fORM::mapClassToTable('Artist', 'popular_artists');
+			fORM::mapClassToTable('Album', 'records');
+		}
 	}
 	
 	public function tearDown()
@@ -85,7 +91,7 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 		
@@ -125,34 +131,34 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		$event->setRegistrationUrl($link);
 		$event->validate();
 	}
-    
-    public static function prepareLinkProvider()
-    {
-        $output = array();
-        
-        $output[] = array('http://foobar', 'http://foobar');
-        $output[] = array('http://foobar.com/baz', 'http://foobar.com/baz');
-        $output[] = array('http://192.168.1.1', 'http://192.168.1.1');
-        $output[] = array('http://foo.bar.baz.co.uk/?foo=1&bar=2', 'http://foo.bar.baz.co.uk/?foo=1&amp;bar=2');
-        $output[] = array('https://foobar.com', 'https://foobar.com');
-        $output[] = array('', '');
-        $output[] = array('foobar.com/', 'http://foobar.com/');
-        $output[] = array('/', '/');
-        $output[] = array('/foo/bar', '/foo/bar');
-        
-        return $output;
-    }
-    
-    /**
-     * @dataProvider prepareLinkProvider
-     */
-    public function testPrepareLink($link, $prepared_link)
-    {
-        fORMColumn::configureLinkColumn('Event', 'registration_url');
-        $event = $this->createEvent();
-        $event->setRegistrationUrl($link);
-        $this->assertEquals($prepared_link, $event->prepareRegistrationUrl());
-    }
+	
+	public static function prepareLinkProvider()
+	{
+		$output = array();
+		
+		$output[] = array('http://foobar', 'http://foobar');
+		$output[] = array('http://foobar.com/baz', 'http://foobar.com/baz');
+		$output[] = array('http://192.168.1.1', 'http://192.168.1.1');
+		$output[] = array('http://foo.bar.baz.co.uk/?foo=1&bar=2', 'http://foo.bar.baz.co.uk/?foo=1&amp;bar=2');
+		$output[] = array('https://foobar.com', 'https://foobar.com');
+		$output[] = array('', '');
+		$output[] = array('foobar.com/', 'http://foobar.com/');
+		$output[] = array('/', '/');
+		$output[] = array('/foo/bar', '/foo/bar');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider prepareLinkProvider
+	 */
+	public function testPrepareLink($link, $prepared_link)
+	{
+		fORMColumn::configureLinkColumn('Event', 'registration_url');
+		$event = $this->createEvent();
+		$event->setRegistrationUrl($link);
+		$this->assertEquals($prepared_link, $event->prepareRegistrationUrl());
+	}
 	
 	public static function validateEmailProvider()
 	{

@@ -63,6 +63,12 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 			$this->markTestSkipped();
 		}
 		$this->db = $this->sharedFixture;
+		if (defined('MAP_TABLES')) {
+			fORM::mapClassToTable('User', 'user');
+			fORM::mapClassToTable('Group', 'group');
+			fORM::mapClassToTable('Artist', 'popular_artists');
+			fORM::mapClassToTable('Album', 'records');
+		}
 	}
 	
 	public function tearDown()
@@ -455,7 +461,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionFullyQualified()
 	{
-		$set = fRecordSet::build('User', array('users.email_address=' => 'will@flourishlib.com'));
+		$set = fRecordSet::build('User', array(sprintf('%s.email_address=', fORM::tablize('User')) => 'will@flourishlib.com'));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -464,7 +470,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableManyToManyRoute()
 	{
-		$set = fRecordSet::build('User', array('groups{users_groups}.name=' => 'Musicians'));
+		$set = fRecordSet::build('User', array(sprintf('%s{users_groups}.name=', fORM::tablize('Group')) => 'Musicians'));
 		$this->assertEquals(
 			array(1, 2),
 			$set->getPrimaryKeys()
@@ -473,7 +479,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableOneToManyRoute()
 	{
-		$set = fRecordSet::build('User', array('groups{group_leader}.name=' => 'Music Lovers'));
+		$set = fRecordSet::build('User', array(sprintf('%s{group_leader}.name=', fORM::tablize('Group')) => 'Music Lovers'));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -482,7 +488,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionRelatedTableOneToManyRoute2()
 	{
-		$set = fRecordSet::build('User', array('groups{group_founder}.name=' => 'Music Lovers'));
+		$set = fRecordSet::build('User', array(sprintf('%s{group_founder}.name=', fORM::tablize('Group')) => 'Music Lovers'));
 		$this->assertEquals(
 			array(2),
 			$set->getPrimaryKeys()
@@ -491,7 +497,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionOnceRemovedRelatedTable()
 	{
-		$set = fRecordSet::build('User', array('albums{owns_on_cd}=>songs.track_number>' => 13));
+		$set = fRecordSet::build('User', array(sprintf('%s{owns_on_cd}=>songs.track_number>', fORM::tablize('Album')) => 13));
 		$this->assertEquals(
 			array(1, 4),
 			$set->getPrimaryKeys()
@@ -713,7 +719,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionCount()
 	{
-		$set = fRecordSet::build('User', array('count(albums{owns_on_cd}.album_id)=' => 3));
+		$set = fRecordSet::build('User', array(sprintf('count(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -722,7 +728,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionSum()
 	{
-		$set = fRecordSet::build('User', array('sum(albums{owns_on_cd}.album_id)=' => 6));
+		$set = fRecordSet::build('User', array(sprintf('sum(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 6));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -731,7 +737,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionMin()
 	{
-		$set = fRecordSet::build('User', array('min(albums{owns_on_cd}.album_id)=' => 1));
+		$set = fRecordSet::build('User', array(sprintf('min(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 1));
 		$this->assertEquals(
 			array(1, 2, 4),
 			$set->getPrimaryKeys()
@@ -740,7 +746,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionMax()
 	{
-		$set = fRecordSet::build('User', array('max(albums{owns_on_cd}.album_id)=' => 3));
+		$set = fRecordSet::build('User', array(sprintf('max(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3));
 		$this->assertEquals(
 			array(1, 3),
 			$set->getPrimaryKeys()
@@ -749,7 +755,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionAggregateFunctionAvg()
 	{
-		$set = fRecordSet::build('User', array('avg(albums{owns_on_cd}.album_id)=' => 2));
+		$set = fRecordSet::build('User', array(sprintf('avg(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 2));
 		$this->assertEquals(
 			array(1),
 			$set->getPrimaryKeys()
@@ -761,7 +767,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$set = fRecordSet::build(
 			'User',
 			array(
-				'max(albums{owns_on_cd}.album_id)=' => 3,
+				sprintf('max(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3,
 				'first_name=' => 'Will'
 			)
 		);
@@ -773,7 +779,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionColumnCompareEqual()
 	{
-		$set = fRecordSet::build('User', array('user_id=:' => 'groups{users_groups}.group_id'));
+		$set = fRecordSet::build('User', array('user_id=:' => sprintf('%s{users_groups}.group_id', fORM::tablize('Group'))));
 		$this->assertEquals(
 			array(1, 2),
 			$set->getPrimaryKeys()
@@ -845,7 +851,13 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildWithWhereConditionColumnCompareAggregate()
 	{
-		$set = fRecordSet::build('User', array('count(groups{users_groups}.group_id)=:' => 'count(groups{group_founder}.group_id)'));
+		$set = fRecordSet::build(
+			'User',
+			array(
+				sprintf('count(%s{users_groups}.group_id)=:', fORM::tablize('Group')) =>
+				sprintf('count(%s{group_founder}.group_id)', fORM::tablize('Group'))
+			)
+		);
 		$this->assertEquals(
 			array(2),
 			$set->getPrimaryKeys()
@@ -921,7 +933,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	public function testBuildFromArrayFailureNotArray()
 	{
 		$this->setExpectedException('fProgrammerException');
-		$set = fRecordSet::buildFromArray('User', "SELECT * FROM users");
+		$set = fRecordSet::buildFromArray('User', sprintf("SELECT * FROM %s", fORM::tablize('User')));
 	}
 	
 	public function testBuildFromArrayFailureIncorrectClass()
@@ -932,7 +944,7 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildFromSQL()
 	{
-		$set = fRecordSet::buildFromSQL('User', "SELECT * FROM users");
+		$set = fRecordSet::buildFromSQL('User', sprintf("SELECT * FROM %s", fORM::tablize('User')));
 		$this->assertEquals(
 			array(1, 2, 3, 4),
 			$set->getPrimaryKeys()
@@ -941,7 +953,15 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildFromSQLDistinct()
 	{
-		$set = fRecordSet::buildFromSQL('User', "SELECT DISTINCT users.* FROM users ORDER BY users.user_id ASC");
+		$set = fRecordSet::buildFromSQL(
+			'User',
+			sprintf(
+				"SELECT DISTINCT %s.* FROM %s ORDER BY %s.user_id ASC",
+				fORM::tablize('User'),
+				fORM::tablize('User'),
+				fORM::tablize('User')
+			)
+		);
 		$this->assertEquals(
 			array(1, 2, 3, 4),
 			$set->getPrimaryKeys()
@@ -950,7 +970,11 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBuildFromSQLNonLimitedCount()
 	{
-		$set = fRecordSet::buildFromSQL('User', "SELECT users.* FROM users LIMIT 2", "SELECT count(*) FROM users");
+		$set = fRecordSet::buildFromSQL(
+			'User',
+			sprintf("SELECT %s.* FROM %s LIMIT 2", fORM::tablize('User'), fORM::tablize('User')),
+			sprintf("SELECT count(*) FROM %s", fORM::tablize('User'))
+		);
 		$this->assertEquals(
 			array(1, 2),
 			$set->getPrimaryKeys()
