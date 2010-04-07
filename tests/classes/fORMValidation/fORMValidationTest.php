@@ -170,6 +170,24 @@ class fORMValidationTestChild extends PHPUnit_Framework_TestCase
 	}
 	
 	
+	public function testRequiredRuleWithValue()
+	{
+		fORMValidation::addRequiredRule('User', 'birthday');
+		$user = $this->createUser();
+		$user->setBirthday('today');
+		$user->validate();
+	}
+	
+	
+	public function testRequiredRuleWithNoValue()
+	{
+		fORMValidation::addRequiredRule('User', 'birthday');
+		$this->setExpectedException('fValidationException');
+		$user = $this->createUser();
+		$user->validate();
+	}
+	
+	
 	public function testOnlyOneNoValues()
 	{
 		fORMValidation::addOnlyOneRule('User', array('is_validated', 'time_of_last_login'));
