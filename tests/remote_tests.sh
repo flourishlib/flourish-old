@@ -29,6 +29,7 @@ NO_MYSQL=0
 NO_POSTGRESQL=0
 NO_MSSQL=0
 NO_ORACLE=0
+NO_DB2=0
 PARALLEL_DB=0
 
 while [[ ${1:0:1} = - ]]; do
@@ -83,6 +84,9 @@ for ARG in "$@"; do
 		PARALLEL_DB=0
 	elif [[ $ART = '!oracle*' ]]; then
 		NO_ORACLE=1
+		PARALLEL_DB=0
+	elif [[ $ART = '!db2*' ]]; then
+		NO_DB2=1
 		PARALLEL_DB=0
 	fi
 done
@@ -361,14 +365,15 @@ fi
 
 if (( $PARALLEL_DB )); then
 		
-	$0 -s $RHOSTS "$@" .text ':mysql*' '!postgresql*' '!mssql*' '!oracle*' > output/parallel.mysql.text &
-	$0 -s $RHOSTS "$@" .text ':oracle*' '!mysql*' '!postgresql*' '!mssql*' > output/parallel.oracle.text &
-	$0 -s $RHOSTS "$@" .text ':postgresql*' '!mysql*' '!mssql*' '!oracle*' > output/parallel.postgresql.text &
-	$0 -s $RHOSTS "$@" .text ':mssql*' '!mysql*' '!postgresql*' '!oracle*' > output/parallel.mssql.text &
+	$0 -s $RHOSTS "$@" .text ':mysql*' '!postgresql*' '!mssql*' '!oracle*' '!db2*' > output/parallel.mysql.text &
+	$0 -s $RHOSTS "$@" .text ':oracle*' '!mysql*' '!postgresql*' '!mssql*' '!db2*' > output/parallel.oracle.text &
+	$0 -s $RHOSTS "$@" .text ':postgresql*' '!mysql*' '!mssql*' '!oracle*' '!db2*' > output/parallel.postgresql.text &
+	$0 -s $RHOSTS "$@" .text ':mssql*' '!mysql*' '!postgresql*' '!oracle*' '!db2*' > output/parallel.mssql.text &
+	$0 -s $RHOSTS "$@" .text '!mssql*' '!mysql*' '!postgresql*' '!oracle*' ':db2*' > output/parallel.db2.text &
 	
 	wait
 	
-	$0 -s -n $CONCURRENT $RHOSTS "$@" .text '!mysql*' '!postgresql*' '!mssql*' '!oracle*' > output/parallel.non-db.text &
+	$0 -s -n $CONCURRENT $RHOSTS "$@" .text '!mysql*' '!postgresql*' '!mssql*' '!oracle*' '!db2*' > output/parallel.non-db.text &
 	
 	wait
 	
@@ -381,7 +386,7 @@ if (( $PARALLEL_DB )); then
 		SKIPPED=0
 		PHP_ERRORS=0
 		
-		for FILE in output/parallel.mysql.text output/parallel.postgresql.text output/parallel.mssql.text output/parallel.oracle.text output/parallel.non-db.text; do
+		for FILE in output/parallel.mysql.text output/parallel.postgresql.text output/parallel.mssql.text output/parallel.oracle.text output/parallel.db2.text output/parallel.non-db.text; do
 		#for FILE in output/parallel.mysql.text; do
 			PASSED=$(( $PASSED + $(grep "$RHOST>passed=" "$FILE" | sed "s/$RHOST>passed=//") ))
 			FAILED=$(( $FAILED + $(grep "$RHOST>failed=" "$FILE" | sed "s/$RHOST>failed=//") ))
@@ -405,6 +410,7 @@ if (( $PARALLEL_DB )); then
 	rm output/parallel.postgresql.text
 	rm output/parallel.mssql.text
 	rm output/parallel.oracle.text
+	rm output/parallel.db2.text
 	rm output/parallel.non-db.text
 	
 	rm /tmp/flourish_local.tar.gz
@@ -424,7 +430,7 @@ for RHOST in $RHOSTS; do
 		queue_command echo '----'
 		queue_command uname -v
 		queue_command echo '----'
-		queue_command which php phpunit sqsh mysql psql sqlplus convert \2\> /dev/null
+		queue_command which php phpunit sqsh mysql psql sqlplus db2batch convert \2\> /dev/null
 		queue_command echo '----'
 		queue_command php -m
 		queue_command echo '----'
@@ -449,6 +455,7 @@ for RHOST in $RHOSTS; do
 		show_ext dom        $(present "$PHP_MODULES" dom)        1
 		show_ext gd         $(present "$PHP_MODULES" gd)         0
 		show_ext iconv      $(present "$PHP_MODULES" iconv)      1
+		show_ext ibm_db2    $(present "$PHP_MODULES" ibm_db2)    0
 		show_ext imap       $(present "$PHP_MODULES" imap)       0
 		show_ext json       $(present "$PHP_MODULES" json)       0
 		show_ext mbstring   $(present "$PHP_MODULES" mbstring)   0
@@ -460,6 +467,7 @@ for RHOST in $RHOSTS; do
 		show_ext oci8       $(present "$PHP_MODULES" oci8)       0
 		show_ext odbc       $(present "$PHP_MODULES" odbc)       0
 		show_ext pdo_dblib  $(present "$PHP_MODULES" 'pdo_dblib\|pdo_mssql')  0
+		show_ext pdo_ibm    $(present "$PHP_MODULES" pdo_ibm)    0
 		show_ext pdo_mysql  $(present "$PHP_MODULES" pdo_mysql)  0
 		show_ext pdo_oci    $(present "$PHP_MODULES" PDO_OCI)    0
 		show_ext pdo_odbc   $(present "$PHP_MODULES" PDO_ODBC)   0
@@ -471,6 +479,7 @@ for RHOST in $RHOSTS; do
 			echo
 		fi
 		
+		show_db db2        $(present "$PHP_MODULES" ibm)            $(present "$PROGRAMS" /db2batch)
 		show_db mysql      $(present "$PHP_MODULES" mysql)          $(present "$PROGRAMS" /mysql)
 		show_db postgresql $(present "$PHP_MODULES" pgsql)          $(present "$PROGRAMS" /psql)
 		show_db oracle     $(present "$PHP_MODULES" oci)            $(present "$PROGRAMS" /sqlplus)
@@ -505,7 +514,7 @@ for RHOST in $RHOSTS; do
 		else
 			SSH_HOST="$RHOST"
 		fi
-		REMOTE_INFO=$(ssh -A -q $SSH_PORT $SSH_HOST 'echo $SHELL && which mysql psql sqlplus sqsh' 2> /dev/null)
+		REMOTE_INFO=$(ssh -A -q $SSH_PORT $SSH_HOST 'echo $SHELL && which mysql psql sqlplus sqsh db2batch' 2> /dev/null)
 		REMOTE_SHELL=$(echo "$REMOTE_INFO" | awk 'BEGIN { RS=""; FS="\n" } {print $1}')
 		if [[ $REMOTE_SHELL =~ csh ]]; then
 			IS_CSH=1
@@ -515,6 +524,7 @@ for RHOST in $RHOSTS; do
 		HAS_PSQL=$(present "$REMOTE_INFO" /psql)
 		HAS_SQLPLUS=$(present "$REMOTE_INFO" /sqlplus)
 		HAS_SQSH=$(present "$REMOTE_INFO" /sqsh)
+		HAS_DB2BATCH=$(present "$REMOTE_INFO" /db2batch)
 		
 		scp $SCP_PORT -q /tmp/flourish_local.tar.gz $SSH_HOST:/tmp/flourish_$TOKEN.tar.gz
 		
@@ -556,6 +566,10 @@ for RHOST in $RHOSTS; do
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;"
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
 		fi
+		
+		#if (( ! $NO_DB2 && $HAS_DB2BATCH )); then
+			# Since database creation is very slow and users are controlled via the OS, everything is kept in place for DB2
+		#fi
 
 		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
@@ -610,6 +624,10 @@ for RHOST in $RHOSTS; do
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN" \| awk 'BEGIN { RS="" } {gsub(".return status = 0.", "");printf $0}'
 			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN"
 		fi
+		
+		#if (( ! $NO_DB2 && $HAS_DB2BATCH )); then
+			# Since database creation is very slow and users are controlled via the OS, everything is kept in place for DB2
+		#fi
 
 		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT

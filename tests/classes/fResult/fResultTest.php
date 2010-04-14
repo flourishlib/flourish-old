@@ -41,11 +41,10 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
 	
-	
 	public function testInsertAutoIncrementedValue()
 	{
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -64,7 +63,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	public function testInsertAffectedRows()
 	{
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -83,7 +82,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	public function testInsertReturnedRows()
 	{
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -104,7 +103,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fNoRowsException');
 		
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -125,7 +124,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fNoRowsException');
 		
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -144,7 +143,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	public function testInsertFetchAllRows()
 	{
 		$res = $this->db->query(
-			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %l)",
+			"INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)",
 			'John',
 			'',
 			'Doe',
@@ -204,7 +203,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		$this->db->query("COMMIT");
 		$res = $this->db->query("SELECT user_id FROM users");
 		$this->assertEquals(3, $res->countReturnedRows());
-	}	
+	}
 }
 
 class fResultTestNoModifications extends PHPUnit_Framework_TestSuite

@@ -1,3 +1,4 @@
+DB2 Multi-Schema;;ibm_db2;;;database/config.db2.php
 PostgreSQL Multi-Schema;;pgsql|pdo_pgsql;;;database/config.postgresql.php
 MSSQL Multi-Schema;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql.php
 Oracle Multi-Schema;;oci8|pdo_oci;;;database/config.oracle.php

@@ -30,7 +30,7 @@ function _tally($value, $record)
 
 function fix_schema($input)
 {
-	if (DB_TYPE != 'oracle') {
+	if (DB_TYPE != 'oracle' && DB_TYPE != 'db2') {
 		return $input;	
 	}
 	$input = str_replace('flourish2.', DB_SECOND_SCHEMA . '.', $input);

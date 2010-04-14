@@ -1,3 +1,5 @@
+DB2;;ibm_db2;;;database/config.db2.php
+#DB2 ODBC;windows;pdo_odbc;;;database/config.db2odbc.php
 PostgreSQL;;pgsql|pdo_pgsql;;;database/config.postgresql.php
 SQLite 3;;pdo_sqlite;sqlite;;database/config.sqlite.php
 SQLite 2;;sqlite;pdo_sqlite;;database/config.sqlite2.php

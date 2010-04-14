@@ -22,7 +22,7 @@ define('DB_ALTERNATE_SCHEMA_SCHEMA_FILE', './database/schema-alternate_schema.or
 define('DB_DATATYPES_SETUP_FILE',    './database/setup-datatypes.oracle.sql');
 define('DB_DATATYPES_TEARDOWN_FILE', './database/teardown-datatypes.oracle.sql');
 
-define('DB_SECOND_SCHEMA', DB_NAME == 'flourish' ? 'flourish2' : DB_NAME . '_2');
+define('DB_SECOND_SCHEMA', DB_NAME == 'flourish' ? 'flourish2' : DB_USERNAME . '_2');
 
 if (!defined('SKIPPING')) {
 	$db_name = DB_NAME;

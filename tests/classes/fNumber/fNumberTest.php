@@ -25,6 +25,7 @@ class fNumberTest extends PHPUnit_Framework_TestCase
 		$output[] = array('2e2', NULL, '200');
 		$output[] = array('2e+2', NULL, '200');
 		$output[] = array('2e-2', NULL, '0.02');
+		$output[] = array('2.534e-2', NULL, '0.02534');
 		$output[] = array('202e-2', NULL, '2.02');
 		$output[] = array('-894389378923687534937964382789432.89734638', 3, '-894389378923687534937964382789432.897');
 		
