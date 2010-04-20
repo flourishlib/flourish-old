@@ -169,11 +169,6 @@ class fMailbox
 	public function getHeaders($message)
 	{
 		$headers = (array) imap_header($this->resource, $message);
-		unset($headers['to']);
-		unset($headers['cc']);
-		unset($headers['from']);
-		unset($headers['reply_to']);
-		unset($headers['sender']);
 		unset($headers['date']);
 		unset($headers['subject']);
 		unset($headers['Recent']);
@@ -193,23 +188,51 @@ class fMailbox
 			unset($headers['message_id']);
 		}
 		
-		$headers['To'] = $headers['toaddress'];
+		$headers['To'] = $headers['to'];
+		unset($headers['to']);
 		unset($headers['toaddress']);
 		
-		$headers['From'] = $headers['fromaddress'];
+		if (isset($headers['cc'])) {
+			$headers['Cc'] = $headers['cc'];
+			unset($headers['cc']);
+		}
+		
+		$headers['From'] = $headers['from'];
+		unset($headers['from']);
 		unset($headers['fromaddress']);
 		
 		if (isset($headers['reply_toaddress'])) {	
-			$headers['Reply-To'] = $headers['reply_toaddress'];
+			$headers['Reply-To'] = $headers['reply_to'];
+			unset($headers['reply_to']);
 			unset($headers['reply_toaddress']);
 		}
 		
 		if (isset($headers['senderaddress'])) {	
-			$headers['Sender'] = $headers['senderaddress'];
+			$headers['Sender'] = $headers['sender'];
+			unset($headers['sender']);
 			unset($headers['senderaddress']);
 		}
 		
 		foreach ($headers as $header => $value) {
+			if (is_array($value)) {
+				$new_value = '';
+				foreach ($value as $sub_value) {
+					if ($sub_value instanceof stdClass && isset($sub_value->mailbox) && isset($sub_value->host)) {
+						if ($new_value) {
+							$new_value .= ', ';
+						}
+						if (isset($sub_value->personal)) {
+							$new_value .= '"' . $sub_value->personal . '" <';
+						}
+						$new_value .= $sub_value->mailbox . '@' . $sub_value->host;
+						if (isset($sub_value->personal)) {
+							$new_value .= '>';
+						}
+					}
+				}
+				$value = $new_value;
+				$headers[$header] = $value;
+			}
 			if (substr($value, 0, 2) == '=?') {
 				$value_objects = imap_mime_header_decode($value);
 				$new_value = '';
