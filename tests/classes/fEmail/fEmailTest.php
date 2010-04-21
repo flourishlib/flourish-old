@@ -233,7 +233,7 @@ Iñtërnâtiônàlizætiøn
 		$email->send();
 		
 		$message = $this->findMessage($token);
-		$this->assertEquals((stripos(php_uname('s'), 'windows') !== FALSE) ? 'will@flourishlib.com' : 'Wíll <will@flourishlib.com>', $message['headers']['From']);
+		$this->assertEquals((stripos(php_uname('s'), 'windows') !== FALSE) ? 'will@flourishlib.com' : '"Wíll" <will@flourishlib.com>', $message['headers']['From']);
 		$this->assertEquals($token . ': This is a test of sending headers and body with UTF-8, such as Iñtërnâtiônàlizætiøn', $message['headers']['Subject']);
 		$this->assertEquals('This is a test with UTF-8 characters, such as:
 Iñtërnâtiônàlizætiøn

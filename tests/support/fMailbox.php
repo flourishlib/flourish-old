@@ -64,6 +64,32 @@ class fMailbox
 	
 	
 	/**
+	 * Decodes encoded word elements from a header
+	 * 
+	 * @param mixed $value
+	 * @return string
+	 */
+	private function decodeHeader($value)
+	{
+		if (substr($value, 0, 2) != '=?') {
+			return $value;
+		}
+		
+		$value_objects = imap_mime_header_decode($value);
+		$new_value = '';
+		$charset   = 'WINDOWS-1252';
+		foreach ($value_objects as $value_object) {
+			if (preg_match('#^\s+$#D', $value_object->text)) {
+				continue;
+			}
+			$charset    = ($value_object->charset != 'default') ? $value_object->charset : $charset;
+			$new_value .= $value_object->text;
+		}
+		return iconv($charset, 'UTF-8', $new_value);
+	}
+	
+	
+	/**
 	 * Deletes a message from the server
 	 * 
 	 * @param  integer $message  The integer message number to retrieve
@@ -222,7 +248,7 @@ class fMailbox
 							$new_value .= ', ';
 						}
 						if (isset($sub_value->personal)) {
-							$new_value .= '"' . $sub_value->personal . '" <';
+							$new_value .= '"' . $this->decodeHeader($sub_value->personal) . '" <';
 						}
 						$new_value .= $sub_value->mailbox . '@' . $sub_value->host;
 						if (isset($sub_value->personal)) {
@@ -232,19 +258,8 @@ class fMailbox
 				}
 				$value = $new_value;
 				$headers[$header] = $value;
-			}
-			if (substr($value, 0, 2) == '=?') {
-				$value_objects = imap_mime_header_decode($value);
-				$new_value = '';
-				$charset   = 'WINDOWS-1252';
-				foreach ($value_objects as $value_object) {
-					if (preg_match('#^\s+$#D', $value_object->text)) {
-						continue;
-					}
-					$charset    = ($value_object->charset != 'default') ? $value_object->charset : $charset;
-					$new_value .= $value_object->text;
-				}
-				$headers[$header] = iconv($charset, 'UTF-8', $new_value);
+			} else {
+				$headers[$header] = $this->decodeHeader($value);
 			}
 		}
 		
