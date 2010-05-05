@@ -1,6 +1,6 @@
 <?php
 require_once('./support/init.php');
-include('./support/fMailbox.php');
+include('./support/Imap.php');
  
 class fEmailTest extends PHPUnit_Framework_TestCase
 {
@@ -19,18 +19,11 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING') || !defined('EMAIL_PASSWORD')) {
 			return;
 		}
-		
-		if (file_exists('./output/fEmail_loaded_body.txt')) {
-			unlink('./output/fEmail_loaded_body.txt');
-		}
-		if (file_exists('./output/fEmail_loaded_body.html')) {
-			unlink('./output/fEmail_loaded_body.html');
-		}
 	}
 	
 	private function findMessage($token)
 	{
-		$mailbox = new fMailbox(EMAIL_SERVER, EMAIL_USER, EMAIL_PASSWORD);
+		$mailbox = new Imap(EMAIL_SERVER, EMAIL_USER, EMAIL_PASSWORD);
 		
 		$i = 0;
 		do {
@@ -63,9 +56,10 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
 		$email->setSubject($token . ': Testing Simple Email');
 		$email->setBody('This is a simple test');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['Subject']);
 		$this->assertEquals('This is a simple test', $message['plain']);
@@ -83,7 +77,7 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 		$email->setBody('This is a test of single periods on a line
 .
 .');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
@@ -111,9 +105,10 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 			The constant is {EMAIL_FORMATTED_BODY}
 			{EMAIL_BODY}
 		', TRUE);
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Unindented Bodies', $message['headers']['Subject']);
 		$this->assertEquals('This is a test
@@ -129,26 +124,19 @@ The constant is set
 	{
 		$token = $this->generateSubjectToken();
 		
-		file_put_contents(
-			'./output/fEmail_loaded_body.txt',
-			'This is a loaded body
-With a couple of different $PLACEHOLDER$ styles, including dollar signs and %PERCENT_SIGNS%
-
-You can replace nothing'
-		);
-		
 		$email = new fEmail();
 		$email->setFromEmail('will@flourishlib.com');
 		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
 		$email->setSubject($token . ': Testing Simple Email');
-		$email->loadBody('./output/fEmail_loaded_body.txt', array(
-			'$PLACEHOLDER$' => 'placeholder',
+		$email->loadBody('./email/loaded_body.txt', array(
+			'$PLACEHOLDER$'   => 'placeholder',
 			'%PERCENT_SIGNS%' => 'percent signs',
-			'nothing' => 'anything'
+			'nothing'         => 'anything'
 		));
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['Subject']);
 		$this->assertEquals('This is a loaded body
@@ -162,20 +150,16 @@ You can replace anything', $message['plain']);
 	{
 		$token = $this->generateSubjectToken();
 		
-		file_put_contents(
-			'./output/fEmail_loaded_body.html',
-			'<h1>Loaded HTML</h1><p>%REPLACE%</p>'
-		);
-		
 		$email = new fEmail();
 		$email->setFromEmail('will@flourishlib.com');
 		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
 		$email->setSubject($token . ': Testing Simple Email');
 		$email->setBody('This is a test of loading the HTML body');
-		$email->loadHTMLBody(new fFile('./output/fEmail_loaded_body.html'), array('%REPLACE%' => 'This is a test'));
-		$email->send();
+		$email->loadHTMLBody(new fFile('./email/loaded_body.html'), array('%REPLACE%' => 'This is a test'));
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['Subject']);
 		$this->assertEquals('This is a test of loading the HTML body', $message['plain']);
@@ -193,9 +177,10 @@ You can replace anything', $message['plain']);
 		$email->setSubject($token . ': Testing Simple Email');
 		$email->setBody('This is a simple test');
 		$email->setHTMLBody('<h1>Test</h1><p>This is a simple test</p>');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['Subject']);
 		$this->assertEquals('This is a simple test', $message['plain']);
@@ -211,9 +196,10 @@ You can replace anything', $message['plain']);
 		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
 		$email->setSubject($token . ': This is a test of sending a long subject that should theoretically cause the email Subject: header to break onto multiple lines using folding whitespace - it should take less than 78 characters but it could be as long as 998 characters');
 		$email->setBody('This is a simple test');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': This is a test of sending a long subject that should theoretically cause the email Subject: header to break onto multiple lines using folding whitespace - it should take less than 78 characters but it could be as long as 998 characters', $message['headers']['Subject']);
 		$this->assertEquals('This is a simple test', $message['plain']);
@@ -230,9 +216,10 @@ You can replace anything', $message['plain']);
 		$email->setBody('This is a test with UTF-8 characters, such as:
 Iñtërnâtiônàlizætiøn
 ');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals((stripos(php_uname('s'), 'windows') !== FALSE) ? 'will@flourishlib.com' : '"Wíll" <will@flourishlib.com>', $message['headers']['From']);
 		$this->assertEquals($token . ': This is a test of sending headers and body with UTF-8, such as Iñtërnâtiônàlizætiøn', $message['headers']['Subject']);
 		$this->assertEquals('This is a test with UTF-8 characters, such as:
@@ -251,9 +238,10 @@ Iñtërnâtiônàlizætiøn
 		$email->setBody('This is a test of sending an attachment');
 		$bar_gif_contents = file_get_contents('./resources/images/bar.gif');
 		$email->addAttachment('bar.gif', 'image/gif', $bar_gif_contents);
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Attachments', $message['headers']['Subject']);
 		$this->assertEquals('This is a test of sending an attachment', $message['plain']);
@@ -304,9 +292,10 @@ Iñtërnâtiônàlizætiøn
 	}
 }';
 		$email->addAttachment('example.json', 'application/json', $example_json_contents);
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Attachments', $message['headers']['Subject']);
 		$this->assertEquals('This is a test of sending an attachment', $message['plain']);
@@ -343,9 +332,10 @@ Iñtërnâtiônàlizætiøn
 </p>');
 		$bar_gif_contents = file_get_contents('./resources/images/bar.gif');
 		$email->addAttachment('bar.gif', 'image/gif', $bar_gif_contents);
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Attachment/HTML', $message['headers']['Subject']);
 		$this->assertEquals('This is a test of sending an attachment with an HTML body', $message['plain']);
@@ -376,9 +366,10 @@ Iñtërnâtiônàlizætiøn
 		$email->addRecipient(str_replace('@', "@\n", EMAIL_ADDRESS), "Test\nUser");
 		$email->setSubject($token . ': Testing Header Injection');
 		$email->setBody('This is a test of removing newlines from recipients and subject headers to help prevent email header injection');
-		$email->send();
+		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['Message-ID']);
 		$this->assertEquals('will@flourishlib.com', $message['headers']['From']);
 		$this->assertEquals($token . ': Testing Header Injection', $message['headers']['Subject']);
 		$this->assertEquals('This is a test of removing newlines from recipients and subject headers to help prevent email header injection', $message['plain']);

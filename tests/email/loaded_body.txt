@@ -1,0 +1,4 @@
+This is a loaded body
+With a couple of different $PLACEHOLDER$ styles, including dollar signs and %PERCENT_SIGNS%
+
+You can replace nothing

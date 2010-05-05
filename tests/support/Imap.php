@@ -1,5 +1,5 @@
 <?php
-class fMailbox
+class Imap
 {
 	/**
 	 * The imap resource
