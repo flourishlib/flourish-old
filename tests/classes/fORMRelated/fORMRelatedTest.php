@@ -14,6 +14,8 @@ class InvalidTable extends fActiveRecord { }
 class Event extends fActiveRecord { }
 class EventSlot extends fActiveRecord { }
 class EventDetail extends fActiveRecord { }
+class Certification extends fActiveRecord { }
+class CertificationLevel extends fActiveRecord { }
  
 class fORMRelatedTest extends PHPUnit_Framework_TestSuite
 {
@@ -302,6 +304,39 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$event->populateEventSlot();
 		$event->populateEventDetail();
 		$event->store();
+	}
+	
+	
+	public function testAssociateMultiColumnPrimaryKey()
+	{
+		$album = new Album(1);
+		
+		$certification_level = new CertificationLevel();
+		$certification_level->setName('Gold');
+		
+		$certification = new Certification();
+		$certification->setAlbumId($album->getAlbumId());
+		$certification->setYear(2010);
+		
+		$certification_level->associateCertifications($certification);
+		$certification_level->store();
+		
+		$this->assertEquals(
+			array(
+				array('name' => 'Gold')
+			),
+			$this->sharedFixture['db']->query('SELECT * FROM certification_levels')->fetchAllRows()
+		);
+		$this->assertEquals(
+			array(
+				array(
+					'level' => 'Gold',
+					'album_id' => 1,
+					'year' => '2010'
+				)
+			),
+			$this->sharedFixture['db']->query('SELECT %r, album_id, year FROM certifications', 'level')->fetchAllRows()
+		);
 	}
 	
 	

@@ -1,3 +1,5 @@
+DROP TABLE certifications PURGE;
+DROP TABLE certification_levels PURGE;
 DROP TABLE events_artists PURGE;
 DROP TABLE event_details PURGE;
 DROP TABLE registrations PURGE;

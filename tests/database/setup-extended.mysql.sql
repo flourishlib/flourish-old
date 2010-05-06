@@ -87,6 +87,19 @@ CREATE TABLE events_artists (
 	FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE
 )ENGINE=InnoDB;
 
+CREATE TABLE certification_levels (
+	name VARCHAR(200) PRIMARY KEY
+)ENGINE=InnoDB;
+
+CREATE TABLE certifications (
+	level VARCHAR(200) NOT NULL,
+	album_id INTEGER NOT NULL,
+	year INTEGER NOT NULL,
+	PRIMARY KEY (album_id, level),
+	FOREIGN KEY (level) REFERENCES certification_levels(name) ON DELETE CASCADE,
+	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON DELETE CASCADE
+)ENGINE=InnoDB;
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');

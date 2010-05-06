@@ -1,3 +1,5 @@
+DROP TABLE certifications;
+DROP TABLE certification_levels;
 DROP TABLE events_artists;
 DROP TABLE event_details;
 DROP TABLE registrations;

@@ -112,6 +112,17 @@ CREATE TABLE events_artists (
 	PRIMARY KEY(event_id, artist_id)
 );
 
+CREATE TABLE certification_levels (
+	name VARCHAR(200) PRIMARY KEY
+);
+
+CREATE TABLE certifications (
+	"LEVEL" VARCHAR(200) NOT NULL REFERENCES certification_levels(name) ON DELETE CASCADE,
+	album_id INTEGER NOT NULL REFERENCES albums(album_id) ON DELETE CASCADE,
+	year INTEGER NOT NULL,
+	PRIMARY KEY (album_id, "LEVEL")
+);
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
