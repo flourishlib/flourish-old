@@ -1,6 +1,6 @@
 DB2-Backed;;ibm_db2;;;database/config.db2.php
 SQLite-Backed;;pdo_sqlite|sqlite;;;database/config.sqlite.php
-#SQLite-Backed with Table Mapping;;pdo_sqlite|sqlite;;;database/config.sqlite-mapped_tables.php
+SQLite-Backed with Table Mapping;;pdo_sqlite|sqlite;;;database/config.sqlite-mapped_tables.php
 PostgreSQL-Backed;;pdo_pgsql|pgsql;;;database/config.postgresql.php
 MySQL-Backed;;pdo_mysql|mysql|mysqli;;;database/config.mysql.php
 MSSQL-Backed;;mssql|sqlsrv|pdo_dblib;;;database/config.mssql.php
