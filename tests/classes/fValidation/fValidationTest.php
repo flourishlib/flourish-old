@@ -452,7 +452,7 @@ class fValidationTest extends PHPUnit_Framework_TestCase
 		$output[] = array('foo-b_a_r@example.com');
 		$output[] = array('"crazy"."example with quotes strings"@example.com');
 		$output[] = array('foo~bar@example.com');
-		$output[] = array('name@192.168.0.1');
+		$output[] = array('name@[192.168.0.1]');
 		
 		return $output;
 	}
