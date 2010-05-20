@@ -41,6 +41,49 @@ class fHTMLTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, fHTML::makeLinks($input, $length));	
 	}
 	
+	
+	public static function encodeProvider()
+	{
+		$output = array();
+		
+		$output[] = array('http://example.com', 'http://example.com');
+		$output[] = array('<b>Test</b>',        '&lt;b&gt;Test&lt;/b&gt;');
+		$output[] = array('<<Testing',          '&lt;&lt;Testing');
+		$output[] = array(array(array('Test', '<b>Test</b>'), '<>'), array(array('Test', '&lt;b&gt;Test&lt;/b&gt;'), '&lt;&gt;'));
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider encodeProvider
+	 */
+	public function testEncode($input, $output)
+	{
+		$this->assertEquals($output, fHTML::encode($input));	
+	}
+	
+	
+	public static function prepareProvider()
+	{
+		$output = array();
+		
+		$output[] = array('http://example.com', 'http://example.com');
+		$output[] = array('<b>Test</b>',        '<b>Test</b>');
+		$output[] = array('<<Testing',          '&lt;&lt;Testing');
+		$output[] = array(array(array('Test', '<b>Test</b>'), '<>'), array(array('Test', '<b>Test</b>'), '&lt;&gt;'));
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider prepareProvider
+	 */
+	public function testPrepare($input, $output)
+	{
+		$this->assertEquals($output, fHTML::prepare($input));	
+	}
+	
+	
 	public function tearDown()
 	{
 		
