@@ -1387,6 +1387,46 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testSplit()
+	{
+		$set = fRecordSet::build('Song', array('album_id=' => 1));
+		$sets = $set->split(3);
+		
+		$this->assertEquals(
+			array(
+				array(1, 2, 3, 4),
+				array(5, 6, 7, 8),
+				array(9, 10)
+			),
+			array(
+				$sets[0]->getPrimaryKeys(),
+				$sets[1]->getPrimaryKeys(),
+				$sets[2]->getPrimaryKeys()
+			)
+		);
+	}
+	
+	public function testChunk()
+	{
+		$set = fRecordSet::build('Song', array('album_id=' => 1));
+		$sets = $set->chunk(3);
+		
+		$this->assertEquals(
+			array(
+				array(1, 2, 3),
+				array(4, 5, 6),
+				array(7, 8, 9),
+				array(10)
+			),
+			array(
+				$sets[0]->getPrimaryKeys(),
+				$sets[1]->getPrimaryKeys(),
+				$sets[2]->getPrimaryKeys(),
+				$sets[3]->getPrimaryKeys()
+			)
+		);
+	}
+	
 	public function testSort()
 	{
 		$set = fRecordSet::build('User');
