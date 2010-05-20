@@ -73,6 +73,76 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, fUTF8::rpos($input, $needle, $offset));	
 	}
 	
+	
+	public static function trimProvider()
+	{
+		$output = array();
+		
+		$output[] = array('  hello ', NULL,   'hello');
+		$output[] = array('hello ', NULL,     'hello');
+		$output[] = array('hello ', ' o',    'hell');
+		$output[] = array('hello ', ' elo',  'h');
+		$output[] = array(' Iñtërnâtiônàlizætiøn ',   NULL,    'Iñtërnâtiônàlizætiøn');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', ' øn',  'Iñtërnâtiônàlizæti');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', " \x6B..\x6E",  'Iñtërnâtiônàlizætiø');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider trimProvider
+	 */
+	public function testTrim($input, $charlist, $output)
+	{
+		$this->assertEquals($output, fUTF8::trim($input, $charlist));	
+	}
+	
+	public static function ltrimProvider()
+	{
+		$output = array();
+		
+		$output[] = array('  hello ', NULL,   'hello ');
+		$output[] = array('hello ', NULL,     'hello ');
+		$output[] = array('hello ', ' o',    'hello ');
+		$output[] = array('hello ', ' elo',  'hello ');
+		$output[] = array(' Iñtërnâtiônàlizætiøn ',   NULL,    'Iñtërnâtiônàlizætiøn ');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', ' ñI',  'tërnâtiônàlizætiøn   ');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', " \x49..\x6E",  'ñtërnâtiônàlizætiøn   ');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider ltrimProvider
+	 */
+	public function testLtrim($input, $charlist, $output)
+	{
+		$this->assertEquals($output, fUTF8::ltrim($input, $charlist));	
+	}
+	
+	public static function rtrimProvider()
+	{
+		$output = array();
+		
+		$output[] = array('  hello ', NULL,   '  hello');
+		$output[] = array('hello ', NULL,     'hello');
+		$output[] = array('hello ', ' o',    'hell');
+		$output[] = array('hello ', ' elo',  'h');
+		$output[] = array(' Iñtërnâtiônàlizætiøn ',   NULL,    ' Iñtërnâtiônàlizætiøn');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', ' ønI',  ' Iñtërnâtiônàlizæti');
+		$output[] = array(' Iñtërnâtiônàlizætiøn   ', " \x6B..\x6EI",  ' Iñtërnâtiônàlizætiø');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider rtrimProvider
+	 */
+	public function testRtrim($input, $charlist, $output)
+	{
+		$this->assertEquals($output, fUTF8::rtrim($input, $charlist));	
+	}
+	
 	public static function ucwordsProvider()
 	{
 		$output = array();
