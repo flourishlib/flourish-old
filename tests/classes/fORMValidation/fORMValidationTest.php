@@ -141,6 +141,57 @@ class fORMValidationTestChild extends PHPUnit_Framework_TestCase
 	}
 	
 	
+	public function testReturnErrors()
+	{
+		$user = new User();
+		$errors = $user->validate(TRUE);
+		$this->assertEquals(
+			array(
+				'first_name' => 'First Name: Please enter a value',
+				'last_name' => 'Last Name: Please enter a value',
+				'email_address' => 'Email Address: Please enter a value',
+				'date_created' => 'Date Created: Please enter a value',
+				'hashed_password' => 'Hashed Password: Please enter a value'
+			),
+			$errors
+		);
+	}
+	
+	
+	public function testReturnErrorsWithoutFieldName()
+	{
+		$user = new User();
+		$errors = $user->validate(TRUE, TRUE);
+		$this->assertEquals(
+			array(
+				'first_name' => 'Please enter a value',
+				'last_name' => 'Please enter a value',
+				'email_address' => 'Please enter a value',
+				'date_created' => 'Please enter a value',
+				'hashed_password' => 'Please enter a value'
+			),
+			$errors
+		);
+	}
+	
+	public function testReturnErrorsWithoutFieldNameReordered()
+	{
+		fORMValidation::setMessageOrder('User', array('Last', 'First', 'Email', 'Password', 'Date'));
+		$user = new User();
+		$errors = $user->validate(TRUE, TRUE);
+		$this->assertSame(
+			array(
+				'last_name' => 'Please enter a value',
+				'first_name' => 'Please enter a value',
+				'email_address' => 'Please enter a value',
+				'hashed_password' => 'Please enter a value',
+				'date_created' => 'Please enter a value'
+			),
+			$errors
+		);
+	}
+	
+	
 	public function testOneOrMoreOneValue()
 	{
 		fORMValidation::addOneOrMoreRule('User', array('is_validated', 'time_of_last_login'));
