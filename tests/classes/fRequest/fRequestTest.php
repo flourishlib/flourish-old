@@ -10,6 +10,12 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$_REQUEST = array();	
 	}
 	
+	public function testGetBestAcceptLanguage()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-us,en;q=0.5';
+		$this->assertEquals('en-us', fRequest::getBestAcceptLanguage());
+	}
+	
 	public function testGetMissingField()
 	{
 		$this->assertEquals(NULL, fRequest::get('test'));
