@@ -40,6 +40,13 @@ class fUploadTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('Please upload a file', $uploader->validate('field', TRUE));
 	}
 	
+	public function testValidateOptional()
+	{
+		$uploader = new fUpload();
+		$uploader->setOptional();
+		$this->assertEquals(NULL, $uploader->validate('field', TRUE));
+	}
+	
 	public function testValidateFormMaxSize()
 	{
 		ini_set('upload_max_filesize', '2M');
