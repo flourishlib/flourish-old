@@ -62,7 +62,7 @@ class fUploadTest extends PHPUnit_Framework_TestCase
 		$_FILES['field']['name'] = 'test.jpg';
 		$_FILES['field']['size'] = 438903322;
 		$uploader = new fUpload();
-		$uploader->setMaxFileSize('2m');
+		$uploader->setMaxSize('2m');
 		$this->assertEquals('The file uploaded is over the limit of 2.0 M', $uploader->validate('field', TRUE));
 	}
 	
