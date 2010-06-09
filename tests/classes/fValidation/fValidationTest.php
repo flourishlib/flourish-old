@@ -52,6 +52,42 @@ class fValidationTest extends PHPUnit_Framework_TestCase
 		);
 		
 		$output[] = array(
+			array('user' => array('name' => 'John')),
+			array(),
+			FALSE,
+			array(),
+			array(),
+			array('user[name]')
+		);
+		
+		$output[] = array(
+			array('user' => array('name' => 'John')),
+			array(),
+			TRUE,
+			array('User Name First: Please enter a value'),
+			array(),
+			array('user[name][first]')
+		);
+		
+		$output[] = array(
+			array('user' => array('name' => 'John')),
+			array(),
+			TRUE,
+			array('User Email: Please enter a value'),
+			array(),
+			array('user[email]')
+		);
+		
+		$output[] = array(
+			array('user' => array('John')),
+			array(),
+			TRUE,
+			array('User #2: Please enter a value'),
+			array(),
+			array('user[1]')
+		);
+		
+		$output[] = array(
 			array(),
 			array('foo' => 'This is a test'),
 			TRUE,

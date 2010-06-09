@@ -253,6 +253,112 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(FALSE, fRequest::get('test', 'boolean'));
 	}
 	
+	public function testGetArray()
+	{
+		$_GET['user'] = array(
+			'name'  => 'John',
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals('John', fRequest::get('user[name]'));
+	}
+	
+	public function testGetMultiDimensionalArray()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => 'John',
+				'last'  => 'Smith'
+			),
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals('John', fRequest::get('user[name][first]'));
+	}
+	
+	public function testGetArrayDefault()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => 'John',
+				'last'  => 'Smith'
+			),
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals('N/A', fRequest::get('user[full_name][first]', 'string', 'N/A'));
+	}
+	
+	public function testGetArrayNoValue()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => 'John',
+				'last'  => 'Smith'
+			),
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals(NULL, fRequest::get('user[full_name][first][0]'));
+	}
+	
+	public function testGetArrayCast()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => 'John',
+				'last'  => 'Smith'
+			),
+			'email' => 'john@smith.com',
+			'times_logged_in' => '3'
+		);
+		$this->assertEquals(3, fRequest::get('user[times_logged_in]', 'integer'));
+	}
+	
+	public function testSetArray()
+	{
+		fRequest::set('user[name]', 'John');
+		$this->assertEquals(
+			array(
+				'user' => array('name'  => 'John')
+			),
+			$_GET
+		);
+	}
+	
+	public function testSetMultiDimensionalArray()
+	{
+		fRequest::set('user[name][first]', 'John');
+		$this->assertEquals(
+			array(
+				'user' => array(
+					'name'  => array(
+						'first' => 'John'
+					)
+				)
+			),
+			$_GET
+		);
+	}
+	
+	public function testSetArrayOverrideScalar()
+	{
+		$_GET = array(
+			'user' => array(
+				'name'  => 'John Smith',
+				'email' => 'john@smith.com'
+			)
+		);
+		fRequest::set('user[name][first]', 'John');
+		$this->assertEquals(
+			array(
+				'user' => array(
+					'name'  => array(
+						'first' => 'John'
+					),
+					'email' => 'john@smith.com'
+				)
+			),
+			$_GET
+		);
+	}
+	
 	public function testGetPostOverGet()
 	{
 		$_GET['test'] = 'get';
