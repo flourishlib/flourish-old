@@ -41,8 +41,14 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, fGrammar::camelize($input, $upper));
 	}
 	
+	public function testCamelizeCustom()
+	{
+		fGrammar::addCamelUnderscoreRule('3rdParty', '3rd_party');
+		$this->assertEquals('3rdParty', fGrammar::camelize('3rd_party', TRUE));
+	}
+	
 	public function tearDown()
 	{
-		
+		fGrammar::reset();
 	}
 }
