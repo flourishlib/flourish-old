@@ -5,6 +5,9 @@ class fMailboxTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
+		if (defined('SKIPPING') || !defined('EMAIL_PASSWORD')) {
+			$this->markTestSkipped();
+		}
 		if (defined('EMAIL_DEBUG')) {
 			fCore::enableDebugging(TRUE);
 		}
@@ -122,6 +125,9 @@ class fMailboxTest extends PHPUnit_Framework_TestCase
 		$messages = array();
 		foreach ($mailbox->listMessages() as $uid => $overview) {
 			$info = $mailbox->fetchMessage($uid);
+			if (!isset($info['headers'])) {
+				fCore::expose($info);
+			}
 			$messages[$info['headers']['message-id']] = array(
 				'subject'   => $info['headers']['subject'],
 				'from'      => $info['headers']['from']['mailbox'] . '@' . $info['headers']['from']['host'],

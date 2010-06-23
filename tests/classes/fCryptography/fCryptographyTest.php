@@ -24,6 +24,9 @@ class fCryptographyTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSymmetricEncryption($plaintext, $key)
 	{
+		if (!extension_loaded('mcrypt')) {
+			$this->markTestSkipped();
+		}
 		$ciphertext = fCryptography::symmetricKeyEncrypt($plaintext, $key);
 		$this->assertNotEquals($plaintext, $ciphertext);
 		$this->assertEquals($plaintext, fCryptography::symmetricKeyDecrypt($ciphertext, $key));	

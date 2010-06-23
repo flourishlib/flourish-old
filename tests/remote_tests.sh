@@ -475,6 +475,7 @@ for RHOST in $RHOSTS; do
 		show_ext pdo_sqlite $(present "$PHP_MODULES" pdo_sqlite) 0
 		show_ext pgsql      $(present "$PHP_MODULES" pgsql)      0
 		show_ext sqlite     $(present "$PHP_MODULES" sqlite)     0
+		show_ext sqlsrv     $(present "$PHP_MODULES" sqlsrv)     0
 		if (( $EXT_NUM )); then
 			echo
 		fi
@@ -483,7 +484,7 @@ for RHOST in $RHOSTS; do
 		show_db mysql      $(present "$PHP_MODULES" mysql)          $(present "$PROGRAMS" /mysql)
 		show_db postgresql $(present "$PHP_MODULES" pgsql)          $(present "$PROGRAMS" /psql)
 		show_db oracle     $(present "$PHP_MODULES" oci)            $(present "$PROGRAMS" /sqlplus)
-		show_db mssql      $(present "$PHP_MODULES" 'mssql\|dblib') $(present "$PROGRAMS" /sqsh)
+		show_db mssql      $(present "$PHP_MODULES" 'mssql\|dblib\|sqlsrv') $(present "$PROGRAMS" /sqsh)
 		
 		show_status ImageMagick $(present "$PROGRAMS" /convert)
 		continue

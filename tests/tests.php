@@ -109,12 +109,22 @@ foreach ($paths as $path) {
 	}
 }
 
-function make_defines($exts, $exts_to_remove) {
+function make_defines($exts, $exts_to_remove, $throw=FALSE) {
 	$use_exts = array();
 	foreach ($exts as $ext => $define) {
 		if (in_array($ext, $exts_to_remove)) { continue; }
 		$use_exts[] = $define;	
 	}
+	
+	$disabled_exts_to_check = array_diff($exts_to_remove, array_keys($exts));
+	if ($disabled_exts_to_check) {
+		foreach ($disabled_exts_to_check as $ext_to_check) {
+			if (extension_loaded($ext_to_check) && $throw) {
+				throw new Exception('');
+			}
+		}
+	}
+	
 	$extra = '';
 	if (stripos(php_uname('s'), 'windows') !== FALSE) {
 		$extra = ' -d SMTP="' . ini_get('SMTP') . '" -d smtp_port="' . ini_get('smtp_port') . '" ';
@@ -274,7 +284,8 @@ foreach ($class_dirs as $class_dir) {
 									$lazy_load_exts,
 									explode('|', $required_exts)
 								)
-							)
+							),
+							TRUE
 						);
 						// Here we hijack the user_dir ini setting to pass data into the test
 						$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name$key_value_string\" $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');

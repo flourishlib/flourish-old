@@ -1,11 +1,13 @@
 <?php
 require_once('./support/init.php');
-include('./support/Imap.php');
  
 class fSMTPTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
+		if (defined('SKIPPING') || !defined('EMAIL_PASSWORD')) {
+			$this->markTestSkipped();
+		}
 		$_SERVER['SERVER_NAME'] = 'flourishlib.com';
 		if (defined('EMAIL_DEBUG')) {
 			fCore::enableDebugging(TRUE);
@@ -19,21 +21,20 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	
 	private function findMessage($token, $user)
 	{
-		$mailbox = new Imap(EMAIL_SERVER, $user, EMAIL_PASSWORD);
-		
 		$i = 0;
 		do {
-			sleep(1);
+			$mailbox = new fMailbox('imap', EMAIL_SERVER, $user, EMAIL_PASSWORD);
 			$messages = $mailbox->listMessages();
 			foreach ($messages as $number => $headers) {
 				if (strpos($headers['subject'], $token) !== FALSE) {
-					$message = $mailbox->getMessage($number, TRUE);
-					$mailbox->deleteMessage($number);
+					$message = $mailbox->fetchMessage($number, TRUE);
+					$mailbox->deleteMessages($number);
 					return $message;
 				}
 			}
-			$i++;
-		} while ($i < 60);
+			$mailbox->close();
+			sleep(5);
+		} while ($i < 10);
 		
 		throw new Exception('Email message ' . $token . ' never arrived');
 	}
@@ -107,10 +108,10 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$message_id = $email->send($smtp);
 		
 		$message = $this->findMessage($token, EMAIL_USER);
-		$this->assertEquals($message_id, $message['headers']['Message-ID']);
-		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['From']);
-		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['Subject']);
-		$this->assertEquals('This is a simple test', trim($message['plain']));
+		$this->assertEquals($message_id, $message['headers']['message-id']);
+		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
+		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['subject']);
+		$this->assertEquals('This is a simple test', trim($message['text']));
 		
 		$smtp->close();
 	}
@@ -137,12 +138,12 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$message_id = $email->send($smtp);
 		
 		$message = $this->findMessage($token, EMAIL_USER);
-		$this->assertEquals($message_id, $message['headers']['Message-ID']);
-		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['From']);
-		$this->assertEquals($token . ': Testing Single Periods on a Line', $message['headers']['Subject']);
+		$this->assertEquals($message_id, $message['headers']['message-id']);
+		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
+		$this->assertEquals($token . ': Testing Single Periods on a Line', $message['headers']['subject']);
 		$this->assertEquals('This is a test of single periods on a line
 .
-.', trim($message['plain']));
+.', trim($message['text']));
 		
 		$smtp->close();
 	}
@@ -170,21 +171,33 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$message_id = $email->send($smtp);
 		
 		$message = $this->findMessage($token, EMAIL_USER);
-		$this->assertEquals($message_id, $message['headers']['Message-ID']);
-		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['From']);
-		$this->assertEquals($token . ': Testing Multiple Recipients', $message['headers']['Subject']);
-		$this->assertEquals('This is a test of sending multiple recipients', trim($message['plain']));
+		$this->assertEquals($message_id, $message['headers']['message-id']);
+		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
+		$this->assertEquals($token . ': Testing Multiple Recipients', $message['headers']['subject']);
+		$this->assertEquals('This is a test of sending multiple recipients', trim($message['text']));
 		
 		$message = $this->findMessage($token, str_replace('tests', 'tests_2', EMAIL_USER));
-		// It seems the windows imap extension doesn't support the personal part of an email address
-		$is_windows = stripos(php_uname('a'), 'windows') !== FALSE;
-		$this->assertEquals($is_windows ? 'tests@flourishlib.com' : '"Test User" <tests@flourishlib.com>', $message['headers']['To']);
+		$this->assertEquals(
+			array(
+				'personal' => 'Test User',
+				'mailbox' => 'tests',
+				'host' => 'flourishlib.com'
+			), 
+			$message['headers']['to'][0]
+		);
 		
 		$message = $this->findMessage($token, str_replace('tests', 'tests_3', EMAIL_USER));
-		$this->assertEquals($is_windows ? 'tests_3@flourishlib.com' : '"Test User 3" <tests_3@flourishlib.com>', $message['headers']['Cc']);
+		$this->assertEquals(
+			array(
+				'personal' => 'Test User 3',
+				'mailbox' => 'tests_3',
+				'host' => 'flourishlib.com'
+			), 
+			$message['headers']['cc'][0]
+		);
 		
 		$message = $this->findMessage($token, str_replace('tests', 'tests_4', EMAIL_USER));
-		$this->assertEquals(FALSE, isset($message['headers']['Bcc']));
+		$this->assertEquals(FALSE, isset($message['headers']['bcc']));
 		
 		$smtp->close();
 	}

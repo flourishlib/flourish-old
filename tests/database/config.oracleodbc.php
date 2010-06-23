@@ -20,6 +20,11 @@ define('DB_DATATYPES_TEARDOWN_FILE', './database/teardown-datatypes.oracle.sql')
 
 define('DB_SECOND_SCHEMA', DB_NAME == 'flourish' ? 'flourish2' : DB_NAME . '_2');
 
+$null = stripos(php_uname('s'), 'windows') === FALSE ? '/dev/null' : 'NUL';
+if (!`which sqlplus 2> $null`) {
+	define('SKIPPING', 1);
+}
+
 if (!defined('SKIPPING')) {
 	$db_name = DB_NAME;
 	`sh reset_databases.sh -t oracle $db_name`;
