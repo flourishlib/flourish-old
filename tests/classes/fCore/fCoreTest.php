@@ -30,6 +30,15 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(array('OtherClass', 'method2'), fCore::callback('OtherClass::method2'));
 	}
 	
+	public function testCapture()
+	{
+		fCore::startErrorCapture();
+		echo $invalid_var;
+		$errors = fCore::stopErrorCapture();
+		$this->assertEquals(1, count($errors));
+		$this->assertEquals('Undefined variable: invalid_var', $errors[0]['string']);
+	}
+	
 	public function testDebugCallback()
 	{
 		fCore::registerDebugCallback(create_function('$message', 'echo strtoupper($message);'));
