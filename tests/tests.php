@@ -412,15 +412,15 @@ foreach ($class_dirs as $class_dir) {
 				$pad_to = $width - (3*6) + 1;
 				echo str_pad('', $pad_to - strlen($name_config), ' ');
 				
-				echo ($num_passed) ? "\033[0;37;43m" : "\033[0;37;47m";
+				echo ($num_passed) ? "\033[1;37;43m" : "\033[1;37;49m";
 				echo 'P ' . $num_passed;
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_passed), ' ', STR_PAD_RIGHT) . ' ';
-				echo ($num_failed) ? "\033[0;37;41m" : "\033[0;37;47m";
+				echo ($num_failed) ? "\033[1;37;41m" : "\033[1;37;49m";
 				echo 'F ' . $num_failed;
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_failed), ' ', STR_PAD_RIGHT) . ' ';
-				echo ($num_skipped) ? "\033[0;37;40m" : "\033[0;37;47m";
+				echo ($num_skipped) ? "\033[1;37;40m" : "\033[1;37;49m";
 				echo 'S ' . $num_skipped;
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_skipped), ' ', STR_PAD_RIGHT);
@@ -456,21 +456,21 @@ if ($format == 'json') {
 	}	
 	
 	if ($successful) {
-		echo "\033[0;37;43m " . $successful . " Passed \033[0m";
+		echo "\033[1;37;43m " . $successful . " Passed \033[0m";
 		if ($failures || $php_errors || $skipped) {
 			//echo ", ";
 		}	
 	}
 	
 	if ($failures) {
-		echo "\033[0;37;41m " . $failures . " Failed \033[0m";
+		echo "\033[1;37;41m " . $failures . " Failed \033[0m";
 		if ($php_errors || $skipped) {
 			//echo ", ";
 		}	
 	}
 	
 	if ($php_errors) {
-		echo "\033[0;37;41m " . $php_errors . " PHP errors \033[0m";
+		echo "\033[1;37;41m " . $php_errors . " PHP errors \033[0m";
 		if ($skipped) {
 			//echo ", ";
 		}	
