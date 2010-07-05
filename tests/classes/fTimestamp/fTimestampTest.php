@@ -186,6 +186,27 @@ class fTimestampTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($result, $timestamp->lte($secondary));	
 	}
 	
+	
+	public static function timezoneRelativeProvider()
+	{
+		$output = array();
+		
+		$output[] = array('now', 'Pacific/Honolulu', 'now', 'America/New_York');
+		$output[] = array('+2 hours', 'Pacific/Honolulu', '+2 hours', 'America/New_York');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider timezoneRelativeProvider
+	 */
+	public function testTimezoneRelative($time, $timezone, $other_time, $other_timezone)
+	{
+		$timestamp = new fTimestamp($time, $timezone);
+		$other_timestamp = new fTimestamp($other_time, $other_timezone);
+		$this->assertEquals($other_timestamp->adjust($timezone)->__toString(), $timestamp->__toString());
+	}
+	
 	public function tearDown()
 	{
 		
