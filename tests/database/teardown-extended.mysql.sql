@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS certifications, certification_levels, events_artists, event_details, registrations, events, event_slots, invalid_tables, top_albums, year_favorite_albums, favorite_albums, record_deals, record_labels, other_user_details, user_details;
+DROP TABLE IF EXISTS categories, certifications, certification_levels, events_artists, event_details, registrations, events, event_slots, invalid_tables, top_albums, year_favorite_albums, favorite_albums, record_deals, record_labels, other_user_details, user_details;

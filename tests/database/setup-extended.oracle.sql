@@ -123,6 +123,24 @@ CREATE TABLE certifications (
 	PRIMARY KEY (album_id, "LEVEL")
 );
 
+CREATE TABLE categories (
+	category_id INTEGER PRIMARY KEY,
+	name VARCHAR(200) NOT NULL,
+	parent INTEGER REFERENCES categories(category_id) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE categories_category_id_seq;
+
+CREATE OR REPLACE TRIGGER categories_category_id_trg
+BEFORE INSERT ON categories
+FOR EACH ROW
+BEGIN
+  IF :new.category_id IS NULL THEN
+	SELECT categories_category_id_seq.nextval INTO :new.category_id FROM dual\;
+  END IF\;
+END\;
+;
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
@@ -167,6 +185,10 @@ INSERT INTO top_albums (album_id, position) VALUES (6, 4);
 INSERT INTO top_albums (album_id, position) VALUES (2, 5);
 INSERT INTO top_albums (album_id, position) VALUES (3, 6);
 
-
+INSERT INTO categories (name, parent) VALUES ('Top Level', NULL);
+INSERT INTO categories (name, parent) VALUES ('Top Level, No Children', NULL);
+INSERT INTO categories (name, parent) VALUES ('Second Level', 1);
+INSERT INTO categories (name, parent) VALUES ('Second Level #2', 1);
+INSERT INTO categories (name, parent) VALUES ('Second Level #3', 1);
 
 COMMIT;

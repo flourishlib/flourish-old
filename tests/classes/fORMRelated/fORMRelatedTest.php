@@ -16,6 +16,7 @@ class EventSlot extends fActiveRecord { }
 class EventDetail extends fActiveRecord { }
 class Certification extends fActiveRecord { }
 class CertificationLevel extends fActiveRecord { }
+class Category extends fActiveRecord { }
  
 class fORMRelatedTest extends PHPUnit_Framework_TestSuite
 {
@@ -89,6 +90,14 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		__reset();	
 	}
 	
+	public function testBuildOneToManyRecursive()
+	{
+		$category = new Category(1);
+		$this->assertEquals(3, $category->buildCategories()->count());
+		$category_2 = new Category(2);
+		$this->assertEquals(0, $category_2->buildCategories()->count());
+	}
+	
 	static public function countOneToManyProvider()
 	{
 		$output = array();
@@ -135,6 +144,14 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fProgrammerException');
 		$user = new User(1);
 		$user->countGroups();
+	}
+	
+	public function testCountOneToManyRecursive()
+	{
+		$category = new Category(1);
+		$this->assertEquals(3, $category->countCategories());
+		$category_2 = new Category(2);
+		$this->assertEquals(0, $category_2->countCategories());
 	}
 	
 	
@@ -229,6 +246,14 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$user->hasGroup();
 	}
 	
+	public function testHasOneToManyRecursive()
+	{
+		$category = new Category(1);
+		$this->assertEquals(TRUE, $category->hasCategories());
+		$category_2 = new Category(2);
+		$this->assertEquals(FALSE, $category_2->hasCategories());
+	}
+	
 	
 	static public function listOneToManyProvider()
 	{
@@ -286,6 +311,14 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fProgrammerException');
 		$user = new User(1);
 		$user->listGroups();
+	}
+	
+	public function testListOneToManyRecursive()
+	{
+		$category = new Category(1);
+		$this->assertEquals(array(3, 4, 5), $category->listCategories());
+		$category_2 = new Category(2);
+		$this->assertEquals(array(), $category_2->listCategories());
 	}
 	
 	

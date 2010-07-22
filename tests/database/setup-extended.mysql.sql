@@ -100,6 +100,13 @@ CREATE TABLE certifications (
 	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON DELETE CASCADE
 )ENGINE=InnoDB;
 
+CREATE TABLE categories (
+	category_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(200) NOT NULL,
+	parent INTEGER,
+	FOREIGN KEY (parent) REFERENCES categories(category_id) ON DELETE CASCADE
+)ENGINE=InnoDB;
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
@@ -144,6 +151,10 @@ INSERT INTO top_albums (album_id, position) VALUES (6, 4);
 INSERT INTO top_albums (album_id, position) VALUES (2, 5);
 INSERT INTO top_albums (album_id, position) VALUES (3, 6);
 
-
+INSERT INTO categories (name, parent) VALUES ('Top Level', NULL);
+INSERT INTO categories (name, parent) VALUES ('Top Level, No Children', NULL);
+INSERT INTO categories (name, parent) VALUES ('Second Level', 1);
+INSERT INTO categories (name, parent) VALUES ('Second Level #2', 1);
+INSERT INTO categories (name, parent) VALUES ('Second Level #3', 1);
 
 COMMIT;
