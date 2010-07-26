@@ -90,7 +90,7 @@ CREATE TABLE certifications (
 CREATE TABLE categories (
 	category_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(200) NOT NULL,
-	parent INTEGER REFERENCES categories(category_id) ON DELETE CASCADE
+	parent INTEGER REFERENCES categories(category_id)
 );
 
 BEGIN TRANSACTION;
