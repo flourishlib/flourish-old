@@ -87,7 +87,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testGetExtension()
 	{
-		$this->assertContains($this->db->getExtension(), array('ibm_db2', 'pdo', 'oci8', 'sqlsvr', 'odbc', 'sqlite', 'sqlsrv', 'mysql', 'mysqli', 'mssql', 'pgsql'));
+		$this->assertContains($this->db->getExtension(), array('ibm_db2', 'pdo', 'oci8', 'sqlsvr', 'sqlite', 'sqlsrv', 'mysql', 'mysqli', 'mssql', 'pgsql'));
 	}
 	
 	public function testGetType()
@@ -360,10 +360,6 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testUnescapeBlob()
 	{
-		// My main test machine segfaults when trying to read BLOB streams from DB2
-		if ($this->db->getExtension() == 'pdo' && $this->db->getType() == 'db2' && substr($this->db->getDatabase(), 0, 4) != 'dsn:') {
-			$this->markTestSkipped();
-		}
 		$res = $this->db->query('SELECT data FROM blobs WHERE blob_id = 1');
 		$row = $res->fetchRow();
 		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescape('%l', $row['data']));

@@ -411,17 +411,13 @@ foreach ($class_dirs as $class_dir) {
 				$width = 80;
 				$pad_to = $width - (3*6) + 1;
 				echo str_pad('', $pad_to - strlen($name_config), ' ');
-				
-				echo ($num_passed) ? "\033[1;37;43m" : "\033[1;37;49m";
-				echo 'P ' . $num_passed;
+				echo ($num_passed) ? "\033[1;37;43mP " . $num_passed : "   ";
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_passed), ' ', STR_PAD_RIGHT) . ' ';
-				echo ($num_failed) ? "\033[1;37;41m" : "\033[1;37;49m";
-				echo 'F ' . $num_failed;
+				echo ($num_failed) ? "\033[1;37;41mF " . $num_failed : "   ";
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_failed), ' ', STR_PAD_RIGHT) . ' ';
-				echo ($num_skipped) ? "\033[1;37;40m" : "\033[1;37;49m";
-				echo 'S ' . $num_skipped;
+				echo ($num_skipped) ? "\033[1;37;40mS " . $num_skipped : "   ";
 				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_skipped), ' ', STR_PAD_RIGHT);
 				echo "\n";	

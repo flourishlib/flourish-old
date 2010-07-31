@@ -465,12 +465,10 @@ for RHOST in $RHOSTS; do
 		show_ext mysql      $(present "$PHP_MODULES" 'mysql\>')  0
 		show_ext mysqli     $(present "$PHP_MODULES" mysqli)     0
 		show_ext oci8       $(present "$PHP_MODULES" oci8)       0
-		show_ext odbc       $(present "$PHP_MODULES" odbc)       0
 		show_ext pdo_dblib  $(present "$PHP_MODULES" 'pdo_dblib\|pdo_mssql')  0
 		show_ext pdo_ibm    $(present "$PHP_MODULES" pdo_ibm)    0
 		show_ext pdo_mysql  $(present "$PHP_MODULES" pdo_mysql)  0
 		show_ext pdo_oci    $(present "$PHP_MODULES" PDO_OCI)    0
-		show_ext pdo_odbc   $(present "$PHP_MODULES" PDO_ODBC)   0
 		show_ext pdo_pgsql  $(present "$PHP_MODULES" pdo_pgsql)  0
 		show_ext pdo_sqlite $(present "$PHP_MODULES" pdo_sqlite) 0
 		show_ext pgsql      $(present "$PHP_MODULES" pgsql)      0
@@ -499,7 +497,7 @@ for RHOST in $RHOSTS; do
 	fi
 	
 	
-	if (( $TOTAL_HOSTS == 1 )); then
+	if (( $CONCURRENT == 1 && ! $JSON )); then
 		TOKEN=$(wget -O - -o /dev/null http://flourishlib.com/test_token.php?action=obtain)
 		
 		start_activity "[ Pushing code"

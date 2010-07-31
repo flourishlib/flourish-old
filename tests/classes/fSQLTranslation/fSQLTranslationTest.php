@@ -354,9 +354,6 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCurrentTimestamp()
 	{
-		if (DB_TYPE == 'oracle' && ($this->db->getExtension() == 'odbc' || ($this->db->getExtension() == 'pdo' || substr($this->db->getDatabase(), 0, 4) == 'dsn:'))) {
-			$this->markTestSkipped();
-		}
 		$res = $this->db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
 		$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
 		$this->assertGreaterThanOrEqual(time()-120, $current_timestamp);
@@ -755,8 +752,6 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 		$this->db->getSQLTranslation()->clearCache();
 		$this->db->clearCache();
 		
-//		/fCore::expose($this->db->translatedQuery("SELECT LENGTH('Ελλάς') FROM SYSIBM.SYSDUMMY1")->fetchRow());
-		
 		$this->db->translatedQuery(
 			"INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
 			"Արամ Խաչատրյան",
@@ -775,6 +770,36 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				'text_col'        => "Ђорђе Балашевић"
 			),
 			$res->fetchRow()	
+		);
+		
+		$statement = $this->db->prepare("INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)");
+		$this->db->query(
+			$statement,
+			"Արամ Խաչատրյան",
+			"সুকুমার রায়",
+			"Ελλάς",
+			"Ђорђе Балашевић"
+		);
+		
+		$res2 = $this->db->translatedQuery("SELECT * FROM unicode_test ORDER BY unicode_test_id ASC");
+		$this->assertEquals(
+			array(
+				array(
+					'unicode_test_id' => 1,
+					'varchar_col'     => "Արամ Խաչատրյան",
+					'varchar_col_2'   => "সুকুমার রায়",
+					'char_col'        => "Ελλάς",
+					'text_col'        => "Ђорђе Балашевић"
+				),
+				array(
+					'unicode_test_id' => 2,
+					'varchar_col'     => "Արամ Խաչատրյան",
+					'varchar_col_2'   => "সুকুমার রায়",
+					'char_col'        => "Ελλάς",
+					'text_col'        => "Ђорђе Балашевић"
+				)
+			),
+			$res2->fetchAllRows()	
 		);
 	}
 	
