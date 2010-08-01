@@ -497,7 +497,7 @@ for RHOST in $RHOSTS; do
 	fi
 	
 	
-	if (( $CONCURRENT == 1 && ! $JSON )); then
+	if (( $CONCURRENT == 1 )); then
 		TOKEN=$(wget -O - -o /dev/null http://flourishlib.com/test_token.php?action=obtain)
 		
 		start_activity "[ Pushing code"
