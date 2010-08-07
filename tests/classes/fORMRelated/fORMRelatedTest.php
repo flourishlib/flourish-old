@@ -17,6 +17,7 @@ class EventDetail extends fActiveRecord { }
 class Certification extends fActiveRecord { }
 class CertificationLevel extends fActiveRecord { }
 class Category extends fActiveRecord { }
+class Model_Person extends fActiveRecord { }
  
 class fORMRelatedTest extends PHPUnit_Framework_TestSuite
 {
@@ -73,6 +74,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		}
 		fORMDatabase::attach($this->sharedFixture['db']);
 		fORMSchema::attach($this->sharedFixture['schema']);
+		fORM::mapClassToTable('Model_Person', 'people');
 		if (defined('MAP_TABLES')) {
 			fORM::mapClassToTable('User', 'user');
 			fORM::mapClassToTable('Group', 'group');
@@ -116,6 +118,12 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 	{
 		$user = new User($user_id);
 		$this->assertEquals($count, $user->countFavoriteAlbums());
+	}
+	
+	public function testUnderscoreCountOneToMany()
+	{
+		$category = new Category(1);
+		$this->assertEquals(3, $category->countModel_People());
 	}
 	
 	static public function countManyToManyProvider()
@@ -204,6 +212,12 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, $user->hasFavoriteAlbums());
 	}
 	
+	public function testUnderscoreHasOneToMany()
+	{
+		$category = new Category(1);
+		$this->assertEquals(TRUE, $category->hasModel_People());
+	}
+	
 	public function testHasOneToManySingular()
 	{
 		$this->setExpectedException('fProgrammerException');
@@ -282,6 +296,12 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		fORMRelated::setOrderBys('User', 'FavoriteAlbum', array('album_id' => 'asc'));
 		$user = new User($user_id);
 		$this->assertEquals($list, $user->listFavoriteAlbums());
+	}
+	
+	public function testUnderscoreListOneToMany()
+	{
+		$category = new Category(1);
+		$this->assertEquals(array(1, 2, 3), $category->listModel_People());
 	}
 	
 	static public function listManyToManyProvider()

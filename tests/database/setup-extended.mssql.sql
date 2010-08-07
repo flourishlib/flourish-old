@@ -93,6 +93,12 @@ CREATE TABLE categories (
 	parent INTEGER NULL REFERENCES categories(category_id)
 );
 
+CREATE TABLE people (
+	person_id INTEGER IDENTITY(1,1) PRIMARY KEY,
+	name VARCHAR(200) NOT NULL,
+	category_id INTEGER REFERENCES categories(category_id)
+);
+
 BEGIN TRANSACTION;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
@@ -142,5 +148,10 @@ INSERT INTO categories (name, parent) VALUES ('Top Level, No Children', NULL);
 INSERT INTO categories (name, parent) VALUES ('Second Level', 1);
 INSERT INTO categories (name, parent) VALUES ('Second Level #2', 1);
 INSERT INTO categories (name, parent) VALUES ('Second Level #3', 1);
+
+INSERT INTO people (name, category_id) VALUES ('John', 1);
+INSERT INTO people (name, category_id) VALUES ('Ben', 1);
+INSERT INTO people (name, category_id) VALUES ('Fred', 1);
+INSERT INTO people (name, category_id) VALUES ('Steve', 2);
 
 COMMIT;

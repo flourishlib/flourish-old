@@ -29,6 +29,8 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 		$output[] = array('FIRST name', TRUE, 'FirstName');
 		$output[] = array('first NAME', FALSE, 'firstName');
 		$output[] = array('name', FALSE, 'name');
+		$output[] = array('user_FirstName', FALSE, 'userFirstName');
+		
 		
 		return $output;
 	}
@@ -45,6 +47,52 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 	{
 		fGrammar::addCamelUnderscoreRule('3rdParty', '3rd_party');
 		$this->assertEquals('3rdParty', fGrammar::camelize('3rd_party', TRUE));
+	}
+	
+	public static function singularizeProvider()
+	{
+		$output = array();
+		
+		$output[] = array('boats', 'boat');
+		$output[] = array('young children', 'young child');
+		$output[] = array('WebPages', 'WebPage');
+		$output[] = array('domain_names', 'domain_name');
+		$output[] = array('Model_Users', 'Model_User');
+		$output[] = array('Model_People', 'Model_Person');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider singularizeProvider
+	 */
+	public function testSingularize($input, $output)
+	{
+		//fGrammar::addSingularPluralRule('Fuzzies', 'Fuzzy');
+		$this->assertEquals($output, fGrammar::singularize($input));
+	}
+	
+	public static function underscorizeProvider()
+	{
+		$output = array();
+		
+		$output[] = array('first_name', 'first_name');
+		$output[] = array('first name', 'first_name');
+		$output[] = array('FIRST name', 'first_name');
+		$output[] = array('first NAME', 'first_name');
+		$output[] = array('name', 'name');
+		$output[] = array('user_FirstName', 'user_first_name');
+		
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider underscorizeProvider
+	 */
+	public function testUnderscorize($input, $output)
+	{
+		$this->assertEquals($output, fGrammar::underscorize($input));
 	}
 	
 	public function tearDown()

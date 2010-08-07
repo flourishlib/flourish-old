@@ -1,3 +1,5 @@
+DROP TABLE people PURGE;
+DROP SEQUENCE people_person_id_seq;
 DROP TABLE categories PURGE;
 DROP SEQUENCE categories_category_id_seq;
 DROP TABLE certifications PURGE;

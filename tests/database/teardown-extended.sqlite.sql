@@ -1,3 +1,4 @@
+DROP TABLE people;
 DROP TABLE categories;
 DROP TABLE certifications;
 DROP TABLE certification_levels;

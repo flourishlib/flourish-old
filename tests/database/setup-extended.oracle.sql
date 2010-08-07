@@ -141,6 +141,24 @@ BEGIN
 END\;
 ;
 
+CREATE TABLE people (
+	person_id INTEGER PRIMARY KEY,
+	name VARCHAR(200) NOT NULL,
+	category_id INTEGER REFERENCES categories(category_id) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE people_person_id_seq;
+
+CREATE OR REPLACE TRIGGER people_person_id_trg
+BEFORE INSERT ON people
+FOR EACH ROW
+BEGIN
+  IF :new.person_id IS NULL THEN
+	SELECT people_person_id_seq.nextval INTO :new.person_id FROM dual\;
+  END IF\;
+END\;
+;
+
 BEGIN;
 
 INSERT INTO user_details (user_id, photo) VALUES (1, 'will.png');
@@ -190,5 +208,10 @@ INSERT INTO categories (name, parent) VALUES ('Top Level, No Children', NULL);
 INSERT INTO categories (name, parent) VALUES ('Second Level', 1);
 INSERT INTO categories (name, parent) VALUES ('Second Level #2', 1);
 INSERT INTO categories (name, parent) VALUES ('Second Level #3', 1);
+
+INSERT INTO people (name, category_id) VALUES ('John', 1);
+INSERT INTO people (name, category_id) VALUES ('Ben', 1);
+INSERT INTO people (name, category_id) VALUES ('Fred', 1);
+INSERT INTO people (name, category_id) VALUES ('Steve', 2);
 
 COMMIT;

@@ -184,10 +184,10 @@ show_status()
 		if [[ $3 != "" ]]; then
 			TEXT="$3"
 		fi
-		echo -e "\033[0;37;43m$TEXT\033[0m"
+		echo -e "\033[1;37;43m$TEXT\033[0m"
 		
 	elif [[ $2 = -1 ]]; then
-		echo -e "\033[0;37;41mno\033[0m"
+		echo -e "\033[1;37;41mno\033[0m"
 		
 	else
 		TEXT=no
