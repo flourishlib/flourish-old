@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<book>
+	<name>Example Bóok</name>
+	<chapters>
+		<chapter>This is chàpter #1</chapter>
+		<chapter>This is chapter #2</chapter>
+	</chapters>
+</book>

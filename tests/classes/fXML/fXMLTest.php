@@ -231,6 +231,30 @@ class fXMLTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(TRUE, $pages[1] instanceof fXML);
 	}
 	
+	public function testFixEntitiesGoodSource()
+	{
+		$book = new fXML('./resources/xml/book-good.xml', TRUE);
+		$this->assertEquals('Example Book', $book->name);
+	}
+	
+	public function testFixEntitiesNamedEntities()
+	{
+		$book = new fXML('./resources/xml/book-named_entities.xml', TRUE);
+		$this->assertEquals('Example Bóok', $book->name);
+	}
+	
+	public function testFixEntitiesWindows1252AsUTF8()
+	{
+		$book = new fXML('./resources/xml/book-windows-1252_as_utf-8.xml', TRUE);
+		$this->assertEquals('Example Bóok', $book->name);
+	}
+	
+	public function testFixEntitiesWindows1252Bare()
+	{
+		$book = new fXML('./resources/xml/book-windows-1252_bare.xml', TRUE);
+		$this->assertEquals('Example Bóok', $book->name);
+	}
+	
 	public function tearDown()
 	{
 			
