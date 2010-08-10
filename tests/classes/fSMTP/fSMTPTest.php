@@ -88,6 +88,24 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$email->send($smtp);
 	}
 	
+	
+	public function testBadSSLOption()
+	{
+		$this->setExpectedException('fConnectivityException');
+		
+		$smtp = new fSMTP('localhost', 25, TRUE, 5);
+		$smtp->authenticate('test', 'dhjskdhsaku');
+		
+		$token = $this->generateSubjectToken();
+		
+		$email = new fEmail();
+		$email->setFromEmail('will@flourishlib.com');
+		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
+		$email->setSubject($token . ': Testing Simple Email');
+		$email->setBody('This is a simple test');
+		$email->send($smtp);
+	}
+	
 	/**
 	 * @dataProvider serverProvider
 	 */	

@@ -5,7 +5,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-		fCore::reset();	
+		
 	}
 	
 	public function testBacktrace()
@@ -138,8 +138,78 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected_output, $output);
 	}
 	
+	public function testHandleError()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		ob_start();
+		fCore::enableErrorHandling('html');
+		echo $undefined_var;
+		$output = ob_get_clean();
+		$this->assertEquals(TRUE, strlen($output) > 0);
+	}
+	
+	public function testHandleErrorCapture()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		fCore::enableErrorHandling('html');
+		fCore::startErrorCapture();
+		echo $undefined_var;
+		$errors = fCore::stopErrorCapture();
+		$this->assertEquals(1, count($errors));
+	}
+	
+	public function testHandleErrorCaptureType()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		ob_start();
+		fCore::enableErrorHandling('html');
+		fCore::startErrorCapture(E_NOTICE);
+		echo $undefined_var;
+		$errors = fCore::stopErrorCapture();
+		$output = ob_get_clean();
+		$this->assertEquals(1, count($errors));
+		$this->assertEquals(TRUE, strlen($output) == 0);
+	}
+	
+	public function testHandleErrorCaptureTypeIncorrect()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		ob_start();
+		fCore::enableErrorHandling('html');
+		fCore::startErrorCapture(E_ERROR);
+		echo $undefined_var;
+		$errors = fCore::stopErrorCapture();
+		$output = ob_get_clean();
+		$this->assertEquals(0, count($errors));
+		$this->assertEquals(TRUE, strlen($output) > 0);
+	}
+	
+	public function testHandleErrorCaptureTypeIncorrectPreviousHandler()
+	{
+		$this->setExpectedException('PHPUnit_Framework_Error_Notice');
+		error_reporting(E_ALL | E_STRICT);
+		fCore::startErrorCapture(E_ERROR);
+		echo $undefined_var;
+		$errors = fCore::stopErrorCapture();
+	}
+	
+	public function testHandleErrorCapturePattern()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		ob_start();
+		fCore::enableErrorHandling('html');
+		fCore::startErrorCapture(E_NOTICE, '#print_r#');
+		echo $print_r;
+		echo $undefined_var;
+		print_r();
+		$errors = fCore::stopErrorCapture();
+		$output = ob_get_clean();
+		$this->assertEquals(1, count($errors));
+		$this->assertEquals(TRUE, strlen($output) > 0);
+	}
+	
 	public function tearDown()
 	{
-			
+		fCore::reset();
 	}
 }
