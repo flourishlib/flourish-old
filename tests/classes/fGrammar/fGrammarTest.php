@@ -49,7 +49,7 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('3rdParty', fGrammar::camelize('3rd_party', TRUE));
 	}
 	
-	public static function singularizeProvider()
+	public static function singularizePluralizeProvider()
 	{
 		$output = array();
 		
@@ -59,16 +59,24 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 		$output[] = array('domain_names', 'domain_name');
 		$output[] = array('Model_Users', 'Model_User');
 		$output[] = array('Model_People', 'Model_Person');
+		$output[] = array('videos', 'video');
 		
 		return $output;
 	}
 	
 	/**
-	 * @dataProvider singularizeProvider
+	 * @dataProvider singularizePluralizeProvider
+	 */
+	public function testPluralizer($output, $input)
+	{
+		$this->assertEquals($output, fGrammar::pluralize($input));
+	}
+	
+	/**
+	 * @dataProvider singularizePluralizeProvider
 	 */
 	public function testSingularize($input, $output)
 	{
-		//fGrammar::addSingularPluralRule('Fuzzies', 'Fuzzy');
 		$this->assertEquals($output, fGrammar::singularize($input));
 	}
 	
