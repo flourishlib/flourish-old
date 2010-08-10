@@ -14,6 +14,10 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 	{
 		mkdir('output/fDirectory_scan');
 		mkdir('output/fDirectory_scan/subdir/');
+		mkdir('output/fDirectory_scan/subdir/subsubdir/');
+		mkdir('output/fDirectory_scan/subdir/subsubdir3/');
+		mkdir('output/fDirectory_scan/subdir/subsubdir2/');
+		mkdir('output/fDirectory_scan/subdir/subsubdir/subsubsubdir/');
 		touch('output/fDirectory_scan/file1.txt');
 		touch('output/fDirectory_scan/file.txt');
 		touch('output/fDirectory_scan/fIle2.txt');
@@ -23,6 +27,8 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 		touch('output/fDirectory_scan/boo');
 		touch('output/fDirectory_scan/subdir/file1.txt');
 		touch('output/fDirectory_scan/subdir/file2.txt');
+		touch('output/fDirectory_scan/subdir/subsubdir/file3.txt');;
+		touch('output/fDirectory_scan/subdir/subsubdir/subsubsubdir/file4.txt');
 	}
 	
 	public function testCreate()
@@ -126,7 +132,13 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				'foo',
 				'subdir' . DIRECTORY_SEPARATOR,
 				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
-				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'file3.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR . 'file4.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir2' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir3' . DIRECTORY_SEPARATOR
 			),
 			$filenames
 		);
@@ -170,7 +182,9 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 				'file.txt',
 				'file1.txt',
 				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
-				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'file3.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR . 'file4.txt'
 			),
 			$filenames
 		);
@@ -212,29 +226,39 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 			array(
 				'subdir' . DIRECTORY_SEPARATOR,
 				'subdir' . DIRECTORY_SEPARATOR . 'file1.txt',
-				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt'
+				'subdir' . DIRECTORY_SEPARATOR . 'file2.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'file3.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR . 'file4.txt',
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir2' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir3' . DIRECTORY_SEPARATOR,
 			),
 			$filenames
 		);
 	}
-    
-    public function testScanDirs()
-    {
-        $this->createScannableFiles();
-        $dir   = new fDirectory('output/fDirectory_scan/');
-        $files = $dir->scan('#/$#');
-        $filenames = array();
-        foreach ($files as $file) {
-            $filenames[] = str_replace($dir->getPath(), '', $file->getPath());    
-        }
-        
-        $this->assertEquals(
-            array(
-                'subdir' . DIRECTORY_SEPARATOR
-            ),
-            $filenames
-        );
-    }
+	
+	public function testScanDirs()
+	{
+		$this->createScannableFiles();
+		$dir   = new fDirectory('output/fDirectory_scan/');
+		$files = $dir->scanRecursive('#/$#');
+		$filenames = array();
+		foreach ($files as $file) {
+			$filenames[] = str_replace($dir->getPath(), '', $file->getPath());    
+		}
+		
+		$this->assertEquals(
+			array(
+				'subdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir' . DIRECTORY_SEPARATOR . 'subsubsubdir' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir2' . DIRECTORY_SEPARATOR,
+				'subdir' . DIRECTORY_SEPARATOR . 'subsubdir3' . DIRECTORY_SEPARATOR,
+			),
+			$filenames
+		);
+	}
 	
 	public function testRename()
 	{
@@ -262,23 +286,24 @@ class fDirectoryTest extends PHPUnit_Framework_TestCase
 	
 	public function tearDown()
 	{
-		$dirs = array('output/fDirectory/', 'output/fDirectory2/', 'output/fDirectory3/', 'output/fDirectory_scan/');
+		$dirs = array('output/fDirectory', 'output/fDirectory2', 'output/fDirectory3', 'output/fDirectory_scan');
 		foreach ($dirs as $dir) {
-			if (file_exists($dir)) {
-				$files = array_diff(scandir($dir), array('.', '..'));
-				foreach ($files as $file) {
-					if (is_dir($dir . $file)) {
-						$sub_files = array_diff(scandir($dir . $file), array('.', '..'));
-						foreach ($sub_files as $sub_file) {
-							unlink($dir . $file . DIRECTORY_SEPARATOR . $sub_file);	
-						}
-						rmdir($dir . $file);	
-					} else {
-						unlink($dir . $file);
-					}
-				}
-				rmdir($dir);
+			$this->recursiveDelete($dir);
+		}
+	}
+	
+	public function recursiveDelete($dir)
+	{
+		if (!file_exists($dir)) { return; }
+		$dir = $dir . '/';
+		$files = array_diff(scandir($dir), array('.', '..'));
+		foreach ($files as $file) {
+			if (is_dir($dir . $file)) {
+				$this->recursiveDelete($dir . $file);
+			} else {
+				unlink($dir . $file);
 			}
 		}
+		rmdir($dir);
 	}
 }
