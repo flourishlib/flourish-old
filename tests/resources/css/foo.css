@@ -1,0 +1,19 @@
+.example {
+	width: 20px;
+}
+.example  td
+{
+	height: 50.0em;
+	width : 0.2in;
+}
+
+.example > :first-child {
+	border: 1px 1px 1px 1px;
+	border-color: #FFFFFF;
+}
+
+@media screen {
+	#example :first-child {
+		background-image: url(/foo/bar baz.gif);
+	}
+}

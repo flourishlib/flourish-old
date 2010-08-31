@@ -5,7 +5,8 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{	
-		
+		mkdir('./output/minification_cache/');
+		mkdir('./output/php_cache/');
 	}
 	
 	public function testSetArray()
@@ -149,8 +150,96 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		$tmpl->remove('foo', 1);
 	}
 	
+	public function testPlaceSubTemplate()
+	{
+		$tmpl = new fTemplating();
+		$tmpl2 = new fTemplating($_SERVER['DOCUMENT_ROOT'], './resources/php/main.php');
+		$tmpl->set('foo', $tmpl2);
+		
+		ob_start();
+		$tmpl->place('foo');
+		$output = ob_get_clean();
+		
+		$this->assertEquals('file path: ' . $_SERVER['DOCUMENT_ROOT'] . str_replace('/', DIRECTORY_SEPARATOR, '/resources/php/main.php'), $output);
+	}
+	
+	public function testCssMinification()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('css', '/resources/css/foo.css');
+		$tmpl->add('css', '/resources/css/bar.css');
+		ob_start();
+		$tmpl->place('css');
+		$output = ob_get_clean();
+		preg_match('#/(\w+\.css)#', $output, $match);
+		$file = $match[1];
+		$this->assertEquals(file_get_contents('./resources/css/foo-min.css') . "\n" . file_get_contents('./resources/css/bar-min.css'), file_get_contents('./output/minification_cache/' . $file));
+	}
+	
+	public function testCssMinificationDifferentMedia()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('css', '/resources/css/foo.css');
+		$tmpl->add('css', array('path' => '/resources/css/bar.css', 'media' => 'print'));
+		ob_start();
+		$tmpl->place('css');
+		$output = ob_get_clean();
+		preg_match_all('#/(\w+\.css)#', $output, $matches, PREG_SET_ORDER);
+		$this->assertEquals(file_get_contents('./resources/css/foo-min.css'), file_get_contents('./output/minification_cache/' . $matches[0][1]));
+		$this->assertEquals(file_get_contents('./resources/css/bar-min.css'), file_get_contents('./output/minification_cache/' . $matches[1][1]));
+	}
+	
+	public function testJsMinification()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('js', '/resources/js/swfobject.js');
+		ob_start();
+		$tmpl->place('js');
+		$output = ob_get_clean();
+		preg_match('#/(\w+\.js)#', $output, $match);
+		$file = $match[1];
+		$this->assertEquals(file_get_contents('./resources/js/swfobject-min.js'), file_get_contents('./output/minification_cache/' . $file));
+	}
+	
+	public function testJsMinificationMultiple()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('js', '/resources/js/foo.js');
+		$tmpl->add('js', '/resources/js/bar.js');
+		ob_start();
+		$tmpl->place('js');
+		$output = ob_get_clean();
+		preg_match('#/(\w+\.js)#', $output, $match);
+		$this->assertEquals(file_get_contents('./resources/js/foo-min.js') . "\n" . file_get_contents('./resources/js/bar-min.js'), file_get_contents('./output/minification_cache/' . $match[1]));
+	}
+	
+	public function testFixShortTags()
+	{
+		// This is a gross cli wrapper script since we have to test for exit
+		$code  = "require_once './support/init.php'; \$tmpl = new fTemplating(); \$tmpl->enablePHPShortTags('development', './output/php_cache/'); \$tmpl->set('view', './resources/php/short_tags.php'); \$tmpl->place('view');";
+		$this->assertEquals('hi! how are you<? echo $foo ?><?= echo $bar ?><?= $baz ?><?
+echo $qux', shell_exec('php -d short_open_tag=0 -r ' . escapeshellarg($code)));
+	}
+	
 	public function tearDown()
 	{
+		$cache_dir = './output/minification_cache/';
+		$files = array_diff(scandir($cache_dir), array('.', '..'));
+		foreach ($files as $file) {
+			unlink($cache_dir . $file);
+		}
+		rmdir($cache_dir);
 		
+		
+		$php_cache_dir = './output/php_cache/';
+		$files = array_diff(scandir($php_cache_dir), array('.', '..'));
+		foreach ($files as $file) {
+			unlink($php_cache_dir . $file);
+		}
+		rmdir($php_cache_dir);
 	}
 }
