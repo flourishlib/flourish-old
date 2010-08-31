@@ -355,9 +355,12 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	public function testCurrentTimestamp()
 	{
 		$res = $this->db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
-		$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
-		$this->assertGreaterThanOrEqual(time()-120, $current_timestamp);
-		$this->assertLessThanOrEqual(time()+120, $current_timestamp);
+		// Only SQLite does any translation
+		if (DB_TYPE == 'sqlite') {
+			$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
+			$this->assertGreaterThanOrEqual(time()-120, $current_timestamp);
+			$this->assertLessThanOrEqual(time()+120, $current_timestamp);
+		}
 	}
 	
 	public function testBoolean()
