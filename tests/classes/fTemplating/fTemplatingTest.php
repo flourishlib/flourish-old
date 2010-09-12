@@ -9,6 +9,30 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		mkdir('./output/php_cache/');
 	}
 	
+	public function testSet()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', FALSE);
+		$this->assertEquals(FALSE, $tmpl->get('foo'));
+	}
+	
+	public function testSetArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo[bar]', FALSE);
+		$this->assertEquals(array('bar' => FALSE), $tmpl->get('foo'));
+	}
+	
+	public function testSetMestedArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo[bar][baz]', TRUE);
+		$this->assertEquals(
+			array('bar' => array('baz' => TRUE)),
+			$tmpl->get('foo')
+		);
+	}
+	
 	public function testSetArray()
 	{
 		$tmpl = new fTemplating();
@@ -21,6 +45,136 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('2', $tmpl->get('bar'));
 	}
 	
+	public function testAdd()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo', TRUE);
+		$this->assertEquals(
+			array(TRUE),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE);
+		$this->assertEquals(
+			array(TRUE, FALSE),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testAddBeginning()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo', TRUE);
+		$this->assertEquals(
+			array(TRUE),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE, TRUE);
+		$this->assertEquals(
+			array(FALSE, TRUE),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testAddArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo[bar]', TRUE);
+		$this->assertEquals(
+			array('bar' => array(TRUE)),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE);
+		$this->assertEquals(
+			array('bar' => array(TRUE), FALSE),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testAddNestedArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo[bar][baz]', TRUE);
+		$this->assertEquals(
+			array('bar' => array('baz' => array(TRUE))),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE);
+		$this->assertEquals(
+			array('bar' => array('baz' => array(TRUE)), FALSE),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testRemove()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo', TRUE);
+		$this->assertEquals(
+			array(TRUE),
+			$tmpl->get('foo')
+		);
+		$tmpl->remove('foo');
+		$this->assertEquals(
+			array(),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testRemoveBeginning()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo', TRUE);
+		$this->assertEquals(
+			array(TRUE),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE);
+		$this->assertEquals(
+			array(TRUE, FALSE),
+			$tmpl->get('foo')
+		);
+		$tmpl->remove('foo', TRUE);
+		$this->assertEquals(
+			array(FALSE),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testRemoveArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo[bar]', TRUE);
+		$this->assertEquals(
+			array('bar' => array(TRUE)),
+			$tmpl->get('foo')
+		);
+		$tmpl->remove('foo[bar]');
+		$this->assertEquals(
+			array('bar' => array()),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testRemoveNestedArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->add('foo[bar][baz]', TRUE);
+		$this->assertEquals(
+			array('bar' => array('baz' => array(TRUE))),
+			$tmpl->get('foo')
+		);
+		$tmpl->add('foo', FALSE);
+		$this->assertEquals(
+			array('bar' => array('baz' => array(TRUE)), FALSE),
+			$tmpl->get('foo')
+		);
+		$tmpl->remove('foo[bar][baz]');
+		$this->assertEquals(
+			array('bar' => array('baz' => array()), FALSE),
+			$tmpl->get('foo')
+		);
+	}
+	
 	public function testGet()
 	{
 		$tmpl = new fTemplating();
@@ -29,6 +183,28 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			TRUE,
 			$tmpl->get('foo')
+		);
+	}
+	
+	public function testGetArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', array('bar' => TRUE));
+		$tmpl->set('bar', '2');
+		$this->assertEquals(
+			TRUE,
+			$tmpl->get('foo[bar]')
+		);
+	}
+	
+	public function testGetNestedArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', array('bar' => array('baz' => TRUE)));
+		$tmpl->set('bar', '2');
+		$this->assertEquals(
+			TRUE,
+			$tmpl->get('foo[bar][baz]')
 		);
 	}
 	
@@ -91,11 +267,38 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		);
 	}
 	
-	public function testRemove()
+	public function testDeleteArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', array('bar' => TRUE, 'baz' => FALSE));
+		$tmpl->delete('foo[bar]');
+		$this->assertEquals(
+			array(
+				'baz' => FALSE
+			),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testDeleteNestedArraySyntax()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', array('bar' => array('qux' => TRUE), 'baz' => FALSE));
+		$tmpl->delete('foo[bar][qux]');
+		$this->assertEquals(
+			array(
+				'bar' => array(),
+				'baz' => FALSE
+			),
+			$tmpl->get('foo')
+		);
+	}
+	
+	public function testFilter()
 	{
 		$tmpl = new fTemplating();
 		$tmpl->set('foo', array(1, 2, 3));
-		$tmpl->remove('foo', 1);
+		$tmpl->filter('foo', 1);
 		$this->assertEquals(
 			array(
 				2,
@@ -105,11 +308,11 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		);
 	}
 	
-	public function testRemoveMultiple()
+	public function testFilterMultiple()
 	{
 		$tmpl = new fTemplating();
 		$tmpl->set('foo', array(1, 2, 1, 3, 1));
-		$tmpl->remove('foo', 1);
+		$tmpl->filter('foo', 1);
 		$this->assertEquals(
 			array(
 				2,
@@ -119,11 +322,11 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		);
 	}
 	
-	public function testRemoveFuzzy()
+	public function testFilterFuzzy()
 	{
 		$tmpl = new fTemplating();
 		$tmpl->set('foo', array(0, 1, 2, 3));
-		$tmpl->remove('foo', '');
+		$tmpl->filter('foo', '');
 		$this->assertEquals(
 			array(
 				1,
@@ -134,20 +337,20 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		);
 	}
 	
-	public function testRemoveNonExistent()
+	public function testFilterNonExistent()
 	{
 		$tmpl = new fTemplating();
 		$tmpl->set('foo', array(0, 1, 2, 3));
-		$tmpl->remove('bar', '');
+		$tmpl->filter('bar', '');
 	}
 	
-	public function testRemoveNonArray()
+	public function testFilterNonArray()
 	{
 		$this->setExpectedException('fProgrammerException');
 		
 		$tmpl = new fTemplating();
 		$tmpl->set('foo', 1);
-		$tmpl->remove('foo', 1);
+		$tmpl->filter('foo', 1);
 	}
 	
 	public function testPlaceSubTemplate()

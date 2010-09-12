@@ -45,11 +45,49 @@ class fSessionTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('value', $_SESSION['test']);
 	}
 	
+	public function testSetArrayKey()
+	{
+		fSession::open();
+		fSession::set('test[foo]', 'value');
+		$this->assertEquals(array('foo' => 'value'), $_SESSION['test']);
+	}
+	
+	public function testSetNestedArrayKey()
+	{
+		fSession::open();
+		fSession::set('test[foo][bar]', 'value');
+		$this->assertEquals(array('foo' => array('bar' => 'value')), $_SESSION['test']);
+	}
+	
 	public function testAdd()
 	{
 		fSession::open();
 		fSession::add('array', 'value');
 		$this->assertEquals(array('value'), $_SESSION['array']);
+	}
+	
+	public function testAddBeginning()
+	{
+		fSession::open();
+		fSession::add('array', 'value');
+		fSession::add('array', 'value2', TRUE);
+		$this->assertEquals(array('value2', 'value'), $_SESSION['array']);
+	}
+	
+	public function testAddArraySyntax()
+	{
+		fSession::open();
+		fSession::add('array[foo]', 'value');
+		$this->assertEquals(array('foo' => array('value')), $_SESSION['array']);
+	}
+	
+	public function testAddNestedArraySyntax()
+	{
+		fSession::open();
+		fSession::add('array[foo][bar]', 'value');
+		$this->assertEquals(array('foo' => array('bar' => array('value'))), $_SESSION['array']);
+		fSession::add('array[foo][bar]', 'value2');
+		$this->assertEquals(array('foo' => array('bar' => array('value', 'value2'))), $_SESSION['array']);
 	}
 	
 	public function testAddMultiple()
@@ -76,6 +114,20 @@ class fSessionTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('value2', fSession::get('test2'));
 	}
 	
+	public function testGetArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['test2'] = array('foo' => 'value2');
+		$this->assertEquals('value2', fSession::get('test2[foo]'));
+	}
+	
+	public function testGetNestedArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['test2'] = array('foo' => array('bar' => 'value2', 'baz' => 'value3'));
+		$this->assertEquals('value3', fSession::get('test2[foo][baz]'));
+	}
+	
 	public function testGetNoValue()
 	{
 		fSession::open();
@@ -94,6 +146,53 @@ class fSessionTest extends PHPUnit_Framework_TestCase
 		$_SESSION['delete'] = TRUE;
 		fSession::delete('delete');
 		$this->assertEquals(FALSE, isset($_SESSION['delete']));
+	}
+	
+	public function testDeleteArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['delete'] = array('foo' => TRUE);
+		fSession::delete('delete[foo]');
+		$this->assertEquals(array(), $_SESSION['delete']);
+	}
+	
+	public function testDeleteNestedArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['delete'] = array('foo' => array('bar' => TRUE));
+		fSession::delete('delete[foo][bar]');
+		$this->assertEquals(array('foo' => array()), $_SESSION['delete']);
+	}
+	
+	public function testRemove()
+	{
+		fSession::open();
+		$_SESSION['foo'] = array(1, 2);
+		$this->assertEquals(2, fSession::remove('foo'));
+	}
+	
+	public function testRemoveBeginning()
+	{
+		fSession::open();
+		$_SESSION['foo'] = array(1, 2);
+		$this->assertEquals(1, fSession::remove('foo', TRUE));
+		$this->assertEquals(array(2), $_SESSION['foo']);
+	}
+	
+	public function testRemoveArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['foo'] = array('bar' => array(1, 2), 2);
+		$this->assertEquals(2, fSession::remove('foo[bar]'));
+		$this->assertEquals(array(1), $_SESSION['foo']['bar']);
+	}
+	
+	public function testRemoveNestedArraySyntax()
+	{
+		fSession::open();
+		$_SESSION['foo'] = array('bar' => array('baz' => array(1, 2)), 2);
+		$this->assertEquals(2, fSession::remove('foo[bar][baz]'));
+		$this->assertEquals(array(1), $_SESSION['foo']['bar']['baz']);
 	}
 	
 	public function testClear()
