@@ -16,6 +16,30 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('en-us', fRequest::getBestAcceptLanguage());
 	}
 	
+	public function testCheckBlankField()
+	{
+		$_GET['test'] = '';
+		$this->assertEquals(TRUE, fRequest::check('test'));
+	}
+	
+	public function testCheckNullField()
+	{
+		$_POST['test'] = NULL;
+		$this->assertEquals(FALSE, fRequest::check('test'));
+	}
+	
+	public function testCheckArraySyntax()
+	{
+		$_POST['foo'] = array('bar' => '1');
+		$this->assertEquals(TRUE, fRequest::check('foo[bar]'));
+	}
+	
+	public function testCheckNestedArraySyntax()
+	{
+		$_GET['foo'] = array('bar' => array('baz' => '1'));
+		$this->assertEquals(TRUE, fRequest::check('foo[bar][baz]'));
+	}
+	
 	public function testGetMissingField()
 	{
 		$this->assertEquals(NULL, fRequest::get('test'));
