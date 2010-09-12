@@ -137,7 +137,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider serverProvider
 	 */	
-	public function testSendSinglePeriodOnLine($server, $port, $secure, $username, $password)
+	public function testLineStartingWithPeriod($server, $port, $secure, $username, $password)
 	{
 		$token = $this->generateSubjectToken();
 		
@@ -150,18 +150,14 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$email->setFromEmail($username ? $username : 'will@flourishlib.com');
 		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
 		$email->setSubject($token . ': Testing Single Periods on a Line');
-		$email->setBody('This is a test of single periods on a line
-.
-.');
+		$email->setBody('.This is a test of a line starting with a period and then there is a period. on the next line too');
 		$message_id = $email->send($smtp);
 		
 		$message = $this->findMessage($token, EMAIL_USER);
 		$this->assertEquals($message_id, $message['headers']['message-id']);
 		$this->assertEquals($username ? $username : 'will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
 		$this->assertEquals($token . ': Testing Single Periods on a Line', $message['headers']['subject']);
-		$this->assertEquals('This is a test of single periods on a line
-.
-.', trim($message['text']));
+		$this->assertEquals('.This is a test of a line starting with a period and then there is a period. on the next line too', trim($message['text']));
 		
 		$smtp->close();
 	}
