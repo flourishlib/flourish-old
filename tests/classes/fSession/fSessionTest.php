@@ -144,23 +144,30 @@ class fSessionTest extends PHPUnit_Framework_TestCase
 	{
 		fSession::open();
 		$_SESSION['delete'] = TRUE;
-		fSession::delete('delete');
+		$this->assertEquals(TRUE, fSession::delete('delete'));
 		$this->assertEquals(FALSE, isset($_SESSION['delete']));
+	}
+	
+	public function testDeleteDefault()
+	{
+		fSession::open();
+		$_SESSION['delete2'] = TRUE;
+		$this->assertEquals(FALSE, fSession::delete('delete', FALSE));
 	}
 	
 	public function testDeleteArraySyntax()
 	{
 		fSession::open();
-		$_SESSION['delete'] = array('foo' => TRUE);
-		fSession::delete('delete[foo]');
+		$_SESSION['delete'] = array('foo' => 'bar');
+		$this->assertEquals('bar', fSession::delete('delete[foo]'));
 		$this->assertEquals(array(), $_SESSION['delete']);
 	}
 	
 	public function testDeleteNestedArraySyntax()
 	{
 		fSession::open();
-		$_SESSION['delete'] = array('foo' => array('bar' => TRUE));
-		fSession::delete('delete[foo][bar]');
+		$_SESSION['delete'] = array('foo' => array('bar' => 'baz'));
+		$this->assertEquals('baz', fSession::delete('delete[foo][bar]'));
 		$this->assertEquals(array('foo' => array()), $_SESSION['delete']);
 	}
 	

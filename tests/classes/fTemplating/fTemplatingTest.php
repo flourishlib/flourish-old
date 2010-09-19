@@ -267,6 +267,50 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testDeleteDefault()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', 1);
+		$tmpl->set('bar', 2);
+		$this->assertEquals(3, $tmpl->delete('baz', 3));
+	}
+	
+	public function testDeleteMultiple()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', 1);
+		$tmpl->set('bar', 2);
+		$this->assertEquals(
+			array('foo' => 1, 'bar' => 2),
+			$tmpl->delete(array('foo', 'bar'))
+		);
+		$this->assertEquals(
+			array(
+				'foo' => NULL,
+				'bar' => NULL
+			),
+			$tmpl->get(array('foo', 'bar'))
+		);
+	}
+	
+	public function testDeleteMultipleDefault()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->set('foo', 1);
+		$tmpl->set('bar', 2);
+		$this->assertEquals(
+			array('foo' => 1, 'bar' => 2, 'baz' => 4),
+			$tmpl->delete(array('foo' => 2, 'bar' => 3, 'baz' => 4))
+		);
+		$this->assertEquals(
+			array(
+				'foo' => NULL,
+				'bar' => NULL
+			),
+			$tmpl->get(array('foo', 'bar'))
+		);
+	}
+	
 	public function testDeleteArraySyntax()
 	{
 		$tmpl = new fTemplating();
