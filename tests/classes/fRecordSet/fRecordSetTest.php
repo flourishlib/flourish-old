@@ -870,6 +870,453 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$set = fRecordSet::build('User', array('email=' => 'will@flourishlib.com'));
 	}
 	
+	public function testTally()
+	{
+		$num = fRecordSet::tally('User');
+		$this->assertEquals(
+			4,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereCondition()
+	{
+		$num = fRecordSet::tally('User', array('email_address=' => 'will@flourishlib.com'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnConcat()
+	{
+		$num = fRecordSet::tally('User', array('first_name||last_name=' => 'WillBond'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnConcatWithString()
+	{
+		$num = fRecordSet::tally('User', array("first_name||' '||last_name=" => 'Will Bond'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionFullyQualified()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('%s.email_address=', fORM::tablize('User')) => 'will@flourishlib.com'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionRelatedTableManyToManyRoute()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('%s{users_groups}.name=', fORM::tablize('Group')) => 'Musicians'));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionRelatedTableOneToManyRoute()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('%s{group_leader}.name=', fORM::tablize('Group')) => 'Music Lovers'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionRelatedTableOneToManyRoute2()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('%s{group_founder}.name=', fORM::tablize('Group')) => 'Music Lovers'));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionOnceRemovedRelatedTable()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('%s{owns_on_cd}=>songs.track_number>', fORM::tablize('Album')) => 13));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqual()
+	{
+		$num = fRecordSet::tally('User', array('email_address!' => NULL));
+		$this->assertEquals(
+			4,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqualType2()
+	{
+		$num = fRecordSet::tally('User', array('email_address!=' => 'will@flourishlib.com'));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqualType3()
+	{
+		$num = fRecordSet::tally('User', array('email_address<>' => 'john@smith.com'));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionLike()
+	{
+		$num = fRecordSet::tally('User', array('email_address~' => 'EXAMPLE'));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotLike()
+	{
+		$num = fRecordSet::tally('User', array('email_address!~' => 'EXAMPLE'));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionLessThan()
+	{
+		$num = fRecordSet::tally('Song', array('track_number<' => 2));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionLessThanOrEqual()
+	{
+		$num = fRecordSet::tally('Song', array('track_number<=' => 1));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionGreaterThan()
+	{
+		$num = fRecordSet::tally('Song', array('track_number>' => 13));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionGreaterThanOrEqual()
+	{
+		$num = fRecordSet::tally('Song', array('track_number>=' => 13));
+		$this->assertEquals(
+			5,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionEqualMultiValue()
+	{
+		$num = fRecordSet::tally('User', array('email_address=' => array('john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqualMultiValue()
+	{
+		$num = fRecordSet::tally('User', array('email_address!' => array('john@smith.com', NULL)));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqualMultiValueType2()
+	{
+		$num = fRecordSet::tally('User', array('email_address!=' => array('john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotEqualMultiValueType3()
+	{
+		$num = fRecordSet::tally('User', array('email_address<>' => array('foo@example.com', 'john@smith.com', 'will@flourishlib.com')));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionLikeMultiValue()
+	{
+		$num = fRecordSet::tally('User', array('email_address~' => array('example', 'flourish')));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAndLike()
+	{
+		$num = fRecordSet::tally('User', array('email_address&~' => array('example', 'bar')));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionNotLikeMultiValue()
+	{
+		$num = fRecordSet::tally('User', array('email_address!~' => array('EXAMPLE', 'flourish')));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionOrConditions()
+	{
+		$num = fRecordSet::tally('User', array('last_name=|email_address!=' => array('Bond', 'bar@example.com')));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionIntersect()
+	{
+		$num = fRecordSet::tally('Event', array('start_date|end_date><' => array('2007-12-31', '2008-02-05')));
+		$this->assertEquals(
+			7,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionIntersectNoSecondValue()
+	{
+		$num = fRecordSet::tally('Event', array('start_date|end_date><' => array('2008-02-02', NULL)));
+		$this->assertEquals(
+			4,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionMultiColumnLike()
+	{
+		$num = fRecordSet::tally('User', array('last_name|email_address~' => 'bar'));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionMultiColumnSearchStringLike()
+	{
+		$num = fRecordSet::tally('User', array('last_name|email_address~' => '.com b'));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionMultiColumnMultiValueLike()
+	{
+		$num = fRecordSet::tally('User', array('last_name|email_address~' => array('.com', 'b')));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionMultiple()
+	{
+		$num = fRecordSet::tally(
+			'Event',
+			array(
+				'start_date|end_date><' => array('2008-02-02', NULL),
+				'title~'                => 'th'
+			)
+		);
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateFunctionCount()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('count(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateFunctionSum()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('sum(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 6));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateFunctionMin()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('min(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 1));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateFunctionMax()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('max(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateFunctionAvg()
+	{
+		$num = fRecordSet::tally('User', array(sprintf('avg(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 2));
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionAggregateAndRegular()
+	{
+		$num = fRecordSet::tally(
+			'User',
+			array(
+				sprintf('max(%s{owns_on_cd}.album_id)=', fORM::tablize('Album')) => 3,
+				'first_name=' => 'Will'
+			)
+		);
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareEqual()
+	{
+		$num = fRecordSet::tally('User', array('user_id=:' => sprintf('%s{users_groups}.group_id', fORM::tablize('Group'))));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareNotEqual()
+	{
+		$num = fRecordSet::tally('Event', array('start_date!:' => 'end_date'));
+		$this->assertEquals(
+			6,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareNotEqual2()
+	{
+		$num = fRecordSet::tally('Event', array('start_date!=:' => 'end_date'));
+		$this->assertEquals(
+			6,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareNotEqual3()
+	{
+		$num = fRecordSet::tally('Event', array('start_date<>:' => 'end_date'));
+		$this->assertEquals(
+			6,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareLessThan()
+	{
+		$num = fRecordSet::tally('Album', array('album_id<:' => 'top_albums.position'));
+		$this->assertEquals(
+			2,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareLessThanEqual()
+	{
+		$num = fRecordSet::tally('Album', array('album_id<=:' => 'top_albums.position'));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareGreaterThan()
+	{
+		$num = fRecordSet::tally('Album', array('album_id>:' => 'top_albums.position'));
+		$this->assertEquals(
+			3,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareGreaterThanEqual()
+	{
+		$num = fRecordSet::tally('Album', array('album_id>=:' => 'top_albums.position'));
+		$this->assertEquals(
+			4,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionColumnCompareAggregate()
+	{
+		$num = fRecordSet::tally(
+			'User',
+			array(
+				sprintf('count(%s{users_groups}.group_id)=:', fORM::tablize('Group')) =>
+				sprintf('count(%s{group_founder}.group_id)', fORM::tablize('Group'))
+			)
+		);
+		$this->assertEquals(
+			1,
+			$num
+		);
+	}
+	
+	public function testTallyWithWhereConditionInvalidColumn()
+	{
+		$this->setExpectedException('fProgrammerException');
+		$set = fRecordSet::tally('User', array('email=' => 'will@flourishlib.com'));
+	}
+	
 	public function testBuildWithOrderBy()
 	{
 		$set = fRecordSet::build('User', NULL, array('first_name' => 'asc'));
