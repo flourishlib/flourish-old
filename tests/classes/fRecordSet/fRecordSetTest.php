@@ -897,6 +897,42 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildWithLimitGetLimit()
+	{
+		$set = fRecordSet::build('User', NULL, NULL, 2);
+		$this->assertEquals(
+			2,
+			$set->getLimit()
+		);
+	}
+	
+	public function testBuildWithoutLimitGetLimit()
+	{
+		$set = fRecordSet::build('User');
+		$this->assertEquals(
+			NULL,
+			$set->getLimit()
+		);
+	}
+	
+	public function testBuildWithLimitAndPageGetPage()
+	{
+		$set = fRecordSet::build('User', NULL, NULL, 2, 2);
+		$this->assertEquals(
+			2,
+			$set->getPage()
+		);
+	}
+	
+	public function testBuildWithLimitAndPageGetPages()
+	{
+		$set = fRecordSet::build('User', NULL, NULL, 2);
+		$this->assertEquals(
+			2,
+			$set->getPages()
+		);
+	}
+	
 	public function testBuildFailureIncorrectClass()
 	{
 		$this->setExpectedException('fProgrammerException');
