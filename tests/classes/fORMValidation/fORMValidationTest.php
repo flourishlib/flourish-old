@@ -8,7 +8,11 @@ class Album extends fActiveRecord { }
 class Song extends fActiveRecord { }
 class UserDetail extends fActiveRecord { }
 class RecordLabel extends fActiveRecord { } 
-class FavoriteAlbum extends fActiveRecord { }
+class FavoriteAlbum extends fActiveRecord {
+	public function makeName($number) {
+		return 'Album ' . $number;
+	}
+}
 class InvalidTable extends fActiveRecord { }
  
 class fORMValidationTest extends PHPUnit_Framework_TestSuite
@@ -129,6 +133,141 @@ class fORMValidationTestChild extends PHPUnit_Framework_TestCase
 		$album->setYearReleased($year);
 		$album->setMsrp($msrp);
 		$album->validate();
+	}
+	
+	
+	public function testChildren()
+	{
+		try {
+			fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+			$user = $this->createUser();
+			$favorite_album_1 = new FavoriteAlbum();
+			$favorite_album_2 = new FavoriteAlbum();
+			$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+			$user->validate();
+		} catch (fValidationException $e) {
+			$message = preg_replace('#\s+#', ' ', strip_tags($e->getMessage()));
+			$this->assertContains('Favorite Album #1 Album ID: Please enter a value', $message);
+			$this->assertContains('Favorite Album #2 Album ID: Please enter a value', $message);
+		}
+	}
+	
+	
+	public function testChildrenReturn()
+	{
+		fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+		$user = $this->createUser();
+		$user->setFirstName(NULL);
+		$favorite_album_1 = new FavoriteAlbum();
+		$favorite_album_2 = new FavoriteAlbum();
+		$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+		$messages = $user->validate(TRUE);
+		$this->assertSame(
+			array(
+				'first_name' => 'First Name: Please enter a value',
+				'favorite_albums[0]' => array(
+					'name' => 'Favorite Album #1',
+					'errors' => array(
+						'album_id' => 'Album ID: Please enter a value'
+					)
+				),
+				'favorite_albums[1]' => array(
+					'name' => 'Favorite Album #2',
+					'errors' => array(
+						'album_id' => 'Album ID: Please enter a value'
+					)
+				)
+			),
+			$messages
+		);
+	}
+	
+	
+	public function testChildrenReturnRemoveFieldNames()
+	{
+		fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+		$user = $this->createUser();
+		$user->setFirstName(NULL);
+		$favorite_album_1 = new FavoriteAlbum();
+		$favorite_album_2 = new FavoriteAlbum();
+		$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+		$messages = $user->validate(TRUE, TRUE);
+		$this->assertSame(
+			array(
+				'first_name' => 'Please enter a value',
+				'favorite_albums[0]' => array(
+					'name' => 'Favorite Album #1',
+					'errors' => array(
+						'album_id' => 'Please enter a value'
+					)
+				),
+				'favorite_albums[1]' => array(
+					'name' => 'Favorite Album #2',
+					'errors' => array(
+						'album_id' => 'Please enter a value'
+					)
+				)
+			),
+			$messages
+		);
+	}
+	
+	
+	public function testReplaceWithChildren()
+	{
+		try {
+			fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+			fORMValidation::addRegexReplacement('User', '#(First|Last) Name#', 'Name');
+			fORMValidation::addStringReplacement('User', 'Email Address', 'Email');
+			$user = $this->createUser();
+			$user->setFirstName(NULL);
+			$user->setEmailAddress(NULL);
+			$favorite_album_1 = new FavoriteAlbum();
+			$favorite_album_2 = new FavoriteAlbum();
+			$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+			$user->validate();
+		} catch (fValidationException $e) {
+			$message = preg_replace('#\s+#', ' ', strip_tags($e->getMessage()));
+			$this->assertContains('The following problems were found: Name: Please enter a value Email: Please enter a value', $message);
+			$this->assertContains('Favorite Album #1 Album ID: Please enter a value', $message);
+			$this->assertContains('Favorite Album #2 Album ID: Please enter a value', $message);
+		}
+	}
+	
+	
+	public function testReorderWithChildren()
+	{
+		try {
+			fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+			fORMValidation::setMessageOrder('User', array('Email', 'Album', 'Name'));
+			$user = $this->createUser();
+			$user->setFirstName(NULL);
+			$user->setEmailAddress(NULL);
+			$favorite_album_1 = new FavoriteAlbum();
+			$favorite_album_2 = new FavoriteAlbum();
+			$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+			$user->validate();
+		} catch (fValidationException $e) {
+			$message = preg_replace('#\s+#', ' ', strip_tags($e->getMessage()));
+			$this->assertContains('The following problems were found: Email Address: Please enter a value Favorite Album #1 Album ID: Please enter a value Favorite Album #2 Album ID: Please enter a value First Name: Please enter a value', $message);
+		}
+	}
+	
+	
+	public function testChildValidationName()
+	{
+		try {
+			fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
+			fORMRelated::registerValidationNameMethod('User', 'FavoriteAlbum', 'makeName');
+			$user = $this->createUser();
+			$favorite_album_1 = new FavoriteAlbum();
+			$favorite_album_2 = new FavoriteAlbum();
+			$user->associateFavoriteAlbums(array($favorite_album_1, $favorite_album_2));
+			$user->validate();
+		} catch (fValidationException $e) {
+			$message = preg_replace('#\s+#', ' ', strip_tags($e->getMessage()));
+			$this->assertContains('The following problems were found: Album 1 Album ID: Please enter a value Album 2 Album ID: Please enter a value', $message);
+		}
 	}
 	
 	
