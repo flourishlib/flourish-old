@@ -540,6 +540,24 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildWithWhereConditionEmptyLike()
+	{
+		$set = fRecordSet::build('User', array('user_id|email_address~' => ''));
+		$this->assertEquals(
+			array(1, 2, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithWhereConditionEmptyLike2()
+	{
+		$set = fRecordSet::build('User', array('user_id|email_address~' => array()));
+		$this->assertEquals(
+			array(1, 2, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+	
 	public function testBuildWithWhereConditionNotLike()
 	{
 		$set = fRecordSet::build('User', array('email_address!~' => 'EXAMPLE'));
