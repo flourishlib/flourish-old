@@ -74,6 +74,12 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 	}
 	
 	
+	public function testUpper()
+	{
+		$this->assertEquals('IŔ', fUTF8::upper('iŕ'));	
+	}
+	
+	
 	public static function trimProvider()
 	{
 		$output = array();
