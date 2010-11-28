@@ -12,6 +12,11 @@ CREATE TABLE users (
 	is_validated BIT NOT NULL DEFAULT 0,
 	hashed_password VARCHAR(100) NOT NULL
 );
+EXEC sys.sp_addextendedproperty @name='MS_Description',
+   @value='This hash is generated using fCryptography::hashPassword()',
+   @level0type='SCHEMA', @level0name='dbo',
+   @level1type='TABLE',  @level1name='users',
+   @level2type='COLUMN', @level2name='hashed_password';
 
 CREATE TABLE groups (
 	group_id INTEGER IDENTITY(1,1) PRIMARY KEY,

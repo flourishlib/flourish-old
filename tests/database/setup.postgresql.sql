@@ -12,6 +12,7 @@ CREATE TABLE users (
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
 	hashed_password VARCHAR(100) NOT NULL
 );
+COMMENT ON COLUMN users.hashed_password IS 'This hash is generated using fCryptography::hashPassword()';
 
 CREATE TABLE groups (
 	group_id SERIAL PRIMARY KEY,

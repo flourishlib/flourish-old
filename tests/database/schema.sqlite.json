@@ -3,6 +3,7 @@
 		"albums": {
 			"album_id": {
 				"auto_increment": true,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -15,6 +16,7 @@
 			},
 			"artist_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -27,6 +29,7 @@
 			},
 			"genre": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": "",
 				"max_length": "100",
@@ -39,6 +42,7 @@
 			},
 			"msrp": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": 2,
 				"default": null,
 				"max_length": null,
@@ -51,6 +55,7 @@
 			},
 			"name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "255",
@@ -63,6 +68,7 @@
 			},
 			"year_released": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -77,6 +83,7 @@
 		"artists": {
 			"artist_id": {
 				"auto_increment": true,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -89,6 +96,7 @@
 			},
 			"name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "255",
@@ -103,6 +111,7 @@
 		"groups": {
 			"group_founder": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -115,6 +124,7 @@
 			},
 			"group_id": {
 				"auto_increment": true,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -127,6 +137,7 @@
 			},
 			"group_leader": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -139,6 +150,7 @@
 			},
 			"name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "255",
@@ -153,6 +165,7 @@
 		"owns_on_cd": {
 			"album_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -165,6 +178,7 @@
 			},
 			"user_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -179,6 +193,7 @@
 		"owns_on_tape": {
 			"album_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -191,6 +206,7 @@
 			},
 			"user_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -205,6 +221,7 @@
 		"songs": {
 			"album_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -217,6 +234,7 @@
 			},
 			"length": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -229,6 +247,7 @@
 			},
 			"name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "255",
@@ -241,6 +260,7 @@
 			},
 			"song_id": {
 				"auto_increment": true,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -253,6 +273,7 @@
 			},
 			"track_number": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -267,6 +288,7 @@
 		"users": {
 			"birthday": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -279,6 +301,7 @@
 			},
 			"date_created": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -291,6 +314,7 @@
 			},
 			"email_address": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "200",
@@ -303,6 +327,7 @@
 			},
 			"first_name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "100",
@@ -315,6 +340,7 @@
 			},
 			"hashed_password": {
 				"auto_increment": false,
+				"comment": "This hash is generated using fCryptography::hashPassword()",
 				"decimal_places": null,
 				"default": null,
 				"max_length": 100,
@@ -327,6 +353,7 @@
 			},
 			"is_validated": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": false,
 				"max_length": null,
@@ -339,6 +366,7 @@
 			},
 			"last_name": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": "100",
@@ -351,6 +379,7 @@
 			},
 			"middle_initial": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": "",
 				"max_length": "100",
@@ -363,6 +392,7 @@
 			},
 			"status": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": "Active",
 				"max_length": "8",
@@ -375,6 +405,7 @@
 			},
 			"time_of_last_login": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -387,6 +418,7 @@
 			},
 			"times_logged_in": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": "0",
 				"max_length": null,
@@ -399,6 +431,7 @@
 			},
 			"user_id": {
 				"auto_increment": true,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -413,6 +446,7 @@
 		"users_groups": {
 			"group_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -425,6 +459,7 @@
 			},
 			"user_id": {
 				"auto_increment": false,
+				"comment": "",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,

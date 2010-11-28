@@ -12,6 +12,7 @@ CREATE TABLE users (
 	is_validated NUMBER(1) DEFAULT 0 NOT NULL CHECK(is_validated IN (0,1)),
 	hashed_password VARCHAR2(100) NOT NULL
 );
+COMMENT ON COLUMN users.hashed_password IS 'This hash is generated using fCryptography::hashPassword()';
 
 CREATE SEQUENCE users_user_id_seq;
 

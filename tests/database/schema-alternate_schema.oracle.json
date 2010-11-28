@@ -11,6 +11,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null
 		 },
 		 "name": {
@@ -20,6 +21,7 @@
 			"placeholder": "%s",
 			"default": null,
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -34,6 +36,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -46,6 +49,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 }
@@ -61,6 +65,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null
 		 },
 		 "name": {
@@ -70,6 +75,7 @@
 			"placeholder": "%s",
 			"default": null,
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -87,6 +93,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null
 		 },
 		 "name": {
@@ -96,6 +103,7 @@
 			"placeholder": "%s",
 			"default": null,
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -110,6 +118,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -122,6 +131,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 }
@@ -137,6 +147,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null
 		 },
 		 "first_name": {
@@ -146,6 +157,7 @@
 			"placeholder": "%s",
 			"default": null,
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -158,6 +170,7 @@
 			"not_null": false,
 			"placeholder": "%s",
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -170,6 +183,7 @@
 			"placeholder": "%s",
 			"default": null,
 			"valid_values": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false,
 			"max_value": null,
@@ -186,6 +200,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 },
@@ -198,6 +213,7 @@
 			"max_length": null,
 			"max_value": null,
 			"min_value": null,
+			"comment": "",
 			"decimal_places": null,
 			"auto_increment": false
 		 }

@@ -10,7 +10,7 @@ CREATE TABLE users (
 	birthday DATE,
 	time_of_last_login TIME,
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
-	hashed_password VARCHAR(100) NOT NULL
+	hashed_password VARCHAR(100) NOT NULL COMMENT 'This hash is generated using fCryptography::hashPassword()'
 )ENGINE=InnoDB;
 
 CREATE TABLE groups (
