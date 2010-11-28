@@ -89,7 +89,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		list ($base, $extension) = explode('.', $new_image->getName());
 		$new_image->rename($base . FILE_PREFIX . '_crop_300x300-200x200.' . $extension, FALSE);
 		
-		$new_image->crop(300, 300, 200, 200);
+		$new_image->crop(200, 200, 300, 300);
 		$new_image->saveChanges();
 	}
 	
