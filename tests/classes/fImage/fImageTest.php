@@ -25,10 +25,10 @@ class fImageTest extends PHPUnit_Framework_TestCase
 	{
 		$output = array();
 		
-		$output[] = array('resources/images/bar.gif');
-		$output[] = array('resources/images/foo.gif');
-		$output[] = array('resources/images/john.jpg');
-		$output[] = array('resources/images/will.png');
+		$output[] = array('resources/images/bar.gif', 90);
+		$output[] = array('resources/images/foo.gif', 180);
+		$output[] = array('resources/images/john.jpg', 270);
+		$output[] = array('resources/images/will.png', 90);
 		
 		return $output;
 	}
@@ -90,6 +90,21 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$new_image->rename($base . FILE_PREFIX . '_crop_300x300-200x200.' . $extension, FALSE);
 		
 		$new_image->crop(200, 200, 300, 300);
+		$new_image->saveChanges();
+	}
+	
+	/**
+	 * @dataProvider fileProvider
+	 */
+	public function testRotate($file_path, $degrees)
+	{
+		$image = new fImage($file_path);
+		$new_image = $image->duplicate('output/');
+		
+		list ($base, $extension) = explode('.', $new_image->getName());
+		$new_image->rename($base . FILE_PREFIX . '_rotate_' . $degrees . '.' . $extension, FALSE);
+		
+		$new_image->rotate($degrees);
 		$new_image->saveChanges();
 	}
 	
