@@ -537,6 +537,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			array(
 				'bigint_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -549,6 +550,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'blob_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => $max_blob_length,
@@ -561,6 +563,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'boolean_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -573,6 +576,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'char_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 40,
@@ -585,6 +589,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'date_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -597,6 +602,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'text_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => $max_text_length,
@@ -609,6 +615,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'time_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -621,6 +628,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'timestamp_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -633,6 +641,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'translation_test_id' => array(
 					"auto_increment" => TRUE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -645,6 +654,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'varchar_col' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 100,
@@ -670,6 +680,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			array(
 				'name' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => 100,
@@ -682,6 +693,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'translation_test_2_id' => array(
 					"auto_increment" => ($this->db->getType() == 'sqlite') ? TRUE : FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
@@ -694,6 +706,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 				),
 				'translation_test_id' => array(
 					"auto_increment" => FALSE,
+					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
 					"max_length"     => NULL,
