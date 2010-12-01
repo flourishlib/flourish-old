@@ -75,6 +75,30 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(0, fRequest::get('test', 'integer'));
 	}
 	
+	public function testGetCastInteger()
+	{
+		$_GET['test'] = '1827';
+		$this->assertSame(1827, fRequest::get('test', 'integer'));
+	}
+	
+	public function testGetCastLargeInteger()
+	{
+		$_GET['test'] = '182702337829321093210';
+		$this->assertSame('182702337829321093210', fRequest::get('test', 'integer'));
+	}
+	
+	public function testGetCastLargeIntegerForce()
+	{
+		$_GET['test'] = '182702337829321093210';
+		$this->assertSame(2147483647, fRequest::get('test', 'integer!'));
+	}
+	
+	public function testGetRemoveLowByte()
+	{
+		$_GET['test'] = "Thi\x00s is \x06a \x1Etest of removing low-byte\x09\x0A\x0D characters";
+		$this->assertEquals("This is a test of removing low-byte\t\n\r characters", fRequest::get('test'));
+	}
+	
 	public function testGetBlankFieldCastArray()
 	{
 		$_GET['test'] = '';
