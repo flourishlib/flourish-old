@@ -231,7 +231,7 @@ Iñtërnâtiônàlizætiøn
 		$email->setSubject($token . ': Testing Attachments');
 		$email->setBody('This is a test of sending an attachment');
 		$bar_gif_contents = file_get_contents('./resources/images/bar.gif');
-		$email->addAttachment('bar.gif', 'image/gif', $bar_gif_contents);
+		$email->addAttachment($bar_gif_contents, 'bar.gif');
 		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
@@ -262,7 +262,7 @@ Iñtërnâtiônàlizætiøn
 		$email->setSubject($token . ': Testing Attachments');
 		$email->setBody('This is a test of sending an attachment');
 		$bar_gif_contents = file_get_contents('./resources/images/bar.gif');
-		$email->addAttachment('bar.gif', 'image/gif', $bar_gif_contents);
+		$email->addAttachment($bar_gif_contents, 'bar.gif');
 		$example_json_contents = '{
 	"glossary": {
 		"title": "example glossary",
@@ -285,7 +285,7 @@ Iñtërnâtiônàlizætiøn
 		}
 	}
 }';
-		$email->addAttachment('example.json', 'application/json', $example_json_contents);
+		$email->addAttachment($example_json_contents, 'example.json', 'application/json');
 		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
@@ -325,7 +325,7 @@ Iñtërnâtiônàlizætiøn
 	This is a test of sending both an HTML alternative, while also sending an attachment.
 </p>');
 		$bar_gif_contents = file_get_contents('./resources/images/bar.gif');
-		$email->addAttachment('bar.gif', 'image/gif', $bar_gif_contents);
+		$email->addAttachment($bar_gif_contents, 'bar.gif');
 		$message_id = $email->send();
 		
 		$message = $this->findMessage($token);
