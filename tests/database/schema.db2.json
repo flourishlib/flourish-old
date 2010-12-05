@@ -303,7 +303,7 @@
 				"auto_increment": false,
 				"comment": "",
 				"decimal_places": null,
-				"default": null,
+				"default": "CURRENT_TIMESTAMP",
 				"max_length": null,
 				"not_null": true,
 				"placeholder": "%p",

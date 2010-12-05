@@ -6,7 +6,7 @@ CREATE TABLE users (
 	email_address VARCHAR(200) NOT NULL UNIQUE,
 	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
-	date_created DATETIME NOT NULL,
+	date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	birthday DATE NULL,
 	time_of_last_login TIME NULL,
 	is_validated BIT NOT NULL DEFAULT 0,
