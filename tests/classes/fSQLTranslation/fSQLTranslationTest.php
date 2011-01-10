@@ -427,6 +427,25 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testPreparedStatement()
+	{
+		$statement = $this->db->translatedPrepare("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2 OFFSET 1");
+		$res = $this->db->query($statement);
+		$this->assertEquals(
+			array(
+				array(
+					'user_id'       => 2,
+					'email_address' => 'john@smith.com'
+				),
+				array(
+					'user_id'       => 3,
+					'email_address' => 'bar@example.com'
+				)
+			),
+			$res->fetchAllRows()
+		);
+	}
+	
 	public function testEmptyStrings()
 	{
 		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users WHERE middle_initial = '' AND first_name <> '' ORDER BY user_id ASC");
