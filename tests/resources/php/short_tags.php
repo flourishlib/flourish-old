@@ -1,4 +1,4 @@
-<?
+<html><body class="<?= 'foo' ?>"><?
 echo 'hi!';
 ?>
 <?= ' how are you' ?>
@@ -9,3 +9,4 @@ echo <<<EOF
 <?
 echo \$qux
 EOF;
+?></body></html>

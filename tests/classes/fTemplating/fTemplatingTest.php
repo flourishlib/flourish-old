@@ -468,8 +468,8 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 	{
 		// This is a gross cli wrapper script since we have to test for exit
 		$code  = "require_once './support/init.php'; \$tmpl = new fTemplating(); \$tmpl->enablePHPShortTags('development', './output/php_cache/'); \$tmpl->set('view', './resources/php/short_tags.php'); \$tmpl->place('view');";
-		$this->assertEquals('hi! how are you<? echo $foo ?><?= echo $bar ?><?= $baz ?><?
-echo $qux', shell_exec('php -d short_open_tag=0 -r ' . escapeshellarg($code)));
+		$this->assertEquals('<html><body class="foo">hi! how are you<? echo $foo ?><?= echo $bar ?><?= $baz ?><?
+echo $qux</body></html>', shell_exec('php -d short_open_tag=0 -r ' . escapeshellarg($code)));
 	}
 	
 	public function tearDown()
