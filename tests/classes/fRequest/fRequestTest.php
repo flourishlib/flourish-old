@@ -40,6 +40,12 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(TRUE, fRequest::check('foo[bar][baz]'));
 	}
 	
+	public function testGetBug53632()
+	{
+		$_GET['test'] = '2.2250738585072011e-308';
+		$this->assertEquals(2.2250738585072012e-308, fRequest::get('test', 'float'));
+	}
+	
 	public function testGetMissingField()
 	{
 		$this->assertEquals(NULL, fRequest::get('test'));
@@ -196,37 +202,37 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 	public function testGetBlankFieldCastStringQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'string?'));
+		$this->assertSame(NULL, fRequest::get('test', 'string?'));
 	}
 	
 	public function testGetBlankFieldCastBooleanQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'boolean?'));
+		$this->assertSame(NULL, fRequest::get('test', 'boolean?'));
 	}
 	
 	public function testGetBlankFieldCastIntegerQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'integer?'));
+		$this->assertSame(NULL, fRequest::get('test', 'integer?'));
 	}
 	
 	public function testGetBlankFieldCastArrayQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'array?'));
+		$this->assertSame(NULL, fRequest::get('test', 'array?'));
 	}
 	
 	public function testGetBlankFieldCastDateQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'date?'));
+		$this->assertSame(NULL, fRequest::get('test', 'date?'));
 	}
 	
 	public function testGetBlankFieldCastTimeQuestion()
 	{
 		$_GET['test'] = '';
-		$this->assertEquals(NULL, fRequest::get('test', 'time?'));
+		$this->assertSame(NULL, fRequest::get('test', 'time?'));
 	}
 	
 	public function testGetBlankFieldCastTimestampQuestion()
@@ -320,6 +326,72 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 			'email' => 'john@smith.com'
 		);
 		$this->assertEquals('John', fRequest::get('user[name][first]'));
+	}
+	
+	public function testGetThreeDimensionalArray()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => array('prefix' => 'Mr', 'name' => 'John'),
+				'last'  => array('suffix' => 'Jr', 'name' => 'Smith')
+			),
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals(array(
+			'name'  => array(
+				'first' => array('prefix' => 'Mr', 'name' => 'John'),
+				'last'  => array('suffix' => 'Jr', 'name' => 'Smith')
+			),
+			'email' => 'john@smith.com'
+		), fRequest::get('user'));
+	}
+	
+	public function testGetThreeDimensionalArrayDereference()
+	{
+		$_GET['user'] = array(
+			'name'  => array(
+				'first' => array('prefix' => 'Mr', 'name' => 'John'),
+				'last'  => array('suffix' => 'Jr', 'name' => 'Smith')
+			),
+			'email' => 'john@smith.com'
+		);
+		$this->assertEquals(array('prefix' => 'Mr', 'name' => 'John'), fRequest::get('user[name][first]'));
+	}
+	
+	public function testGetIntegerOnArray()
+	{
+		$_GET['numbers'] = array('1', '592', 'abc', array());
+		$this->assertSame(1, fRequest::get('numbers', 'integer'));
+	}
+	
+	public function testGetIntegerArrayOnArray()
+	{
+		$_GET['numbers'] = array('1', '592', 'abc', array());
+		$this->assertSame(array(1, 592, 0, 0), fRequest::get('numbers', 'integer[]'));
+	}
+	
+	public function testGetIntegerArrayOnInteger()
+	{
+		$_GET['numbers'] = '1';
+		$this->assertSame(array(1), fRequest::get('numbers', 'integer[]'));
+	}
+	
+	public function testGetIntegerArrayOnString()
+	{
+		$_GET['numbers'] = '1,000,000';
+		$this->assertSame(array(1, 0, 0), fRequest::get('numbers', 'integer[]'));
+	}
+	
+	public function testGetIntegerArrayOnBlank()
+	{
+		$_GET['numbers'] = '';
+		$this->assertSame(array(), fRequest::get('numbers', 'integer[]'));
+	}
+	
+	public function testGetIntegerArrayOnNull()
+	{
+		$_GET['numbers'] = NULL;
+		$this->assertSame(array(), fRequest::get('numbers', 'integer[]'));
 	}
 	
 	public function testGetArrayDefault()

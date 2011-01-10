@@ -12,7 +12,11 @@ if [ "$1" != "" ]; then
 fi
 
 if [ "$TYPE" = "" ] || [ "$TYPE" = "db2" ]; then
-	DB2_DB=$(echo "$DB" | sed 's/ourish//')
+	if [ "$DB" = "flourish" ]; then
+		DB2_DB="flourish"
+	else
+		DB2_DB=$(echo "$DB" | sed 's/ourish//')
+	fi
 	db2batch  -s off -time off -d fl -a $DB2_DB/password -f database/teardown-extended.db2.sql > /dev/null 2>&1
 	#db2batch  -s off -time off -d fl -a $DB2_DB/password -f database/teardown-datatypes.db2.sql > /dev/null 2>&1
 	db2batch  -s off -time off -d fl -a $DB2_DB/password -f database/teardown.db2.sql > /dev/null 2>&1
