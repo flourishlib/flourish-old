@@ -88,6 +88,12 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('one.txt', $file->getName());
 	}
 	
+	public function testGetNameNoExt()
+	{
+		$file = new fFile('output/fFile/one.txt');
+		$this->assertEquals('one', $file->getName(TRUE));
+	}
+	
 	public function testGetParent()
 	{
 		$file = new fFile('output/fFile/one.txt');
