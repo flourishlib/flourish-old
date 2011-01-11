@@ -138,6 +138,15 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected_output, $output);
 	}
 	
+	public function testExposeMultiple()
+	{
+		ob_start();
+		fCore::expose('string', TRUE);
+		$output = ob_get_clean();
+		
+		$this->assertEquals("<pre class=\"exposed\">Array\n(\n    [0] =&gt; string\n    [1] =&gt; {true}\n)</pre>", $output);
+	}
+	
 	public function testHandleError()
 	{
 		error_reporting(E_ALL | E_STRICT);
