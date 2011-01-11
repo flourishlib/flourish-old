@@ -1413,6 +1413,28 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildFromArrayTotalLimitPage()
+	{
+		$set = fRecordSet::buildFromArray('User', array(new User(1), new User(4)), 4, 2, 1);
+		$this->assertEquals(
+			array(1, 4),
+			$set->getPrimaryKeys()
+		);
+		
+		$this->assertEquals(
+			2,
+			$set->getLimit()
+		);
+		$this->assertEquals(
+			1,
+			$set->getPage()
+		);
+		$this->assertEquals(
+			2,
+			$set->getPages()
+		);
+	}
+	
 	public function testBuildFromArrayEmpty()
 	{
 		$set = fRecordSet::buildFromArray('User', array());
@@ -1449,6 +1471,33 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			array(1, 2, 3, 4),
 			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildFromSQLEscapeLimitPage()
+	{
+		$set = fRecordSet::buildFromSQL(
+			'User',
+			array("SELECT * FROM " . fORM::tablize('User') . " WHERE user_id < %i LIMIT %i", 3, 1),
+			array("SELECT count(*) FROM " . fORM::tablize('User') . " WHERE user_id < %i", 3),
+			1,
+			1
+		);
+		$this->assertEquals(
+			array(1),
+			$set->getPrimaryKeys()
+		);
+		$this->assertEquals(
+			1,
+			$set->getLimit()
+		);
+		$this->assertEquals(
+			1,
+			$set->getPage()
+		);
+		$this->assertEquals(
+			2,
+			$set->getPages()
 		);
 	}
 	
@@ -1885,6 +1934,28 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			array(1, 2),
 			$set->slice(0, 2)->getPrimaryKeys()
+		);
+	}
+	
+	public function testSliceLimit()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->slice(2, 2, TRUE);
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+		$this->assertEquals(
+			2,
+			$set->getLimit()
+		);
+		$this->assertEquals(
+			2,
+			$set->getPage()
+		);
+		$this->assertEquals(
+			2,
+			$set->getPages()
 		);
 	}
 	
