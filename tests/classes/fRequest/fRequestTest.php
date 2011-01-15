@@ -96,7 +96,13 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 	public function testGetCastLargeIntegerForce()
 	{
 		$_GET['test'] = '182702337829321093210';
-		$this->assertSame(2147483647, fRequest::get('test', 'integer!'));
+		$int = fRequest::get('test', 'integer!');
+		// 64 bit machines will return this
+		if ($int == 9223372036854775807) {
+			$this->assertSame(9223372036854775807, $int);
+		} else {
+			$this->assertSame(2147483647, $int);
+		}
 	}
 	
 	public function testGetRemoveLowByte()

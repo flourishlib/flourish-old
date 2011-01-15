@@ -18,7 +18,7 @@ if (empty($_SERVER['DOCUMENT_ROOT'])) {
 	$_SERVER['DOCUMENT_ROOT'] = realpath(dirname(__FILE__) . '/../');
 }
 
-function __autoload($class_name)
+function flourish_autoload($class_name)
 {
 	$file = '../classes/' . $class_name . '.php';
 	if (file_exists($file)) {
@@ -26,6 +26,7 @@ function __autoload($class_name)
 		return;
 	}
 }
+spl_autoload_register('flourish_autoload');
 
 function __cache()
 {
