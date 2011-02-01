@@ -1,0 +1,5 @@
+= Flourish
+
+This git repository is a mirror of the project's SVN repository. All development, documentation and discussion happens on the project website, [[http://flourishlib.com|flourishlib.com]].
+
+The current workflow for the project does not make it possible for me to accept pull requests in an efficient manner. Please instead create a patch and submit it to the [[http://flourishlib.com/newticket|ticketing system]].
