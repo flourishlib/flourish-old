@@ -350,6 +350,31 @@ Iñtërnâtiônàlizætiøn
 		);
 	}
 	
+	public function testCustomHeaders()
+	{
+		$token = $this->generateSubjectToken();
+		
+		$email = new fEmail();
+		$email->setFromEmail('will@flourishlib.com');
+		$email->addRecipient(EMAIL_ADDRESS, 'Test User');
+		$email->setSubject($token . ': Testing Custom Headers');
+		$email->setBody('This is a test of sending custom headers');
+		$email->addCustomHeader('X-header-1', 'Old value');
+		$email->addCustomHeader(array(
+			'X-Header-1' => 'New value',
+			'X-Header-2' => 'This is a really long header value that should end up being longer the recommended limit of seventy eight characters. It also contains non-ascii characters such as this é.'
+		));
+		$message_id = $email->send();
+		
+		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['message-id']);
+		$this->assertEquals('will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
+		$this->assertEquals($token . ': Testing Custom Headers', $message['headers']['subject']);
+		$this->assertEquals('This is a test of sending custom headers', $message['text']);
+		$this->assertEquals('New value', $message['headers']['x-header-1']);
+		$this->assertEquals('This is a really long header value that should end up being longer the recommended limit of seventy eight characters. It also contains non-ascii characters such as this é.', $message['headers']['x-header-2']);
+	}
+	
 	
 	public function testSendPreventHeaderInjection()
 	{

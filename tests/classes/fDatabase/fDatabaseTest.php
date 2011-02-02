@@ -270,6 +270,28 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 		$this->assertEquals($output, $this->db->escape('%i', $input));
 	}
 	
+	public static function escapeFloatProvider()
+	{
+		$output = array();
+		
+		$output[] = array(1.0, '1');
+		$output[] = array('4.', '4');              
+		$output[] = array('.7', '0.7');
+		$output[] = array("-.6", '-0.6');
+		$output[] = array('+25.289', '+25.289');
+		$output[] = array(0.10, '0.1');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider escapeFloatProvider
+	 */
+	public function testEscapeFloat($input, $output)
+	{
+		$this->assertSame($output, $this->db->escape('%f', $input));
+	}
+	
 	public static function escapeStringProvider()
 	{
 		$output = array();
