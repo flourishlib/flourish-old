@@ -342,12 +342,14 @@ class fNumberTest extends PHPUnit_Framework_TestCase
 	{
 		$output = array();
 		
-		$output[] = array('1.0', '1.0');
-		$output[] = array('1000', '1,000');
-		$output[] = array('12600.0', '12,600.0');
-		$output[] = array('89999999999999999999999999999.89734638', '89,999,999,999,999,999,999,999,999,999.89734638');
-		$output[] = array('-12600.0', '-12,600.0');
-		$output[] = array('-1112600.0', '-1,112,600.0');
+		$output[] = array('1.0', FALSE, '1.0');
+		$output[] = array('1000', FALSE, '1,000');
+		$output[] = array('12600.0', FALSE, '12,600.0');
+		$output[] = array('89999999999999999999999999999.89734638', FALSE, '89,999,999,999,999,999,999,999,999,999.89734638');
+		$output[] = array('-12600.0', FALSE, '-12,600.0');
+		$output[] = array('-1112600.0', FALSE, '-1,112,600.0');
+		$output[] = array('-1112600.0', TRUE, '-1,112,600');
+		$output[] = array('89999999999999999999999999999.0089734638', TRUE, '89,999,999,999,999,999,999,999,999,999.0089734638');
 		
 		return $output;
 	}
@@ -355,10 +357,10 @@ class fNumberTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider formatProvider
 	 */
-	public function testFormat($input, $output)
+	public function testFormat($input, $remove_zero_fraction, $output)
 	{
 		$num = new fNumber($input);
-		$this->assertSame($output, $num->format());
+		$this->assertSame($output, $num->format($remove_zero_fraction));
 	}
 	
 	public static function gtProvider()
