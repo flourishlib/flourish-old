@@ -1344,6 +1344,39 @@ class fRecordSetTestChild extends PHPUnit_Framework_TestCase
 		);
 	}
 	
+	public function testBuildWithNonAggregateOrderBy()
+	{
+		$set = fRecordSet::build(
+			'User',
+			NULL,
+			array(
+				sprintf('%s{users_groups}.name', fORM::tablize('Group')) => 'asc',
+				'user_id'                   => 'asc'
+			)
+		);
+		$this->assertEquals(
+			// Postgres has a different collation than the others
+			DB_TYPE == 'postgresql' ? array(1, 2, 3, 4) : array(3, 4, 1, 2),
+			$set->getPrimaryKeys()
+		);
+	}
+	
+	public function testBuildWithNonAggregateOrderBy2()
+	{
+		$set = fRecordSet::build(
+			'Album',
+			array(sprintf('%s.name~', fORM::tablize('Artist')) => 'e'),
+			array(
+				sprintf('%s.name', fORM::tablize('Artist')) => 'asc',
+				'name'         => 'asc'
+			)
+		);
+		$this->assertEquals(
+			array(5, 6, 4, 7, 3, 2, 1),
+			$set->getPrimaryKeys()
+		);
+	}
+	
 	public function testBuildWithLimit()
 	{
 		$set = fRecordSet::build('User', NULL, NULL, 2);
