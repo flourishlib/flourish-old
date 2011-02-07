@@ -16,6 +16,98 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('en-us', fRequest::getBestAcceptLanguage());
 	}
 	
+	public function testGetBestAcceptLanguageEmpty()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = '';
+		$this->assertEquals(NULL, fRequest::getBestAcceptLanguage());
+	}
+	
+	public function testGetBestAcceptLanguageNotSet()
+	{
+		$this->assertEquals(NULL, fRequest::getBestAcceptLanguage());
+	}
+	
+	public function testGetBestAcceptLanguageWildcardNoFilter()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = '*;q=0.5';
+		$this->assertEquals(NULL, fRequest::getBestAcceptLanguage());
+	}
+	
+	public function testGetBestAcceptLanguageFilterNoMatch()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-us,en;q=0.5';
+		$this->assertEquals(FALSE, fRequest::getBestAcceptLanguage('es-es', 'es-ec'));
+	}
+	
+	public function testGetBestAcceptLanguageFilterPrefixMatch()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'es-es,en;q=0.5';
+		$this->assertEquals('en-us', fRequest::getBestAcceptLanguage('en-us', 'es-ec'));
+	}
+	
+	public function testGetBestAcceptLanguageFilterEmpty()
+	{
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = '';
+		$this->assertEquals('es-es', fRequest::getBestAcceptLanguage(array('es-es', 'es-ec')));
+	}
+	
+	public function testGetBestAcceptLanguageFilterNotSet()
+	{
+		$this->assertEquals('es-es', fRequest::getBestAcceptLanguage('es-es', 'es-ec'));
+	}
+	
+	public function testGetBestAcceptType()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'image/png,image/*;q=0.8,*/*;q=0.5';
+		$this->assertEquals('image/png', fRequest::getBestAcceptType());
+	}
+	
+	public function testGetBestAcceptTypeEmpty()
+	{
+		$_SERVER['HTTP_ACCEPT'] = '';
+		$this->assertEquals(NULL, fRequest::getBestAcceptType());
+	}
+	
+	public function testGetBestAcceptTypeNotSet()
+	{
+		$this->assertEquals(NULL, fRequest::getBestAcceptType());
+	}
+	
+	public function testGetBestAcceptTypeWildcardNoFilter()
+	{
+		$_SERVER['HTTP_ACCEPT'] = '*/*;q=0.1';
+		$this->assertEquals(NULL, fRequest::getBestAcceptType());
+	}
+	
+	public function testGetBestAcceptTypeFilterNoMatch()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'image/png,image/*;q=0.8';
+		$this->assertEquals(FALSE, fRequest::getBestAcceptType('text/html', 'application/json'));
+	}
+	
+	public function testGetBestAcceptTypeFilterLowWildcardMatch()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'image/png,image/*;q=0.8,*/*;q=0.5';
+		$this->assertEquals('text/html', fRequest::getBestAcceptType('text/html', 'application/json'));
+	}
+	
+	public function testGetBestAcceptTypeFilterWildcardMatch()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'image/png,image/*;q=0.8,*/*;q=0.5';
+		$this->assertEquals('image/jpeg', fRequest::getBestAcceptType(array('text/html', 'image/jpeg')));
+	}
+	
+	public function testGetBestAcceptTypeFilterEmpty()
+	{
+		$_SERVER['HTTP_ACCEPT'] = '';
+		$this->assertEquals('text/html', fRequest::getBestAcceptType('text/html', 'application/json'));
+	}
+	
+	public function testGetBestAcceptTypeFilterNotSet()
+	{
+		$this->assertEquals('text/html', fRequest::getBestAcceptType('text/html', 'application/json'));
+	}
+	
 	public function testCheckBlankField()
 	{
 		$_GET['test'] = '';
