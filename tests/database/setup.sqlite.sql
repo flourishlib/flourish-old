@@ -7,9 +7,10 @@ CREATE TABLE users (
 	status VARCHAR(8) NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Pending')),
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	birthday DATE,
-	time_of_last_login TIME,
+	birthday DATE, -- The birthday
+	time_of_last_login TIME /* When the user last logged in */,
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
+	/* This comment is ignored */
 	hashed_password VARCHAR(100) NOT NULL -- This hash is generated using fCryptography::hashPassword()
 );
 
@@ -17,7 +18,9 @@ CREATE TABLE groups (
 	group_id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR(255) NOT NULL UNIQUE,
 	group_leader INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	group_founder INTEGER REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+	group_founder INTEGER,
+	/* comment before foreign key */
+	FOREIGN KEY (group_founder) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE users_groups (
@@ -28,8 +31,9 @@ CREATE TABLE users_groups (
 
 CREATE TABLE artists (
 	artist_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name VARCHAR(255) NOT NULL UNIQUE
+	name VARCHAR(255) NOT NULL
 );
+CREATE UNIQUE INDEX artists_name_uniq_idx ON artists(name);
 
 CREATE TABLE albums (
 	album_id INTEGER PRIMARY KEY AUTOINCREMENT,
