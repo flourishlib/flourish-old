@@ -322,12 +322,6 @@ foreach ($class_dirs as $class_dir) {
 				$errors = FALSE;
 			}
 			
-			if (preg_match_all('#<pre class="exposed">(.*?)</pre>#ims', $output, $matches)) {
-				foreach ($matches[1] as $match) {
-					echo html_entity_decode($match, ENT_COMPAT, 'utf-8') . "\n";
-				}
-			}
-			
 			if (!$revision && (stripos($output, 'Fatal error') !== FALSE || stripos($output, 'RuntimeException') !== FALSE || $errors || !file_exists('./xml') || !trim(file_get_contents('./xml')))) {
 				echo $output . "\n";
 				if (file_exists('./xml')) {

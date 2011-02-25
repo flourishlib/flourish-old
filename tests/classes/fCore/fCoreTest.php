@@ -57,16 +57,16 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		
 		$output[] = array(NULL, FALSE, FALSE, '');
 		$output[] = array('this is a test', FALSE, FALSE, '');
-		$output[] = array('this is a test', TRUE, FALSE, '<pre class="exposed">this is a test</pre>');
-		$output[] = array('this is a test', FALSE, TRUE, '<pre class="exposed">this is a test</pre>');
-		$output[] = array('this is a test', TRUE, TRUE, '<pre class="exposed">this is a test</pre>');
-		$output[] = array(NULL, TRUE, FALSE, '<pre class="exposed">{null}</pre>');
-		$output[] = array(TRUE, TRUE, FALSE, '<pre class="exposed">{true}</pre>');
-		$output[] = array(FALSE, TRUE, FALSE, '<pre class="exposed">{false}</pre>');
-		$output[] = array('', TRUE, FALSE, '<pre class="exposed">{empty_string}</pre>');
-		$output[] = array(1, TRUE, FALSE, '<pre class="exposed">1</pre>');
-		$output[] = array(array(), TRUE, FALSE, "<pre class=\"exposed\">Array\n(\n)</pre>");
-		$output[] = array(new stdClass, TRUE, FALSE, "<pre class=\"exposed\">stdClass Object\n(\n)</pre>");
+		$output[] = array('this is a test', TRUE, FALSE, 'this is a test');
+		$output[] = array('this is a test', FALSE, TRUE, 'this is a test');
+		$output[] = array('this is a test', TRUE, TRUE, 'this is a test');
+		$output[] = array(NULL, TRUE, FALSE, '{null}');
+		$output[] = array(TRUE, TRUE, FALSE, '{true}');
+		$output[] = array(FALSE, TRUE, FALSE, '{false}');
+		$output[] = array('', TRUE, FALSE, '{empty_string}');
+		$output[] = array(1, TRUE, FALSE, '1');
+		$output[] = array(array(), TRUE, FALSE, "Array\n(\n)");
+		$output[] = array(new stdClass, TRUE, FALSE, "stdClass Object\n(\n)");
 		
 		return $output;
 	}
@@ -83,7 +83,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		fCore::debug($value, $force);
 		$output = ob_get_clean();
 		
-		$this->assertEquals($expected_output, $output);
+		$this->assertEquals($expected_output, rtrim($output, "\n"));
 	}
 	
 	public static function dumpProvider()
@@ -114,14 +114,14 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 	{
 		$output = array();
 		
-		$output[] = array('this is a test', '<pre class="exposed">this is a test</pre>');
-		$output[] = array(NULL, '<pre class="exposed">{null}</pre>');
-		$output[] = array(TRUE, '<pre class="exposed">{true}</pre>');
-		$output[] = array(FALSE, '<pre class="exposed">{false}</pre>');
-		$output[] = array('', '<pre class="exposed">{empty_string}</pre>');
-		$output[] = array(1, '<pre class="exposed">1</pre>');
-		$output[] = array(array(), "<pre class=\"exposed\">Array\n(\n)</pre>");
-		$output[] = array(new stdClass, "<pre class=\"exposed\">stdClass Object\n(\n)</pre>");
+		$output[] = array('this is a test', 'this is a test');
+		$output[] = array(NULL, '{null}');
+		$output[] = array(TRUE, '{true}');
+		$output[] = array(FALSE, '{false}');
+		$output[] = array('', '{empty_string}');
+		$output[] = array(1, '1');
+		$output[] = array(array(), "Array\n(\n)");
+		$output[] = array(new stdClass, "stdClass Object\n(\n)");
 		
 		return $output;
 	}
@@ -135,7 +135,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		fCore::expose($value);
 		$output = ob_get_clean();
 		
-		$this->assertEquals($expected_output, $output);
+		$this->assertEquals($expected_output, rtrim($output, "\n"));
 	}
 	
 	public function testExposeMultiple()
@@ -144,7 +144,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		fCore::expose('string', TRUE);
 		$output = ob_get_clean();
 		
-		$this->assertEquals("<pre class=\"exposed\">Array\n(\n    [0] =&gt; string\n    [1] =&gt; {true}\n)</pre>", $output);
+		$this->assertEquals("Array\n(\n    [0] => string\n    [1] => {true}\n)\n", $output);
 	}
 	
 	public function testHandleError()
