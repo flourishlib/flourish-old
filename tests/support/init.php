@@ -2,7 +2,27 @@
 ob_start();
 define('TEST_EXIT_SCRIPT', './support/test_exit.php');
 include_once 'support/constants.php';
-require_once 'PHPUnit/Framework.php';
+
+function in_include_path($filename) {
+    $paths = explode(PATH_SEPARATOR, get_include_path());
+    foreach ($paths as $path) {
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
+        }
+        if (file_exists($path . $filename)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+// PHPUnit 3.5 complains about including PHPUnit/Framework.php, but
+// 3.4 doesn't have PHPUnit/Autoload.php
+if (in_include_path('PHPUnit/Autoload.php')) {
+	require_once 'PHPUnit/Autoload.php';
+} else {
+	require_once 'PHPUnit/Framework.php';
+}
 require_once 'PHPUnit/TextUI/TestRunner.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 

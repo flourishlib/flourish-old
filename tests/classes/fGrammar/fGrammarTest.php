@@ -60,6 +60,10 @@ class fGrammarTest extends PHPUnit_Framework_TestCase
 		$output[] = array('Model_Users', 'Model_User');
 		$output[] = array('Model_People', 'Model_Person');
 		$output[] = array('videos', 'video');
+		$output[] = array('licenses', 'license');
+		$output[] = array('lice', 'louse');
+		$output[] = array('mice', 'mouse');
+		$output[] = array('amices', 'amice');
 		
 		return $output;
 	}
