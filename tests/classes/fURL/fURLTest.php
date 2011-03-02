@@ -31,6 +31,32 @@ class fURLTest extends PHPUnit_Framework_TestCase
 	{
 		$this->assertEquals($output, fURL::makeFriendly($input, $max_length));
 	}
+
+	public static function redirectProvider()
+	{
+		$output = array();
+		
+		$output[] = array('/foo/bar/baz', '/foo/bar/baz', '/index.php');
+		$output[] = array('foobar', '/foobar', '/index.php');
+		$output[] = array('foobar', '/baz/foobar', '/baz/');
+		$output[] = array('?foo=baz', '/index.php?foo=baz', '/index.php');
+		$output[] = array('./foobar', '/foo/baz/foobar', '/foo/baz/index.php');
+		$output[] = array('../../foobar', '/../foobar', '/dir/index.php');
+		$output[] = array('../../foobar', '/foobar', '/dir/dir2/index.php');
+
+		return $output;
+	}
+
+	/**
+	 * @dataProvider redirectProvider
+	 */
+	public function testRedirect($path, $result, $request_uri)
+	{
+		// This is a gross cli wrapper script since we have to test for exit
+		$code  = "\$_SERVER['REQUEST_URI'] = '" . $request_uri . "';";
+		$code .= "fURL::redirect('" . $path . "');";
+		$this->assertEquals('http://example.com' . $result, shell_exec('php ' . TEST_EXIT_SCRIPT . ' ' . escapeshellarg($code)));
+	}
 	
 	public function tearDown()
 	{
