@@ -12,15 +12,7 @@ class fUnbufferedResultTest extends PHPUnit_Framework_TestSuite
 	}
 }
 
-class fUnbufferedResultTestModifications extends PHPUnit_Framework_TestSuite
-{
-	public static function suite()
-	{
-		return new fUnbufferedResultTestModifications('fUnbufferedResultTestModificationsChild');
-	}		
-}
-
-class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
+class fUnbufferedResultTestModifications extends PHPUnit_Framework_TestCase
 {
 	public $db;
 	
@@ -35,6 +27,9 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}	
 	
@@ -44,7 +39,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		
 		$this->db->unbufferedQuery("DELETE FROM users WHERE user_id = 4");
 		
-		$res = $this->db->unbufferedQuery("SELECT * FROM users");
+		$res = $this->db->unbufferedQuery("SELECT first_name FROM users");
 		$i = 0;
 		while ($res->valid()) {
 			$res->fetchRow();
@@ -54,7 +49,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		
 		$this->db->unbufferedQuery("ROLLBACK");
 		
-		$res = $this->db->unbufferedQuery("SELECT * FROM users");
+		$res = $this->db->unbufferedQuery("SELECT first_name FROM users");
 		$i = 0;
 		while ($res->valid()) {
 			$res->fetchRow();
@@ -69,7 +64,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		
 		$this->db->unbufferedQuery("DELETE FROM users WHERE user_id = 4");
 		
-		$res = $this->db->unbufferedQuery("SELECT * FROM users");
+		$res = $this->db->unbufferedQuery("SELECT first_name FROM users");
 		$i = 0;
 		while ($res->valid()) {
 			$res->fetchRow();
@@ -79,7 +74,7 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 		
 		$this->db->unbufferedQuery("COMMIT");
 		
-		$res = $this->db->unbufferedQuery("SELECT * FROM users");
+		$res = $this->db->unbufferedQuery("SELECT first_name FROM users");
 		$i = 0;
 		while ($res->valid()) {
 			$res->fetchRow();
@@ -89,43 +84,34 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	}
 }
 
-class fUnbufferedResultTestNoModifications extends PHPUnit_Framework_TestSuite
+class fUnbufferedResultTestNoModifications extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fUnbufferedResultTestNoModifications('fUnbufferedResultTestNoModificationsChild');
-	}
+	protected static $db;
 	
-	protected function setUp()
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$this->sharedFixture = $db;
+		
+		self::$db = $db;
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	} 		
-}
- 
-class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
@@ -135,19 +121,19 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	
 	public function testGetSql()
 	{
-		$res = $this->db->unbufferedQuery("SELECT user_id FROM users");
+		$res = self::$db->unbufferedQuery("SELECT user_id FROM users");
 		$this->assertEquals('SELECT user_id FROM users', $res->getSQL());
 	}
 	
 	public function testGetUntranslatedSql()
 	{
-		$res = $this->db->unbufferedQuery("SELECT user_id FROM users");
+		$res = self::$db->unbufferedQuery("SELECT user_id FROM users");
 		$this->assertEquals(NULL, $res->getUntranslatedSQL());
 	}
 	
 	public function testFetchRow()
 	{
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id = 1");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id = 1");
 		$this->assertEquals(
 			array(
 				'first_name'    => 'Will',
@@ -163,13 +149,13 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	{
 		$this->setExpectedException('fNoRowsException');
 		
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id = 25");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id = 25");
 		$row = $res->fetchRow();
 	}
 	
 	public function testIteration()
 	{
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		$i = 0;
 		foreach ($res as $row) {
 			$this->assertEquals(
@@ -189,7 +175,7 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	{
 		$this->setExpectedException('fProgrammerException');
 		
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		
 		$i = 0;
 		foreach ($res as $row) {
@@ -213,7 +199,7 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	
 	public function testEmptyIteration()
 	{
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
 	
 		$i = 0;
 		foreach ($res as $row) {
@@ -226,13 +212,13 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	public function testTossIfEmpty()
 	{
 		$this->setExpectedException('fNoRowsException');
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
 		$res->tossIfNoRows();
 	}
 	
 	public function testTossIfEmpty2()
 	{
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1) ORDER BY user_id");
 		$res->tossIfNoRows();
 	}
 	
@@ -240,9 +226,9 @@ class fUnbufferedResultTestNoModificationsChild extends PHPUnit_Framework_TestCa
 	{
 		$this->setExpectedException('fProgrammerException');
 		
-		$res = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		
-		$res2 = $this->db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (3, 4) ORDER BY user_id");
+		$res2 = self::$db->unbufferedQuery("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (3, 4) ORDER BY user_id");
 		
 		$this->assertEquals(
 			array(

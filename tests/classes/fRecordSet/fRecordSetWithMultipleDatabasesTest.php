@@ -21,14 +21,12 @@ function _tally($value, $record)
 	return $value;	
 }
 
-class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
+class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fRecordSetWithMultipleDatabasesTest('fRecordSetWithMultipleDatabasesTestChild');
-	}
-	
-	protected function setUp()
+	protected static $db;
+	protected static $db2;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -39,7 +37,8 @@ class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
 		$db2 = new fDatabase(DB_TYPE, DB_2, DB_2_USERNAME, DB_2_PASSWORD, DB_2_HOST, DB_2_PORT); 
 		$db2->execute(file_get_contents(DB_2_SETUP_FILE));
 		
-		$this->sharedFixture = array($db, $db2);
+		self::$db  = $db;
+		self::$db2 = $db2;
 		
 		fORMDatabase::attach($db);
 		fORMDatabase::attach($db2, 'db2');
@@ -48,24 +47,18 @@ class fRecordSetWithMultipleDatabasesTest extends PHPUnit_Framework_TestSuite
 		fORM::mapClassToTable('Db2Group', 'groups');
 		fORM::mapClassToDatabase('Db2Group', 'db2');
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture[0];
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-		
-		$db2 = $this->sharedFixture[1];
-		$db2->execute(file_get_contents(DB_2_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db2->execute(file_get_contents(DB_2_TEARDOWN_FILE));
 		
 		__reset();
 	}
-}
 
-class fRecordSetWithMultipleDatabasesTestChild extends PHPUnit_Framework_TestCase
-{
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {

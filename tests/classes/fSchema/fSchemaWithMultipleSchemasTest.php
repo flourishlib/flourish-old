@@ -10,14 +10,14 @@ function fix_schema($input)
 	return str_replace('flourish_role', DB_NAME . '_role', $input);	
 }
 
-class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
+class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fSchemaWithMultipleSchemasTest('fSchemaWithMultipleSchemasTestChild');
-	}
- 
-	protected function setUp()
+	public $schema_obj;
+
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -27,37 +27,25 @@ class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
 		
-		$this->sharedFixture = array(
-			'db' => $db,
-			'schema' => fJSON::decode(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SCHEMA_FILE)), TRUE)
-		);
+		self::$db     = $db;
+		self::$schema = fJSON::decode(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SCHEMA_FILE)), TRUE);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fSchemaWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
-	public $schema;
-	public $schema_obj;
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db         = $this->sharedFixture['db'];
-		$this->schema_obj = new fSchema($this->db);
-		$this->schema     = $this->sharedFixture['schema'];
+		$this->schema_obj = new fSchema(self::$db);
 	}
 	
 	public function tearDown()
@@ -108,7 +96,7 @@ class fSchemaWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetColumnInfo($table)
 	{
-		$schema_column_info = $this->schema['column_info'][$table];
+		$schema_column_info = self::$schema['column_info'][$table];
 		foreach ($schema_column_info as $col => &$info) {
 			ksort($info);	
 		}
@@ -136,7 +124,7 @@ class fSchemaWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetKeys($table)
 	{
-		$schema_keys = $this->schema['keys'][$table];
+		$schema_keys = self::$schema['keys'][$table];
 		foreach ($schema_keys as $type => &$list) {
 			sort($list);	
 		}
@@ -159,7 +147,7 @@ class fSchemaWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetRelationships($table)
 	{
-		$schema_relationships = $this->schema['relationships'][$table];
+		$schema_relationships = self::$schema['relationships'][$table];
 		foreach ($schema_relationships as $type => &$list) {
 			sort($list);	
 		}

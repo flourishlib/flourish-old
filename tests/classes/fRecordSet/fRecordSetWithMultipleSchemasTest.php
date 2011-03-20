@@ -37,14 +37,11 @@ function fix_schema($input)
 	return str_replace('flourish_role', DB_NAME . '_role', $input);	
 }
 
-class fRecordSetWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
+class fRecordSetWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fRecordSetWithMultipleSchemasTest('fRecordSetWithMultipleSchemasTestChild');
-	}
-	
-	protected function setUp()
+	protected static $db;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -55,29 +52,23 @@ class fRecordSetWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
 		$db->clearCache();
 		fORMDatabase::attach($db);
-		$this->sharedFixture = $db;
+		self::$db = $db;
 		
 		fORM::mapClassToTable('Flourish2User', fix_schema('flourish2.users'));
 		fORM::mapClassToTable('Flourish2Group', fix_schema('flourish2.groups'));
 		fORM::mapClassToTable('Flourish2Artist', fix_schema('flourish2.artists'));
 		fORM::mapClassToTable('Flourish2Album', fix_schema('flourish2.albums'));
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
-		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
-
-class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
 	
 	public function setUp()
 	{
@@ -89,7 +80,6 @@ class fRecordSetWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()

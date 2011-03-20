@@ -1,78 +1,36 @@
 <?php
 require_once('./support/init.php');
 
-class fDatabaseTest extends PHPUnit_Framework_TestSuite
+class fDatabaseTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		$suite = new fDatabaseTest();
-		$suite->addTestSuite('fDatabaseTestNoModifications');
-//		$suite->addTestSuite('fDatabaseTestModifications');
-		return $suite;
-	}
-}
+	protected static $db;
+	protected static $schema;
 
-/*class fDatabaseTestModifications extends PHPUnit_Framework_TestSuite
-{
-	public static function suite()
-	{
-		return new fDatabaseTestModifications('fDatabaseTestModificationsChild');
-	}		
-}
-
-class fDatabaseTestModificationsChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
-	
-	public function setUp()
-	{
-		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$this->db->execute(file_get_contents(DB_SETUP_FILE));
-	}
-	
-	public function tearDown()
-	{
-		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	}
-}*/
- 
-class fDatabaseTestNoModifications extends PHPUnit_Framework_TestSuite
-{
-	public static function suite()
-	{
-		return new fDatabaseTestNoModifications('fDatabaseTestNoModificationsChild');
-	}
- 
-	protected function setUp()
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
-			return;
+			return;	
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$this->sharedFixture = $db;
+		
+		self::$db     = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
-			return;
+			return;	
 		}
-		$db = $this->sharedFixture;
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
@@ -82,75 +40,75 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testGetDatabase()
 	{
-		$this->assertEquals(DB, $this->db->getDatabase());
+		$this->assertEquals(DB, self::$db->getDatabase());
 	}
 	
 	public function testGetExtension()
 	{
-		$this->assertContains($this->db->getExtension(), array('ibm_db2', 'pdo', 'oci8', 'sqlsvr', 'sqlite', 'sqlsrv', 'mysql', 'mysqli', 'mssql', 'pgsql'));
+		$this->assertContains(self::$db->getExtension(), array('ibm_db2', 'pdo', 'oci8', 'sqlsvr', 'sqlite', 'sqlsrv', 'mysql', 'mysqli', 'mssql', 'pgsql'));
 	}
 	
 	public function testGetType()
 	{
-		$this->assertEquals(DB_TYPE, $this->db->getType());
+		$this->assertEquals(DB_TYPE, self::$db->getType());
 	}
 	
 	public function testQuery()
 	{
-		$res = $this->db->query('SELECT user_id FROM users');
+		$res = self::$db->query('SELECT user_id FROM users');
 		$this->assertEquals('fResult', get_class($res));	
 	}
 	
 	public function testSqlError()
 	{
 		$this->setExpectedException('fSQLException');    
-		$this->db->query('SLECT * FROM users');	
+		self::$db->query('SLECT * FROM users');	
 	}
 	
 	public function testTranslatedQuery()
 	{
-		$res = $this->db->translatedQuery('SELECT user_id FROM users');
+		$res = self::$db->translatedQuery('SELECT user_id FROM users');
 		$this->assertEquals('fResult', get_class($res));	
 	}
 	
 	public function testTranslatedSqlError()
 	{
 		$this->setExpectedException('fSQLException');    
-		$this->db->translatedQuery('SLECT * FROM users');	
+		self::$db->translatedQuery('SLECT * FROM users');	
 	}
 	
 	public function testUnbufferedQuery()
 	{
-		$res = $this->db->unbufferedQuery('SELECT user_id FROM users');
+		$res = self::$db->unbufferedQuery('SELECT user_id FROM users');
 		$this->assertEquals('fUnbufferedResult', get_class($res));
 	}
 	
 	public function testUnbufferedSqlError()
 	{
 		$this->setExpectedException('fSQLException');    
-		$this->db->unbufferedQuery('SLECT * FROM users');
+		self::$db->unbufferedQuery('SLECT * FROM users');
 	}
 	
 	public function testUnbufferedTranslatedQuery()
 	{
-		$res = $this->db->unbufferedTranslatedQuery('SELECT user_id FROM users');
+		$res = self::$db->unbufferedTranslatedQuery('SELECT user_id FROM users');
 		$this->assertEquals('fUnbufferedResult', get_class($res));
 	}
 	
 	public function testUnbufferedTranslatedSqlError()
 	{
 		$this->setExpectedException('fSQLException');    
-		$this->db->unbufferedTranslatedQuery('SLECT * FROM users');	
+		self::$db->unbufferedTranslatedQuery('SLECT * FROM users');	
 	}
 	
 	public function testEscapeBlob()
 	{
-		if ($this->db->getExtension() == 'sqlite') {
-			$this->assertEquals("'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'", $this->db->escape('%l', '☺☻♥♦♣♠•◘○◙'));	
+		if (self::$db->getExtension() == 'sqlite') {
+			$this->assertEquals("'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'", self::$db->escape('%l', '☺☻♥♦♣♠•◘○◙'));	
 			return;	
 		}
 		
-		switch ($this->db->getType()) {
+		switch (self::$db->getType()) {
 			case 'db2':        $expected = "BLOB(X'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "')"; break;
 			case 'sqlite':     $expected = "X'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'"; break;
 			case 'mysql':      $expected = "x'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'"; break;
@@ -158,7 +116,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 			case 'mssql':      $expected = "0x" . bin2hex('☺☻♥♦♣♠•◘○◙'); break;
 			case 'oracle':     $expected = "'" . bin2hex('☺☻♥♦♣♠•◘○◙') . "'"; break;	
 		}
-		$this->assertEquals($expected, $this->db->escape('%l', '☺☻♥♦♣♠•◘○◙'));
+		$this->assertEquals($expected, self::$db->escape('%l', '☺☻♥♦♣♠•◘○◙'));
 	}
 	
 	public static function escapeBooleanProvider()
@@ -176,7 +134,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeBoolean($input)
 	{
-		$this->db->query('SELECT user_id FROM users WHERE is_validated = ' . $this->db->escape('%b', $input));
+		self::$db->query('SELECT user_id FROM users WHERE is_validated = ' . self::$db->escape('%b', $input));
 	}
 	
 	public static function escapeDateProvider()
@@ -196,7 +154,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeDate($input)
 	{
-		$this->db->query('SELECT user_id FROM users WHERE date_created < ' . $this->db->escape('%d', $input));
+		self::$db->query('SELECT user_id FROM users WHERE date_created < ' . self::$db->escape('%d', $input));
 	}
 	
 	/**
@@ -204,7 +162,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeDateFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escape('%d', $input));
+		$this->assertSame($output, self::$db->escape('%d', $input));
 	}
 	
 	public static function escapeIdentifierProvider()
@@ -245,7 +203,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeIdentifier($input)
 	{
-		$this->db->query('SELECT user_id FROM ' . $this->db->escape('%r', $input));
+		self::$db->query('SELECT user_id FROM ' . self::$db->escape('%r', $input));
 	}
 	
 	public static function escapeIntegerProvider()
@@ -267,7 +225,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeInteger($input, $output)
 	{
-		$this->assertEquals($output, $this->db->escape('%i', $input));
+		$this->assertEquals($output, self::$db->escape('%i', $input));
 	}
 	
 	public static function escapeFloatProvider()
@@ -289,7 +247,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeFloat($input, $output)
 	{
-		$this->assertSame($output, $this->db->escape('%f', $input));
+		$this->assertSame($output, self::$db->escape('%f', $input));
 	}
 	
 	public static function escapeStringProvider()
@@ -310,7 +268,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeString($input)
 	{
-		$this->db->query('SELECT user_id FROM users WHERE first_name = ' . $this->db->escape('%s', $input));
+		self::$db->query('SELECT user_id FROM users WHERE first_name = ' . self::$db->escape('%s', $input));
 	}
 	
 	public static function escapeTimeProvider()
@@ -330,7 +288,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTime($input)
 	{
-		$this->db->query('SELECT user_id FROM users WHERE time_of_last_login < ' . $this->db->escape('%t', $input));
+		self::$db->query('SELECT user_id FROM users WHERE time_of_last_login < ' . self::$db->escape('%t', $input));
 	}
 	
 	public static function escapeDateTimeFailProvider()
@@ -349,7 +307,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTimeFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escape('%t', $input));
+		$this->assertSame($output, self::$db->escape('%t', $input));
 	}
 	
 	public static function escapeTimestampProvider()
@@ -369,7 +327,7 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTimestamp($input)
 	{
-		$this->db->query('SELECT user_id FROM users WHERE time_of_last_login < ' . $this->db->escape('%p', $input));
+		self::$db->query('SELECT user_id FROM users WHERE time_of_last_login < ' . self::$db->escape('%p', $input));
 	}
 	
 	/**
@@ -377,48 +335,48 @@ class fDatabaseTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testEscapeTimestampFail($input, $output)
 	{
-		$this->assertSame($output, $this->db->escape('%p', $input));
+		$this->assertSame($output, self::$db->escape('%p', $input));
 	}
 	
 	public function testUnescapeBlob()
 	{
-		$res = $this->db->query('SELECT data FROM blobs WHERE blob_id = 1');
+		$res = self::$db->query('SELECT data FROM blobs WHERE blob_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), $this->db->unescape('%l', $row['data']));
+		$this->assertEquals(pack("H*", "5527939aca3e9e80d5ab3bee47391f0f"), self::$db->unescape('%l', $row['data']));
 	}
 	
 	public function testUnescapeBoolean()
 	{
-		$res = $this->db->query('SELECT is_validated FROM users WHERE user_id = 1');
+		$res = self::$db->query('SELECT is_validated FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals(TRUE, $this->db->unescape('%b', $row['is_validated']));
+		$this->assertEquals(TRUE, self::$db->unescape('%b', $row['is_validated']));
 	}
 	
 	public function testUnescapeDate()
 	{
-		$res = $this->db->query('SELECT birthday FROM users WHERE user_id = 1');
+		$res = self::$db->query('SELECT birthday FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('1980-09-01', $this->db->unescape('%d', $row['birthday']));
+		$this->assertEquals('1980-09-01', self::$db->unescape('%d', $row['birthday']));
 	}
 	
 	public function testUnescapeString()
 	{
-		$res = $this->db->query('SELECT first_name FROM users WHERE user_id = 1');
+		$res = self::$db->query('SELECT first_name FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('Will', $this->db->unescape('%s', $row['first_name']));
+		$this->assertEquals('Will', self::$db->unescape('%s', $row['first_name']));
 	}
 	
 	public function testUnescapeTime()
 	{
-		$res = $this->db->query('SELECT time_of_last_login FROM users WHERE user_id = 1');
+		$res = self::$db->query('SELECT time_of_last_login FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('17:00:00', $this->db->unescape('%t', $row['time_of_last_login']));
+		$this->assertEquals('17:00:00', self::$db->unescape('%t', $row['time_of_last_login']));
 	}
 	
 	public function testUnescapeTimestamp()
 	{
-		$res = $this->db->query('SELECT date_created FROM users WHERE user_id = 1');
+		$res = self::$db->query('SELECT date_created FROM users WHERE user_id = 1');
 		$row = $res->fetchRow();
-		$this->assertEquals('2008-05-01 13:00:00', $this->db->unescape('%p', $row['date_created']));
+		$this->assertEquals('2008-05-01 13:00:00', self::$db->unescape('%p', $row['date_created']));
 	}
 }

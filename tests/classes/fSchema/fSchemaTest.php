@@ -1,14 +1,14 @@
 <?php
 require_once('./support/init.php');
 
-class fSchemaTest extends PHPUnit_Framework_TestSuite
+class fSchemaTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fSchemaTest('fSchemaTestChild');
-	}
- 
-	protected function setUp()
+	public $schema_obj;
+
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -16,36 +16,24 @@ class fSchemaTest extends PHPUnit_Framework_TestSuite
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		
-		$this->sharedFixture = array(
-			'db' => $db,
-			'schema' => fJSON::decode(file_get_contents(DB_SCHEMA_FILE), TRUE)
-		);
+		self::$db     = $db;
+		self::$schema = fJSON::decode(file_get_contents(DB_SCHEMA_FILE), TRUE);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
-
-class fSchemaTestChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
-	public $schema;
-	public $schema_obj;
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db         = $this->sharedFixture['db'];
-		$this->schema_obj = new fSchema($this->db);
-		$this->schema     = $this->sharedFixture['schema'];
+		$this->schema_obj = new fSchema(self::$db);
 	}
 	
 	public function tearDown()
@@ -55,7 +43,7 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testGetTables()
 	{
-		$schema_tables = $this->schema['tables'];
+		$schema_tables = self::$schema['tables'];
 		sort($schema_tables);
 		
 		$tables = $this->schema_obj->getTables();
@@ -63,6 +51,55 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			$schema_tables,
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrder()
+	{
+		$tables = $this->schema_obj->getTables(TRUE);
+		
+		$this->assertSame(
+			array(
+				'artists',
+				'blobs',
+				'users',
+				'albums',
+				'groups',
+				'owns_on_cd',
+				'owns_on_tape',
+				'songs',
+				'users_groups'
+			),
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrderFiltered()
+	{
+		$tables = $this->schema_obj->getTables('groups');
+		
+		$this->assertSame(
+			array(
+				'groups',
+				'users_groups'
+			),
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrderFiltered2()
+	{
+		$tables = $this->schema_obj->getTables('users');
+		
+		$this->assertSame(
+			array(
+				'users',
+				'groups',
+				'owns_on_cd',
+				'owns_on_tape',
+				'users_groups'
+			),
 			$tables
 		);
 	}
@@ -88,7 +125,7 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetColumnInfo($table)
 	{
-		$schema_column_info = $this->schema['column_info'][$table];
+		$schema_column_info = self::$schema['column_info'][$table];
 		foreach ($schema_column_info as $col => &$info) {
 			ksort($info);
 		}
@@ -116,7 +153,7 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetKeys($table)
 	{
-		$schema_keys = $this->schema['keys'][$table];
+		$schema_keys = self::$schema['keys'][$table];
 		foreach ($schema_keys as $type => &$list) {
 			sort($list);	
 		}
@@ -139,7 +176,7 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetRelationships($table)
 	{
-		$schema_relationships = $this->schema['relationships'][$table];
+		$schema_relationships = self::$schema['relationships'][$table];
 		foreach ($schema_relationships as $type => &$list) {
 			sort($list);	
 		}
@@ -191,16 +228,16 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 		
 		foreach ($values as $value => $should_catch) {
 			$value = substr($value, 0, -1);
-			$this->db->query('BEGIN');
+			self::$db->query('BEGIN');
 			$exception = FALSE;
 			try {
-				$res = $this->db->query($query, $value);
+				$res = self::$db->query($query, $value);
 				
 				// Since MySQL silently mutates data to fit into columns, we have to check the actual value
 				if (DB_TYPE == 'mysql') {
 					$primary_key = current($this->schema_obj->getKeys($table, 'primary'));
 					
-					$inserted_value = $this->db->query(
+					$inserted_value = self::$db->query(
 						"SELECT %r FROM %r WHERE %r = %i",
 						$column,
 						$table,
@@ -221,7 +258,7 @@ class fSchemaTestChild extends PHPUnit_Framework_TestCase
 			} catch (fSQLException $e) {
 				$exception = TRUE;
 			}
-			$this->db->query('ROLLBACK');
+			self::$db->query('ROLLBACK');
 			if ($should_catch != $exception) {
 				$bad_value = TRUE;
 			} else {

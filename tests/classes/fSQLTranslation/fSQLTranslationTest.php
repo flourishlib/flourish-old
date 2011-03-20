@@ -1,30 +1,27 @@
 <?php
 require_once('./support/init.php');
  
-class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
+class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fSQLTranslationTest('fSQLTranslationTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		
-		$this->sharedFixture = $db;
+
+		self::$db = $db;
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
+		$db = self::$db;
 		
 		try {
 			// Clean up the testCreateTable() tables
@@ -44,18 +41,12 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestSuite
 		
 		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;	
 	}
 	
 	public function tearDown()
@@ -65,13 +56,13 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testModOperator()
 	{
-		$res = $this->db->translatedQuery("SELECT 5 % 2 as mod_col FROM users");
+		$res = self::$db->translatedQuery("SELECT 5 % 2 as mod_col FROM users");
 		$this->assertEquals(1, $res->fetchScalar());
 	}
 	
 	public function testLike()
 	{
-		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users WHERE first_name LIKE 'wil%'");
+		$res = self::$db->translatedQuery("SELECT user_id, email_address FROM users WHERE first_name LIKE 'wil%'");
 		$this->assertEquals(
 			array(
 				array(
@@ -85,7 +76,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testAcos()
 	{
-		$res = $this->db->translatedQuery("SELECT acos(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT acos(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 1.0471975511966,
 			(string)(float) $res->fetchScalar()
@@ -94,7 +85,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testAsin()
 	{
-		$res = $this->db->translatedQuery("SELECT asin(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT asin(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.5235987755983,
 			(string)(float) $res->fetchScalar()
@@ -103,7 +94,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testAtan()
 	{
-		$res = $this->db->translatedQuery("SELECT atan(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT atan(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.46364760900081,
 			(string)(float) $res->fetchScalar()
@@ -112,7 +103,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testAtan2()
 	{
-		$res = $this->db->translatedQuery("SELECT atan2(0.5, 0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT atan2(0.5, 0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.78539816339745,
 			(string)(float) $res->fetchScalar()
@@ -121,7 +112,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCeil()
 	{
-		$res = $this->db->translatedQuery("SELECT ceil(1.2) FROM users");
+		$res = self::$db->translatedQuery("SELECT ceil(1.2) FROM users");
 		$this->assertEquals(
 			(string) 2,
 			(string) $res->fetchScalar()
@@ -130,7 +121,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCeiling()
 	{
-		$res = $this->db->translatedQuery("SELECT ceiling(0.1) FROM users");
+		$res = self::$db->translatedQuery("SELECT ceiling(0.1) FROM users");
 		$this->assertEquals(
 			(string) 1,
 			(string) $res->fetchScalar()
@@ -139,7 +130,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCos()
 	{
-		$res = $this->db->translatedQuery("SELECT cos(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT cos(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.87758256189037,
 			(string)(float) $res->fetchScalar()
@@ -148,7 +139,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCot()
 	{
-		$res = $this->db->translatedQuery("SELECT cot(0.3) FROM users");
+		$res = self::$db->translatedQuery("SELECT cot(0.3) FROM users");
 		$this->assertEquals(
 			(string)(float) 3.2327281437658,
 			(string)(float) $res->fetchScalar()
@@ -157,7 +148,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testDegrees()
 	{
-		$res = $this->db->translatedQuery("SELECT degrees(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT degrees(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 28.647889756541,
 			(string)(float) $res->fetchScalar()
@@ -166,7 +157,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testExp()
 	{
-		$res = $this->db->translatedQuery("SELECT exp(2.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT exp(2.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 12.182493960703,
 			(string)(float) $res->fetchScalar()
@@ -175,7 +166,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testFloor()
 	{
-		$res = $this->db->translatedQuery("SELECT floor(2.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT floor(2.5) FROM users");
 		$this->assertEquals(
 			2,
 			$res->fetchScalar()
@@ -184,7 +175,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLn()
 	{
-		$res = $this->db->translatedQuery("SELECT ln(2.1) FROM users");
+		$res = self::$db->translatedQuery("SELECT ln(2.1) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.74193734472938,
 			(string)(float) $res->fetchScalar()
@@ -193,7 +184,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLog()
 	{
-		$res = $this->db->translatedQuery("SELECT log(10, 5.1) FROM users");
+		$res = self::$db->translatedQuery("SELECT log(10, 5.1) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.70757017609794,
 			(string)(float) $res->fetchScalar()
@@ -202,7 +193,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testPi()
 	{
-		$res = $this->db->translatedQuery("SELECT pi() FROM users");
+		$res = self::$db->translatedQuery("SELECT pi() FROM users");
 		$this->assertEquals(
 			(string)(float) 3.1415926535898,
 			(string)(float) $res->fetchScalar()
@@ -211,7 +202,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testPower()
 	{
-		$res = $this->db->translatedQuery("SELECT power(1.2000000000000, 3.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT power(1.2000000000000, 3.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 1.8929291587379,
 			(string)(float) $res->fetchScalar()
@@ -220,7 +211,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRadians()
 	{
-		$res = $this->db->translatedQuery("SELECT radians(118.1) FROM users");
+		$res = self::$db->translatedQuery("SELECT radians(118.1) FROM users");
 		$this->assertEquals(
 			(string)(float) 2.0612338466053,
 			(string)(float) $res->fetchScalar()
@@ -229,7 +220,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRandom()
 	{
-		$res = $this->db->translatedQuery("SELECT random() FROM users");
+		$res = self::$db->translatedQuery("SELECT random() FROM users");
 		$rand = (float) $res->fetchScalar();
 		$this->assertGreaterThanOrEqual(0.0, $rand);
 		$this->assertLessThanOrEqual(1.0, $rand);
@@ -237,7 +228,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRound()
 	{
-		$res = $this->db->translatedQuery("SELECT round(118.1) FROM users");
+		$res = self::$db->translatedQuery("SELECT round(118.1) FROM users");
 		$this->assertEquals(
 			118,
 			$res->fetchScalar()
@@ -246,7 +237,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRound2()
 	{
-		$res = $this->db->translatedQuery("SELECT round(2.9) FROM users");
+		$res = self::$db->translatedQuery("SELECT round(2.9) FROM users");
 		$this->assertEquals(
 			3,
 			$res->fetchScalar()
@@ -255,7 +246,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRound3()
 	{
-		$res = $this->db->translatedQuery("SELECT round(1.9876, 2) FROM users");
+		$res = self::$db->translatedQuery("SELECT round(1.9876, 2) FROM users");
 		$this->assertEquals(
 			1.99,
 			$res->fetchScalar()
@@ -264,7 +255,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSign()
 	{
-		$res = $this->db->translatedQuery("SELECT sign(0) AS sign_of_zero FROM users");
+		$res = self::$db->translatedQuery("SELECT sign(0) AS sign_of_zero FROM users");
 		$this->assertEquals(
 			0,
 			$res->fetchScalar()
@@ -273,7 +264,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSign2()
 	{
-		$res = $this->db->translatedQuery("SELECT sign(-25) AS sign_of_neg_25 FROM users");
+		$res = self::$db->translatedQuery("SELECT sign(-25) AS sign_of_neg_25 FROM users");
 		$this->assertEquals(
 			-1,
 			$res->fetchScalar()
@@ -282,7 +273,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSqrt()
 	{
-		$res = $this->db->translatedQuery("SELECT sqrt(9) FROM users");
+		$res = self::$db->translatedQuery("SELECT sqrt(9) FROM users");
 		$this->assertEquals(
 			3,
 			$res->fetchScalar()
@@ -291,7 +282,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSin()
 	{
-		$res = $this->db->translatedQuery("SELECT sin(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT sin(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.4794255386042,
 			(string)(float) $res->fetchScalar()
@@ -300,7 +291,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testTan()
 	{
-		$res = $this->db->translatedQuery("SELECT tan(0.5) FROM users");
+		$res = self::$db->translatedQuery("SELECT tan(0.5) FROM users");
 		$this->assertEquals(
 			(string)(float) 0.54630248984379,
 			(string)(float) $res->fetchScalar()
@@ -309,7 +300,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testTrim()
 	{
-		$res = $this->db->translatedQuery("SELECT trim('  testing trim ') FROM users");
+		$res = self::$db->translatedQuery("SELECT trim('  testing trim ') FROM users");
 		$this->assertEquals(
 			'testing trim',
 			$res->fetchScalar()
@@ -318,7 +309,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testRTrim()
 	{
-		$res = $this->db->translatedQuery("SELECT rtrim('  testing trim ') FROM users");
+		$res = self::$db->translatedQuery("SELECT rtrim('  testing trim ') FROM users");
 		$this->assertEquals(
 			'  testing trim',
 			$res->fetchScalar()
@@ -327,7 +318,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLTrim()
 	{
-		$res = $this->db->translatedQuery("SELECT ltrim('  testing trim ') FROM users");
+		$res = self::$db->translatedQuery("SELECT ltrim('  testing trim ') FROM users");
 		$this->assertEquals(
 			'testing trim ',
 			$res->fetchScalar()
@@ -336,7 +327,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testSubstr()
 	{
-		$res = $this->db->translatedQuery("SELECT substr('testing', 2, 3) FROM users");
+		$res = self::$db->translatedQuery("SELECT substr('testing', 2, 3) FROM users");
 		$this->assertEquals(
 			'est',
 			$res->fetchScalar()
@@ -345,7 +336,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLength()
 	{
-		$res = $this->db->translatedQuery("SELECT length('testing') FROM users");
+		$res = self::$db->translatedQuery("SELECT length('testing') FROM users");
 		$this->assertEquals(
 			7,
 			$res->fetchScalar()
@@ -354,10 +345,10 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testCurrentTimestamp()
 	{
-		$res = $this->db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
+		$res = self::$db->translatedQuery("SELECT CURRENT_TIMESTAMP FROM users");
 		// Only SQLite does any translation
 		if (DB_TYPE == 'sqlite') {
-			$current_timestamp = strtotime($this->db->unescape('timestamp', $res->fetchScalar()));
+			$current_timestamp = strtotime(self::$db->unescape('timestamp', $res->fetchScalar()));
 			$this->assertGreaterThanOrEqual(time()-120, $current_timestamp);
 			$this->assertLessThanOrEqual(time()+120, $current_timestamp);
 		}
@@ -365,7 +356,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testBoolean()
 	{
-		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users WHERE is_validated = TRUE ORDER BY user_id ASC");
+		$res = self::$db->translatedQuery("SELECT user_id, email_address FROM users WHERE is_validated = TRUE ORDER BY user_id ASC");
 		$this->assertEquals(
 			array(
 				array(
@@ -387,13 +378,13 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLimit()
 	{
-		$res = $this->db->translatedQuery("SELECT * FROM users LIMIT 3");
+		$res = self::$db->translatedQuery("SELECT * FROM users LIMIT 3");
 		$this->assertEquals(3, $res->countReturnedRows());
 	}
 	
 	public function testLimit2()
 	{
-		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2");
+		$res = self::$db->translatedQuery("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2");
 		$this->assertEquals(
 			array(
 				array(
@@ -411,7 +402,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testLimitOffset()
 	{
-		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2 OFFSET 1");
+		$res = self::$db->translatedQuery("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2 OFFSET 1");
 		$this->assertEquals(
 			array(
 				array(
@@ -429,8 +420,8 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testPreparedStatement()
 	{
-		$statement = $this->db->translatedPrepare("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2 OFFSET 1");
-		$res = $this->db->query($statement);
+		$statement = self::$db->translatedPrepare("SELECT user_id, email_address FROM users ORDER BY user_id ASC LIMIT 2 OFFSET 1");
+		$res = self::$db->query($statement);
 		$this->assertEquals(
 			array(
 				array(
@@ -448,7 +439,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testEmptyStrings()
 	{
-		$res = $this->db->translatedQuery("SELECT user_id, email_address FROM users WHERE middle_initial = '' AND first_name <> '' ORDER BY user_id ASC");
+		$res = self::$db->translatedQuery("SELECT user_id, email_address FROM users WHERE middle_initial = '' AND first_name <> '' ORDER BY user_id ASC");
 		
 		$this->assertEquals(
 			array(
@@ -475,18 +466,18 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testEmptyStrings2()
 	{
-		$res = $this->db->translatedQuery("UPDATE users SET middle_initial = '' WHERE middle_initial = ''");
+		$res = self::$db->translatedQuery("UPDATE users SET middle_initial = '' WHERE middle_initial = ''");
 		
 		$this->assertEquals(
 			// MySQL doesn't report an affected row if the old and new values are the same
-			($this->db->getType() == 'mysql') ? 0 : 4,    
+			(self::$db->getType() == 'mysql') ? 0 : 4,    
 			$res->countAffectedRows()
 		);
 	}
 	
 	public function testCreateTable()
 	{
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"CREATE TABLE translation_test (
 				translation_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
 				bigint_col BIGINT NULL,
@@ -501,7 +492,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			)"
 		);
 		
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"CREATE TABLE translation_test_2 (
 				translation_test_2_id INTEGER NOT NULL PRIMARY KEY,
 				translation_test_id INTEGER NOT NULL REFERENCES translation_test(translation_test_id) ON DELETE CASCADE,
@@ -509,7 +500,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			)"
 		);
 		
-		$schema = new fSchema($this->db);
+		$schema = new fSchema(self::$db);
 		
 		$translation_test_schema   = $schema->getColumnInfo('translation_test');
 		
@@ -615,8 +606,8 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"max_value"      => NULL,
 					"min_value"      => NULL,
 					"not_null"       => FALSE,
-					"placeholder"    => ($this->db->getType() == 'mssql') ? "%p" : "%d",
-					"type"           => ($this->db->getType() == 'mssql') ? "timestamp" : "date",
+					"placeholder"    => (self::$db->getType() == 'mssql') ? "%p" : "%d",
+					"type"           => (self::$db->getType() == 'mssql') ? "timestamp" : "date",
 					"valid_values"   => NULL
 				),
 				'text_col' => array(
@@ -641,8 +632,8 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"max_value"      => NULL,
 					"min_value"      => NULL,
 					"not_null"       => FALSE,
-					"placeholder"    => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "%p" : "%t",
-					"type"           => (in_array($this->db->getType(), array('mssql', 'oracle'))) ? "timestamp" : "time",
+					"placeholder"    => (in_array(self::$db->getType(), array('mssql', 'oracle'))) ? "%p" : "%t",
+					"type"           => (in_array(self::$db->getType(), array('mssql', 'oracle'))) ? "timestamp" : "time",
 					"valid_values"   => NULL
 				),
 				'timestamp_col' => array(
@@ -711,7 +702,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 					"valid_values"   => NULL
 				),
 				'translation_test_2_id' => array(
-					"auto_increment" => ($this->db->getType() == 'sqlite') ? TRUE : FALSE,
+					"auto_increment" => (self::$db->getType() == 'sqlite') ? TRUE : FALSE,
 					"comment"        => "",
 					"decimal_places" => NULL,
 					"default"        => NULL,
@@ -774,7 +765,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testUnicode()
 	{
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"CREATE TABLE unicode_test (
 				unicode_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
 				varchar_col VARCHAR(100) NULL,
@@ -784,10 +775,10 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			)"
 		);
 		
-		$this->db->getSQLTranslation()->clearCache();
-		$this->db->clearCache();
+		self::$db->getSQLTranslation()->clearCache();
+		self::$db->clearCache();
 		
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
 			"Արամ Խաչատրյան",
 			"সুকুমার রায়",
@@ -795,7 +786,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			"Ђорђе Балашевић"
 		);
 		
-		$res = $this->db->translatedQuery("SELECT * FROM unicode_test");
+		$res = self::$db->translatedQuery("SELECT * FROM unicode_test");
 		$this->assertEquals(
 			array(
 				'unicode_test_id' => 1,
@@ -807,8 +798,8 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			$res->fetchRow()	
 		);
 		
-		$statement = $this->db->prepare("INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)");
-		$this->db->query(
+		$statement = self::$db->prepare("INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)");
+		self::$db->query(
 			$statement,
 			"Արամ Խաչատրյան",
 			"সুকুমার রায়",
@@ -816,7 +807,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			"Ђорђе Балашевић"
 		);
 		
-		$res2 = $this->db->translatedQuery("SELECT * FROM unicode_test ORDER BY unicode_test_id ASC");
+		$res2 = self::$db->translatedQuery("SELECT * FROM unicode_test ORDER BY unicode_test_id ASC");
 		$this->assertEquals(
 			array(
 				array(
@@ -841,7 +832,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 	
 	public function testUnicodeSubSelect()
 	{
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"CREATE TABLE unicode_test_2 (
 				unicode_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
 				varchar_col VARCHAR(100) NULL,
@@ -851,24 +842,24 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			)"
 		);
 		
-		$this->db->getSQLTranslation()->clearCache();
-		$this->db->clearCache();
+		self::$db->getSQLTranslation()->clearCache();
+		self::$db->clearCache();
 		
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
 			"Արամ Խաչատրյան",
 			"সুকুমার রায়",
 			"Ελλάς",
 			"Ђорђе Балашевић"
 		);
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
 			"Արամ Խաչատրյան",
 			"Test1",
 			"Test1",
 			"Test1"
 		);
-		$this->db->translatedQuery(
+		self::$db->translatedQuery(
 			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
 			"ամ Խաչատրյան",
 			"Test2",
@@ -876,7 +867,7 @@ class fSQLTranslationTestChild extends PHPUnit_Framework_TestCase
 			"Test2"
 		);
 		
-		$res = $this->db->translatedQuery("SELECT varchar_col, varchar_col_2 FROM unicode_test_2 ut INNER JOIN (SELECT ut2.varchar_col AS varchar_col_3 FROM unicode_test_2 ut2 inner join unicode_test_2 ut3 ON ut2.unicode_test_id = ut3.unicode_test_id) ss ON ut.varchar_col = ss.varchar_col_3");
+		$res = self::$db->translatedQuery("SELECT varchar_col, varchar_col_2 FROM unicode_test_2 ut INNER JOIN (SELECT ut2.varchar_col AS varchar_col_3 FROM unicode_test_2 ut2 inner join unicode_test_2 ut3 ON ut2.unicode_test_id = ut3.unicode_test_id) ss ON ut.varchar_col = ss.varchar_col_3");
 		$this->assertEquals(
 			array(
 				'varchar_col'     => "Արամ Խաչատրյան",

@@ -13,50 +13,42 @@ class YearFavoriteAlbum extends fActiveRecord { }
 class InvalidTable extends fActiveRecord { }
 class TopAlbum extends fActiveRecord { }
 
-class fORMOrderingTest extends PHPUnit_Framework_TestSuite
+class fORMOrderingTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fORMOrderingTest('fORMOrderingTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$this->sharedFixture = array(
-			'db' => $db, 
-			'schema' => new fSchema($db)
-		);
+		
+		self::$db     = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
 
-class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
-{
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
 		
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		$db->clearCache();
+		self::$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		self::$db->clearCache();
 		
-		fORMDatabase::attach($db);
-		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMDatabase::attach(self::$db);
+		fORMSchema::attach(self::$schema);
 		fORMOrdering::configureOrderingColumn('TopAlbum', 'position');
 		fORMOrdering::configureOrderingColumn('FavoriteAlbum', 'position');
 		fORMOrdering::configureOrderingColumn('YearFavoriteAlbum', 'position');
@@ -74,8 +66,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			return;
 		}
 		
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
 		__reset();
 	}
 	
@@ -114,7 +105,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -150,7 +141,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -185,7 +176,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT position, album_id FROM top_albums ORDER BY position ASC")->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -224,7 +215,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -267,7 +258,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -304,7 +295,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -344,7 +335,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_origin_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $origin_email)->fetchAllRows();
+		$actual_origin_result = self::$db->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $origin_email)->fetchAllRows();
 		
 		$this->assertEquals($expected_origin_result, $actual_origin_result);
 		
@@ -357,7 +348,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_destination_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $destination_email)->fetchAllRows();
+		$actual_destination_result = self::$db->translatedQuery("SELECT email, position, album_id FROM favorite_albums WHERE email = %s ORDER BY position ASC", $destination_email)->fetchAllRows();
 		
 		$this->assertEquals($expected_destination_result, $actual_destination_result);
 	}
@@ -396,7 +387,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -440,7 +431,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}
@@ -477,7 +468,7 @@ class fORMOrderingTestChild extends PHPUnit_Framework_TestCase
 			);
 		}
 		
-		$actual_result = $this->sharedFixture['db']->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
+		$actual_result = self::$db->translatedQuery("SELECT email, position, album_id FROM year_favorite_albums WHERE email = %s ORDER BY position ASC", $email)->fetchAllRows();
 		
 		$this->assertEquals($expected_result, $actual_result);
 	}

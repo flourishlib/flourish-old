@@ -422,7 +422,31 @@ foreach ($class_dirs as $class_dir) {
 
 if ($format == 'json') {
 	
-	echo '{"passed": ' . $successful . ', "failed": ' . $failures . ', "skipped": ' . $skipped . ', "php_errors": ' . $php_errors . "}\n";
+	echo '{"passed": ' . $successful . ', "failed": ' . $failures . ', "skipped": ' . $skipped . ', "php_errors": ' . $php_errors . ', "error_messages": [';
+	$total_error_messages = 0;
+	foreach ($results as $result) {
+		if (!$result['success']) {
+			if ($result['config_name']) {
+				$parts = explode("\n", $result['error'], 2);
+				$parts[0] .= ', config ' . $result['config_name'];
+				$result['error'] = join("\n", $parts);
+			}
+			if ($total_error_messages) {
+				echo ', ';
+			}
+			echo '"';
+			echo strtr(
+				$result['error'],
+				array(
+					'"'   => '\"', '\\' => '\\\\', '/'  => '\/', "\x8" => '\b',
+					"\xC" => '\f', "\n" => '\n',   "\r" => '\r', "\t"  => '\t'
+				)
+			);
+			echo '"';
+			$total_error_messages++;
+		}
+	}
+	echo "]}\n";
 	
 } elseif ($format == 'text') {
 	
@@ -447,23 +471,14 @@ if ($format == 'json') {
 	
 	if ($successful) {
 		echo "\033[1;37;43m " . $successful . " Passed \033[0m";
-		if ($failures || $php_errors || $skipped) {
-			//echo ", ";
-		}	
 	}
 	
 	if ($failures) {
 		echo "\033[1;37;41m " . $failures . " Failed \033[0m";
-		if ($php_errors || $skipped) {
-			//echo ", ";
-		}	
 	}
 	
 	if ($php_errors) {
 		echo "\033[1;37;41m " . $php_errors . " PHP errors \033[0m";
-		if ($skipped) {
-			//echo ", ";
-		}	
 	}	
 	if ($skipped) {
 		echo "\033[0;37;40m " . $skipped . " Skipped \033[0m";

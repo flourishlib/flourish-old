@@ -27,14 +27,12 @@ function fix_schema($input)
 	return str_replace('flourish_role', DB_NAME . '_role', $input);
 }
 
-class fActiveRecordWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
+class fActiveRecordWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fActiveRecordWithMultipleSchemasTest('fActiveRecordWithMultipleSchemasTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -44,28 +42,20 @@ class fActiveRecordWithMultipleSchemasTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
 		
-		$schema = new fSchema($db);
-		
-		$this->sharedFixture = array(
-			'db' => $db,
-			'schema' => $schema
-		);
+		self::$db = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));		
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCase
-{
+
 	protected function createUser()
 	{
 		$user = new Flourish2User();
@@ -79,8 +69,8 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		fORMDatabase::attach($this->sharedFixture['db']);
-		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMDatabase::attach(self::$db);
+		fORMSchema::attach(self::$schema);
 		fORM::mapClassToTable('Flourish2User', fix_schema('flourish2.users'));
 		fORM::mapClassToTable('Flourish2Group', fix_schema('flourish2.groups'));
 		fORM::mapClassToTable('Flourish2Artist', fix_schema('flourish2.artists'));
@@ -92,7 +82,7 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->sharedFixture['db']->query('DELETE FROM users WHERE user_id > 4');
+		self::$db->query('DELETE FROM users WHERE user_id > 4');
 		__reset();	
 	}
 	
@@ -115,7 +105,7 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture['db']->query(fix_schema('SELECT user_id FROM flourish2.users WHERE user_id = %i'), $id)->countReturnedRows()
+			self::$db->query(fix_schema('SELECT user_id FROM flourish2.users WHERE user_id = %i'), $id)->countReturnedRows()
 		);		
 	}
 	
@@ -140,7 +130,7 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'testInsert')->countReturnedRows()
+			self::$db->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -154,9 +144,9 @@ class fActiveRecordWithMultipleSchemasTestChild extends PHPUnit_Framework_TestCa
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'Jim')->countReturnedRows()
+			self::$db->query(fix_schema('SELECT * FROM flourish2.users WHERE first_name = %s'), 'Jim')->countReturnedRows()
 		);
 		
-		$this->sharedFixture['db']->query(fix_schema('UPDATE flourish2.users SET first_name = %s WHERE user_id = %i'), 'James', 1);		
+		self::$db->query(fix_schema('UPDATE flourish2.users SET first_name = %s WHERE user_id = %i'), 'James', 1);		
 	}
 }

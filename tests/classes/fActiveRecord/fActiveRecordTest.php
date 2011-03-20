@@ -28,14 +28,12 @@ function changed($object, &$values, &$old_values, &$related_records, &$cache, $m
 	return fActiveRecord::changed($values, $old_values, $parameters[0]);	
 }
  
-class fActiveRecordTest extends PHPUnit_Framework_TestSuite
+class fActiveRecordTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fActiveRecordTest('fActiveRecordTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;	
@@ -44,27 +42,19 @@ class fActiveRecordTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		
-		$schema = new fSchema($db);
-		
-		$this->sharedFixture = array(
-			'db'     => $db,
-			'schema' => $schema
-		);
+		self::$db     = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;	
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
-{
+
 	protected function createUser()
 	{
 		$user = new User();
@@ -81,8 +71,8 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		fORMDatabase::attach($this->sharedFixture['db']);
-		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMDatabase::attach(self::$db);
+		fORMSchema::attach(self::$schema);
 		if (defined('MAP_TABLES')) {
 			fORM::mapClassToTable('User', 'user');
 			fORM::mapClassToTable('Group', 'group');
@@ -97,11 +87,11 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;	
 		}
-		$this->sharedFixture['db']->query('DELETE FROM events_artists');
-		$this->sharedFixture['db']->query('DELETE FROM event_details');
-		$this->sharedFixture['db']->query('DELETE FROM registrations');
-		$this->sharedFixture['db']->query('DELETE FROM events WHERE event_id > 9');
-		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
+		self::$db->query('DELETE FROM events_artists');
+		self::$db->query('DELETE FROM event_details');
+		self::$db->query('DELETE FROM registrations');
+		self::$db->query('DELETE FROM events WHERE event_id > 9');
+		self::$db->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 	
@@ -239,7 +229,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture['db']->query('SELECT user_id FROM %r WHERE user_id = %i', fORM::tablize('User'), $id)->countReturnedRows()
+			self::$db->query('SELECT user_id FROM %r WHERE user_id = %i', fORM::tablize('User'), $id)->countReturnedRows()
 		);		
 	}
 	
@@ -253,7 +243,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			0,
-			$this->sharedFixture['db']->query('SELECT name FROM record_labels WHERE name = %s', 'Will’s Label')->countReturnedRows()
+			self::$db->query('SELECT name FROM record_labels WHERE name = %s', 'Will’s Label')->countReturnedRows()
 		);		
 	}
 	
@@ -326,7 +316,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsert')->countReturnedRows()
+			self::$db->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsert')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -345,7 +335,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
+			self::$db->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'testInsertSetNullNotNullColumnWithDefault')->countReturnedRows()
 		);
 		
 		$user->delete();		
@@ -359,10 +349,10 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'William')->countReturnedRows()
+			self::$db->query('SELECT * FROM %r WHERE first_name = %s', fORM::tablize('User'), 'William')->countReturnedRows()
 		);
 		
-		$this->sharedFixture['db']->query('UPDATE %r SET first_name = %s WHERE user_id = %i', fORM::tablize('User'), 'Will', 1);		
+		self::$db->query('UPDATE %r SET first_name = %s WHERE user_id = %i', fORM::tablize('User'), 'Will', 1);		
 	}
 	
 	public function testUpdateWithNoChanges()
@@ -372,7 +362,7 @@ class fActiveRecordTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			1,
-			$this->sharedFixture['db']->query('SELECT * FROM %r WHERE user_id = %i', fORM::tablize('User'), 1)->countReturnedRows()
+			self::$db->query('SELECT * FROM %r WHERE user_id = %i', fORM::tablize('User'), 1)->countReturnedRows()
 		);	
 	}
 	

@@ -12,15 +12,7 @@ class fStatementTest extends PHPUnit_Framework_TestSuite
 	}
 }
 
-class fStatementTestModifications extends PHPUnit_Framework_TestSuite
-{
-	public static function suite()
-	{
-		return new fStatementTestModifications('fStatementTestModificationsChild');
-	}		
-}
-
-class fStatementTestModificationsChild extends PHPUnit_Framework_TestCase
+class fStatementTestModifications extends PHPUnit_Framework_TestCase
 {
 	public $db;
 	
@@ -367,43 +359,34 @@ class fStatementTestModificationsChild extends PHPUnit_Framework_TestCase
 	}
 }
 
-class fStatementTestNoModifications extends PHPUnit_Framework_TestSuite
+class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fStatementTestNoModifications('fStatementTestNoModificationsChild');
-	}
+	protected static $db;
 	
-	protected function setUp()
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$this->sharedFixture = $db;
+		
+		self::$db = $db;
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	} 		
-}
- 
-class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
@@ -413,49 +396,49 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testGetSql()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users"));
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users"));
 		$this->assertEquals('SELECT user_id FROM users', $res->getSQL());
 	}
 	
 	public function testGetUntranslatedSql()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users"));
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users"));
 		$this->assertEquals(NULL, $res->getUntranslatedSQL());
 	}
 	
 	public function testCountAffectedRows()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users"));
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users"));
 		$this->assertEquals(0, $res->countAffectedRows());
 	}
 	
 	public function testCountReturnedRows()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users"));
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users"));
 		$this->assertEquals(4, $res->countReturnedRows());
 	}
 	
 	public function testNoAutoIncrementedValue()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users"));
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users"));
 		$this->assertEquals(NULL, $res->getAutoIncrementedValue());
 	}
 	
 	public function testCountReturnedRows2()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT user_id FROM users WHERE user_id = %i"), 99);
+		$res = self::$db->query(self::$db->prepare("SELECT user_id FROM users WHERE user_id = %i"), 99);
 		$this->assertEquals(0, $res->countReturnedRows());
 	}
 	
 	public function testFetchScalar()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name FROM users WHERE user_id = %i"), 1);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name FROM users WHERE user_id = %i"), 1);
 		$this->assertEquals('Will', $res->fetchScalar());
 	}
 	
 	public function testFetchRow()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id = %i"), 1);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id = %i"), 1);
 		$this->assertEquals(
 			array(
 				'first_name'    => 'Will',
@@ -470,13 +453,13 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('fNoRowsException');
 		
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id = %i"), 25);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id = %i"), 25);
 		$res->fetchRow();
 	}
 	
 	public function testFetchAllRows()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
 		$this->assertEquals(
 			array(
 				array(
@@ -496,13 +479,13 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testFetchAllRows2()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
 		$this->assertEquals(array(), $res->fetchAllRows());
 	}
 	
 	public function testIteration()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
 		$i = 0;
 		foreach ($res as $row) {
 			$this->assertEquals(
@@ -520,7 +503,7 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testRepeatIteration()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
 		
 		$i = 0;
 		foreach ($res as $row) {
@@ -553,7 +536,7 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testEmptyIteration()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
 	
 		$i = 0;
 		foreach ($res as $row) {
@@ -566,19 +549,19 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	public function testTossIfEmpty()
 	{
 		$this->setExpectedException('fNoRowsException');
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 25);
 		$res->tossIfNoRows();
 	}
 	
 	public function testTossIfEmpty2()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 1);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (%i) ORDER BY user_id"), 1);
 		$res->tossIfNoRows();
 	}
 	
 	public function testSeek()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users ORDER BY user_id"));
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users ORDER BY user_id"));
 		$res->seek(3);
 		$this->assertEquals(
 			array(
@@ -602,15 +585,15 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	public function testSeekFailure()
 	{
 		$this->setExpectedException('fProgrammerException');
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users ORDER BY user_id"));
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users ORDER BY user_id"));
 		$res->seek(4);
 	}
 	
 	public function testConcurrentResults()
 	{
-		$res = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
+		$res = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id < %i ORDER BY user_id"), 3);
 		
-		$res2 = $this->db->query($this->db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id > %i AND user_id < %i ORDER BY user_id"), 2, 5);
+		$res2 = self::$db->query(self::$db->prepare("SELECT first_name, last_name, email_address FROM users WHERE user_id > %i AND user_id < %i ORDER BY user_id"), 2, 5);
 		
 		$this->assertEquals(
 			array(
@@ -651,23 +634,23 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testReuse()
 	{
-		$statement = $this->db->prepare("SELECT user_id, email_address FROM users WHERE user_id = %i");
+		$statement = self::$db->prepare("SELECT user_id, email_address FROM users WHERE user_id = %i");
 		
 		$this->assertEquals(
 			array('user_id' => 1, 'email_address' => 'will@flourishlib.com'),
-			$this->db->query($statement, 1)->fetchRow()
+			self::$db->query($statement, 1)->fetchRow()
 		);
 		$this->assertEquals(
 			array('user_id' => 2, 'email_address' => 'john@smith.com'),
-			$this->db->query($statement, 2)->fetchRow()
+			self::$db->query($statement, 2)->fetchRow()
 		);
 		$this->assertEquals(
 			array('user_id' => 3, 'email_address' => 'bar@example.com'),
-			$this->db->query($statement, 3)->fetchRow()
+			self::$db->query($statement, 3)->fetchRow()
 		);
 		$this->assertEquals(
 			array('user_id' => 4, 'email_address' => 'foo@example.com'),
-			$this->db->query($statement, 4)->fetchRow()
+			self::$db->query($statement, 4)->fetchRow()
 		);
 		
 		$this->assertEquals(
@@ -677,7 +660,7 @@ class fStatementTestNoModificationsChild extends PHPUnit_Framework_TestCase
 				array('email_address' => 'bar@example.com'),
 				array('email_address' => 'foo@example.com')
 			),
-			$this->db->query("SELECT email_address FROM users ORDER BY user_id ASC")->fetchAllRows()
+			self::$db->query("SELECT email_address FROM users ORDER BY user_id ASC")->fetchAllRows()
 		);
 	}
 }
