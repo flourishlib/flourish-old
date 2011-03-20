@@ -15,14 +15,12 @@ class EventSlot extends fActiveRecord { }
 class Registration extends fActiveRecord { }
 class EventDetail extends fActiveRecord { }
  
-class fORMColumnTest extends PHPUnit_Framework_TestSuite
+class fORMColumnTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fORMColumnTest('fORMColumnTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -31,27 +29,19 @@ class fORMColumnTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		
-		$schema = new fSchema($db);
-		
-		$this->sharedFixture = array(
-			'db' => $db,
-			'schema' => $schema
-		);
+		self::$db     = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fORMColumnTestChild extends PHPUnit_Framework_TestCase
-{
+
 	protected function createEvent()
 	{
 		$event = new Event();
@@ -76,8 +66,8 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		fORMDatabase::attach($this->sharedFixture['db']);
-		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMDatabase::attach(self::$db);
+		fORMSchema::attach(self::$schema);
 		if (defined('MAP_TABLES')) {
 			fORM::mapClassToTable('User', 'user');
 			fORM::mapClassToTable('Group', 'group');
@@ -91,7 +81,7 @@ class fORMColumnTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
+		self::$db->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 		

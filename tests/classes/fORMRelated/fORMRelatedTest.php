@@ -19,14 +19,12 @@ class CertificationLevel extends fActiveRecord { }
 class Category extends fActiveRecord { }
 class Model_Person extends fActiveRecord { }
  
-class fORMRelatedTest extends PHPUnit_Framework_TestSuite
+class fORMRelatedTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fORMRelatedTest('fORMRelatedTestChild');
-	}
- 
-	protected function setUp()
+	protected static $db;
+	protected static $schema;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -35,27 +33,19 @@ class fORMRelatedTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		
-		$schema = new fSchema($db);
-		
-		$this->sharedFixture = array(
-			'db' => $db,
-			'schema' => $schema
-		);
+		self::$db     = $db;
+		self::$schema = new fSchema($db);
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture['db'];
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
- 
-class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
-{
+
 	protected function createUser()
 	{
 		$user = new User();
@@ -72,8 +62,8 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		fORMDatabase::attach($this->sharedFixture['db']);
-		fORMSchema::attach($this->sharedFixture['schema']);
+		fORMDatabase::attach(self::$db);
+		fORMSchema::attach(self::$schema);
 		fORM::mapClassToTable('Model_Person', 'people');
 		if (defined('MAP_TABLES')) {
 			fORM::mapClassToTable('User', 'user');
@@ -88,7 +78,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->sharedFixture['db']->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
+		self::$db->query('DELETE FROM %r WHERE user_id > 4', fORM::tablize('User'));
 		__reset();	
 	}
 	
@@ -378,7 +368,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 			array(
 				array('name' => 'Gold')
 			),
-			$this->sharedFixture['db']->query('SELECT * FROM certification_levels')->fetchAllRows()
+			self::$db->query('SELECT * FROM certification_levels')->fetchAllRows()
 		);
 		$this->assertEquals(
 			array(
@@ -388,7 +378,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 					'year' => '2010'
 				)
 			),
-			$this->sharedFixture['db']->query('SELECT %r, album_id, year FROM certifications', 'level')->fetchAllRows()
+			self::$db->query('SELECT %r, album_id, year FROM certifications', 'level')->fetchAllRows()
 		);
 	}
 	
@@ -403,7 +393,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 			array(
 				array('group_id' => 1)
 			),
-			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			self::$db->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);
 		
 		$user->associateGroups(array(1, 2), 'users_groups');
@@ -414,7 +404,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 				array('group_id' => 1),
 				array('group_id' => 2)
 			),
-			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			self::$db->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);
 		
 		$user->associateGroups(array(), 'users_groups');
@@ -422,7 +412,7 @@ class fORMRelatedTestChild extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			array(),
-			$this->sharedFixture['db']->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
+			self::$db->query('SELECT group_id FROM users_groups WHERE user_id = %i ORDER BY group_id ASC', $user->getUserId())->fetchAllRows()
 		);	
 	}
 }

@@ -12,15 +12,7 @@ class fResultTest extends PHPUnit_Framework_TestSuite
 	}
 }
 
-class fResultTestModifications extends PHPUnit_Framework_TestSuite
-{
-	public static function suite()
-	{
-		return new fResultTestModifications('fResultTestModificationsChild');
-	}		
-}
-
-class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
+class fResultTestModifications extends PHPUnit_Framework_TestCase
 {
 	public $db;
 	
@@ -206,43 +198,33 @@ class fResultTestModificationsChild extends PHPUnit_Framework_TestCase
 	}
 }
 
-class fResultTestNoModifications extends PHPUnit_Framework_TestSuite
+class fResultTestNoModifications extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fResultTestNoModifications('fResultTestNoModificationsChild');
-	}
-	
-	protected function setUp()
+	protected static $db;
+
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$this->sharedFixture = $db;
+		self::$db = $db;
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	} 		
-}
- 
-class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+	}
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 	}
 	
 	public function tearDown()
@@ -252,49 +234,49 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testGetSql()
 	{
-		$res = $this->db->query("SELECT user_id FROM users");
+		$res = self::$db->query("SELECT user_id FROM users");
 		$this->assertEquals('SELECT user_id FROM users', $res->getSQL());
 	}
 	
 	public function testGetUntranslatedSql()
 	{
-		$res = $this->db->query("SELECT user_id FROM users");
+		$res = self::$db->query("SELECT user_id FROM users");
 		$this->assertEquals(NULL, $res->getUntranslatedSQL());
 	}
 	
 	public function testCountAffectedRows()
 	{
-		$res = $this->db->query("SELECT user_id FROM users");
+		$res = self::$db->query("SELECT user_id FROM users");
 		$this->assertEquals(0, $res->countAffectedRows());
 	}
 	
 	public function testCountReturnedRows()
 	{
-		$res = $this->db->query("SELECT user_id FROM users");
+		$res = self::$db->query("SELECT user_id FROM users");
 		$this->assertEquals(4, $res->countReturnedRows());
 	}
 	
 	public function testNoAutoIncrementedValue()
 	{
-		$res = $this->db->query("SELECT user_id FROM users");
+		$res = self::$db->query("SELECT user_id FROM users");
 		$this->assertEquals(NULL, $res->getAutoIncrementedValue());
 	}
 	
 	public function testCountReturnedRows2()
 	{
-		$res = $this->db->query("SELECT user_id FROM users WHERE user_id = 99");
+		$res = self::$db->query("SELECT user_id FROM users WHERE user_id = 99");
 		$this->assertEquals(0, $res->countReturnedRows());
 	}
 	
 	public function testFetchScalar()
 	{
-		$res = $this->db->query("SELECT first_name FROM users WHERE user_id = 1");
+		$res = self::$db->query("SELECT first_name FROM users WHERE user_id = 1");
 		$this->assertEquals('Will', $res->fetchScalar());
 	}
 	
 	public function testFetchRow()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id = 1");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id = 1");
 		$this->assertEquals(
 			array(
 				'first_name'    => 'Will',
@@ -309,13 +291,13 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('fNoRowsException');
 		
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id = 25");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id = 25");
 		$res->fetchRow();
 	}
 	
 	public function testFetchAllRows()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		$this->assertEquals(
 			array(
 				array(
@@ -335,13 +317,13 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testFetchAllRows2()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
 		$this->assertEquals(array(), $res->fetchAllRows());
 	}
 	
 	public function testIteration()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		$i = 0;
 		foreach ($res as $row) {
 			$this->assertEquals(
@@ -359,7 +341,7 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testRepeatIteration()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		
 		$i = 0;
 		foreach ($res as $row) {
@@ -392,7 +374,7 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	
 	public function testEmptyIteration()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
 	
 		$i = 0;
 		foreach ($res as $row) {
@@ -405,19 +387,19 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	public function testTossIfEmpty()
 	{
 		$this->setExpectedException('fNoRowsException');
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (25) ORDER BY user_id");
 		$res->tossIfNoRows();
 	}
 	
 	public function testTossIfEmpty2()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1) ORDER BY user_id");
 		$res->tossIfNoRows();
 	}
 	
 	public function testSeek()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users ORDER BY user_id");
 		$res->seek(3);
 		$this->assertEquals(
 			array(
@@ -441,15 +423,15 @@ class fResultTestNoModificationsChild extends PHPUnit_Framework_TestCase
 	public function testSeekFailure()
 	{
 		$this->setExpectedException('fProgrammerException');
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users ORDER BY user_id");
 		$res->seek(4);
 	}
 	
 	public function testConcurrentResults()
 	{
-		$res = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
+		$res = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (1, 2) ORDER BY user_id");
 		
-		$res2 = $this->db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (3, 4) ORDER BY user_id");
+		$res2 = self::$db->query("SELECT first_name, last_name, email_address FROM users WHERE user_id IN (3, 4) ORDER BY user_id");
 		
 		$this->assertEquals(
 			array(

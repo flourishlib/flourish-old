@@ -23,14 +23,11 @@ function _tally($value, $record)
 	return $value;	
 }
 
-class fRecordSetTest extends PHPUnit_Framework_TestSuite
+class fRecordSetTest extends PHPUnit_Framework_TestCase
 {
-	public static function suite()
-	{
-		return new fRecordSetTest('fRecordSetTestChild');
-	}
+	protected static $db;
 	
-	protected function setUp()
+	public static function setUpBeforeClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
@@ -39,30 +36,24 @@ class fRecordSetTest extends PHPUnit_Framework_TestSuite
 		$db->execute(file_get_contents(DB_SETUP_FILE));
 		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		fORMDatabase::attach($db);
-		$this->sharedFixture = $db;
+		
+		self::$db = $db;
 	}
- 
-	protected function tearDown()
+
+	public static function tearDownAfterClass()
 	{
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = $this->sharedFixture;
-		$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));
+		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
 	}
-}
-
-class fRecordSetTestChild extends PHPUnit_Framework_TestCase
-{
-	public $db;
 	
 	public function setUp()
 	{
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = $this->sharedFixture;
 		if (defined('MAP_TABLES')) {
 			fORM::mapClassToTable('User', 'user');
 			fORM::mapClassToTable('Group', 'group');
