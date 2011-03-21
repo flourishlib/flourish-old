@@ -115,7 +115,7 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		}
 		$image = new fImage('resources/images/filename_test.gif');
 		$new_image = $image->duplicate('output/');
-		$new_image->rename(':@${&) _' . FILE_PREFIX . '.gif', TRUE);
+		$new_image->rename('1::6df23dc03f9b54cc38a0fc1483df6e21.gif', TRUE);
 		
 		$new_image->rotate(90);
 		$new_image->saveChanges();
