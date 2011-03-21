@@ -107,6 +107,19 @@ class fImageTest extends PHPUnit_Framework_TestCase
 		$new_image->rotate($degrees);
 		$new_image->saveChanges();
 	}
+
+	public function testFilename()
+	{
+		if (stripos(php_uname('s'), 'windows') !== FALSE) {
+			$this->markTestSkipped();
+		}
+		$image = new fImage('resources/images/filename_test.gif');
+		$new_image = $image->duplicate('output/');
+		$new_image->rename(':@${&) _' . FILE_PREFIX . '.gif', TRUE);
+		
+		$new_image->rotate(90);
+		$new_image->saveChanges();
+	}
 	
 	public function tearDown()
 	{
