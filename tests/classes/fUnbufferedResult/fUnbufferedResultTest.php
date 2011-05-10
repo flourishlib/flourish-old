@@ -30,7 +30,7 @@ class fUnbufferedResultTestModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown($this->db, DB_TEARDOWN_FILE);
 	}	
 	
 	public function testTransactionRollback()
@@ -104,7 +104,7 @@ class fUnbufferedResultTestNoModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
 	}
 	
 	public function setUp()

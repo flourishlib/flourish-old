@@ -25,28 +25,11 @@ class fORMOrderingTest extends PHPUnit_Framework_TestCase
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
 		
 		self::$db     = $db;
 		self::$schema = new fSchema($db);
-	}
 
-	public static function tearDownAfterClass()
-	{
-		if (defined('SKIPPING')) {
-			return;
-		}
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	}
-
-	public function setUp()
-	{
-		if (defined('SKIPPING')) {
-			$this->markTestSkipped();
-		}
-		
-		self::$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
-		self::$db->clearCache();
-		
 		fORMDatabase::attach(self::$db);
 		fORMSchema::attach(self::$schema);
 		fORMOrdering::configureOrderingColumn('TopAlbum', 'position');
@@ -59,6 +42,25 @@ class fORMOrderingTest extends PHPUnit_Framework_TestCase
 			fORM::mapClassToTable('Album', 'records');
 		}
 	}
+
+	public static function tearDownAfterClass()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		teardown(self::$db, DB_EXTENDED_TEARDOWN_FILE);
+		teardown(self::$db, DB_TEARDOWN_FILE);
+	}
+
+	public function setUp()
+	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		
+		self::$db->execute('BEGIN');
+		fActiveRecord::clearIdentityMap();
+	}
 	
 	public function tearDown()
 	{
@@ -66,8 +68,7 @@ class fORMOrderingTest extends PHPUnit_Framework_TestCase
 			return;
 		}
 		
-		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		__reset();
+		self::$db->execute('ROLLBACK');
 	}
 	
 	

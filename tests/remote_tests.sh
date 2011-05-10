@@ -130,7 +130,7 @@ queue_command()
 		
 		# quotes any param that would be interpreted as multiple words or blank parameters
 		elif [[ $ARG =~ [^a-zA-Z0-9_.\/=:@~-] || ! $ARG ]]; then
-			ARG=\"$(printf "%s" "$ARG" | sed 's/"/"\\""/g')\"
+			ARG=\"$(printf "%s" "$ARG" | sed 's/"/"\\""/g' | sed 's/*/"*"/g')\"
 			if [[ $IS_CSH != "" ]]; then
 				ARG=${ARG/!/\\!}
 				ARG=$(printf "%s\n" "$ARG" | awk 'BEGIN { RS="" } {gsub("\n", "\\\\&");print}')
@@ -156,7 +156,7 @@ exec_commands()
 	fi
 	
 	COMMAND_QUEUE=$(printf "%s" "$COMMAND_QUEUE" | sed "s/'/'\\\\''/g")
-	
+
 	if [[ $2 ]]; then
 		OUTPUT=$(ssh -A -q $PORT $SSH_HOST "bash -l -c '$COMMAND_QUEUE'")
 		eval "$2='$OUTPUT'"
@@ -338,11 +338,15 @@ stop_activity()
 
 TOTAL_HOSTS=0
 RHOSTS=""
-while [[ $1 =~ @ ]]; do
+while [[ $1 =~ .@ ]]; do
 	RHOSTS="$RHOSTS $1"
 	shift
 	((TOTAL_HOSTS++))
 done
+if (( ! $TOTAL_HOSTS )); then
+	RHOSTS="will@vm-centos will@vm-debian will@vm-fedora will@vm-freebsd will@vm-netbsd will@vm-openbsd will@vm-opensolaris will@vm-opensuse will@osx will@vm-server2008 will@vm-ubuntu will@vm-xp"
+	TOTAL_HOSTS=12
+fi
 
 # If we are adding keys, grab the current user's SSH public key
 PUBLIC_KEY=""
@@ -360,7 +364,10 @@ if (( $ADD_KEY )); then
 fi
 
 if (( ! $ADD_KEY && ! $SHOW_INFO && ! $SUB_CALL )); then
-	tar --exclude='*/output/*' --exclude='*/.svn/*' -czpf /tmp/flourish_local.tar.gz -C ../ classes tests
+	MASTER_START=$(date +%s)
+	start_activity "[ Creating tarball"
+	tar --exclude='*/output/*' --exclude='*/.svn/*' --exclude='*/cachegrind.out.*' -czpf /tmp/flourish_local.tar.gz -C ../ classes tests
+	stop_activity
 fi
 
 if (( $PARALLEL_DB )); then
@@ -500,7 +507,7 @@ for RHOST in $RHOSTS; do
 	if (( $CONCURRENT == 1 )); then
 		TOKEN=$(wget -O - -o /dev/null http://flourishlib.com/test_token.php?action=obtain)
 		
-		start_activity "[ Pushing code"
+		start_activity "[ Pushing to $RHOST"
 		
 		SSH_PORT=""
 		SCP_PORT=""
@@ -535,7 +542,7 @@ for RHOST in $RHOSTS; do
 		queue_command tar xzf flourish_$TOKEN.tar.gz \2\> /dev/null
 
 		CONFIG_EXCLUSIONS=""
-		
+
 		if (( ! $NO_MYSQL && $HAS_MYSQL )); then
 			queue_command mysql -h db.flourishlib.com -u flourish -ppassword mysql -e "DROP DATABASE IF EXISTS flourish_$TOKEN; CREATE DATABASE flourish_$TOKEN CHARACTER SET 'utf8';"
 		fi
@@ -578,30 +585,43 @@ for RHOST in $RHOSTS; do
 
 		stop_activity
 
-		START=$(date +%s)
+		DEBUG_FLAG="";
+		if (( $DEBUG_MODE )); then
+			DEBUG_FLAG="@d"
+		fi
 
 		queue_command cd /tmp/flourish_$TOKEN/tests/
 		queue_command export NLS_LANG="AMERICAN_AMERICA.AL32UTF8"
-		queue_command php tests.php \#flourish_$TOKEN $CONFIG_EXCLUSIONS "$@" $FORMAT
+		queue_command export DB2CODEPAGE="1208"
+		queue_command php tests.php \#flourish_$TOKEN $CONFIG_EXCLUSIONS "$@" $DEBUG_FLAG $FORMAT
 		if (( $DEBUG_MODE )); then
+			queue_command gzip -S .${SSH_HOST##*@}.gz /tmp/flourish_$TOKEN/tests/cachegrind.out.*
 			queue_command echo "[ Debug shell - database is flourish_$TOKEN - type 'exit' to finish ]"
 			queue_command bash
 		fi
 		
 		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
-			echo "$OUTPUT"
+			if (( $JSON && $TOTAL_HOSTS > 1 )); then
+				SEP=""
+				if (( $RHOST_NUM < $TOTAL_HOSTS - 1 )); then
+					SEP=","
+				fi
+				printf "\n    "\""%s"\"": %s$SEP" ${RHOST%%:*} "$OUTPUT"
+			else
+				echo "$OUTPUT"
+			fi
 		else
 			exec_commands $RHOST
 		fi
 
-		END=$(date +%s)
-		LENGTH=$((END - START))
+		start_activity "[ Cleaning up"
 
-		start_activity "[ $LENGTH seconds run time ]" "[ Cleaning up"
-			
-		queue_command cd /tmp
-		queue_command rm -Rf flourish_$TOKEN
+		if (( $DEBUG_MODE )); then
+			scp $SCP_PORT -q $SSH_HOST:/tmp/flourish_$TOKEN/tests/cachegrind.out.* ./
+		fi
+
+		queue_command rm -Rf /tmp/flourish_$TOKEN
 		
 		if (( ! $NO_MYSQL && $HAS_MYSQL )); then
 			queue_command mysql -h db.flourishlib.com -u flourish -ppassword mysql -e "DROP DATABASE IF EXISTS flourish_$TOKEN;"
@@ -676,4 +696,32 @@ if (( ! $SHOW_INFO && ! $ADD_KEY && $TOTAL_HOSTS > 1 )); then
 	if (( $JSON )); then
 		printf "\n}\n"
 	fi
+fi
+
+if (( ! $ADD_KEY && ! $SHOW_INFO && ! $SUB_CALL && $TOTAL_HOSTS > 1 && ! $QUIET )); then
+	MASTER_END=$(date +%s)
+	RUNTIME=$((MASTER_END - MASTER_START))
+	RUNTIME_HOURS=$((RUNTIME/3600%60))
+	RUNTIME_MINUTES=$((RUNTIME/60%60))
+	RUNTIME_SECONDS=$((RUNTIME%60))
+	echo -n "["
+	if (( $RUNTIME_HOURS )); then
+		echo -n " $RUNTIME_HOURS hour"
+		if (( $RUNTIME_HOURS != 1 )); then
+			echo -n "s"
+		fi
+	fi
+	if (( $RUNTIME_MINUTES )); then
+		echo -n " $RUNTIME_MINUTES minute"
+		if (( $RUNTIME_MINUTES != 1 )); then
+			echo -n "s"
+		fi
+	fi
+	if (( $RUNTIME_SECONDS )); then
+		echo -n " $RUNTIME_SECONDS second"
+		if (( $RUNTIME_SECONDS != 1 )); then
+			echo -n "s"
+		fi
+	fi
+	echo " total ]"
 fi

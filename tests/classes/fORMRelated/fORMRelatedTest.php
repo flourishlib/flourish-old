@@ -42,8 +42,8 @@ class fORMRelatedTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		self::$db->execute(file_get_contents(DB_EXTENDED_TEARDOWN_FILE));		
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_EXTENDED_TEARDOWN_FILE);
+		teardown(self::$db, DB_TEARDOWN_FILE);
 	}
 
 	protected function createUser()

@@ -7,11 +7,11 @@ CREATE TABLE users (
 	status ENUM('Active', 'Inactive', 'Pending') NOT NULL DEFAULT 'Active',
 	times_logged_in INTEGER NOT NULL DEFAULT 0,
 	date_created TIMESTAMP NOT NULL,
-	birthday DATE,
-	time_of_last_login TIME,
+	birthday DATE COMMENT 'The birthday',
+	time_of_last_login TIME COMMENT 'When the user last logged in',
 	is_validated BOOLEAN NOT NULL DEFAULT FALSE,
 	hashed_password VARCHAR(100) NOT NULL COMMENT 'This hash is generated using fCryptography::hashPassword()'
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE groups (
 	group_id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -20,7 +20,7 @@ CREATE TABLE groups (
 	FOREIGN KEY (group_leader) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	group_founder INTEGER,
 	FOREIGN KEY (group_founder) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE users_groups (
 	user_id INTEGER NOT NULL,
@@ -28,12 +28,12 @@ CREATE TABLE users_groups (
 	group_id INTEGER NOT NULL,
 	FOREIGN KEY (group_id) REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, group_id)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE artists (
 	artist_id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL UNIQUE
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE albums (
 	album_id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -44,7 +44,7 @@ CREATE TABLE albums (
 	artist_id INTEGER NOT NULL,
 	FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE (artist_id, name)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE songs (
 	song_id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -54,7 +54,7 @@ CREATE TABLE songs (
 	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	track_number INTEGER NOT NULL,
 	UNIQUE(track_number, album_id)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE owns_on_cd (
 	user_id INTEGER NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE owns_on_cd (
 	album_id INTEGER NOT NULL,
 	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, album_id)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE owns_on_tape (
 	user_id INTEGER NOT NULL,
@@ -70,12 +70,12 @@ CREATE TABLE owns_on_tape (
 	album_id INTEGER NOT NULL,
 	FOREIGN KEY (album_id) REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(user_id, album_id)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE TABLE blobs (
 	blob_id INTEGER PRIMARY KEY,
 	data BLOB NOT NULL
-)ENGINE=InnoDB;
+)ENGINE=InnoDB, CHARACTER SET utf8;
 
 CREATE VIEW view_users AS SELECT * FROM users;
 

@@ -17,6 +17,16 @@ EXEC sys.sp_addextendedproperty @name='MS_Description',
    @level0type='SCHEMA', @level0name='dbo',
    @level1type='TABLE',  @level1name='users',
    @level2type='COLUMN', @level2name='hashed_password';
+EXEC sys.sp_addextendedproperty @name='MS_Description',
+   @value='When the user last logged in',
+   @level0type='SCHEMA', @level0name='dbo',
+   @level1type='TABLE',  @level1name='users',
+   @level2type='COLUMN', @level2name='time_of_last_login';
+EXEC sys.sp_addextendedproperty @name='MS_Description',
+   @value='The birthday',
+   @level0type='SCHEMA', @level0name='dbo',
+   @level1type='TABLE',  @level1name='users',
+   @level2type='COLUMN', @level2name='birthday';
 
 CREATE TABLE groups (
 	group_id INTEGER IDENTITY(1,1) PRIMARY KEY,

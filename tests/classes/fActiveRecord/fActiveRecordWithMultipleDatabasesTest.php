@@ -40,9 +40,8 @@ class fActiveRecordWithMultipleDatabasesTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-		self::$db2->execute(file_get_contents(DB_2_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db2, DB_2_TEARDOWN_FILE);
 	}
 
 	protected function createUser()

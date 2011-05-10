@@ -13,6 +13,9 @@ CREATE TABLE users (
 	hashed_password VARCHAR2(100) NOT NULL
 );
 COMMENT ON COLUMN users.hashed_password IS 'This hash is generated using fCryptography::hashPassword()';
+COMMENT ON COLUMN users.time_of_last_login IS 'When the user last logged in';
+COMMENT ON COLUMN users.birthday IS 'The birthday';
+
 
 CREATE SEQUENCE users_user_id_seq;
 

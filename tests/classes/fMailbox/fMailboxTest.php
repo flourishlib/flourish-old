@@ -97,8 +97,8 @@ class fMailboxTest extends PHPUnit_Framework_TestCase
 			$output[] = array('pop3', 'pop.zoho.com', 995, TRUE, 'flourishlib@zoho.com', THIRD_PARTY_EMAIL_PASSWORD);
 		}
 		
-		$output[] = array('imap', EMAIL_SERVER, 143, FALSE, EMAIL_ADDRESS, EMAIL_PASSWORD);
-		$output[] = array('pop3', EMAIL_SERVER, 110, FALSE, EMAIL_ADDRESS, EMAIL_PASSWORD);
+		$output[] = array('imap', EMAIL_SERVER, 143, FALSE, EMAIL_ADDRESS, defined('EMAIL_PASSWORD') ? EMAIL_PASSWORD : NULL);
+		$output[] = array('pop3', EMAIL_SERVER, 110, FALSE, EMAIL_ADDRESS, defined('EMAIL_PASSWORD') ? EMAIL_PASSWORD : NULL);
 		
 		return $output;
 	}

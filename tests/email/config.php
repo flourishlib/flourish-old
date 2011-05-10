@@ -1,4 +1,7 @@
 <?php
+include_once 'support/constants.php';
+date_default_timezone_set('America/New_York');
+
 define('EMAIL_SERVER', 'mail.flourishlib.com');
 define('EMAIL_USER', 'tests');
 define('EMAIL_ADDRESS', 'tests@flourishlib.com');

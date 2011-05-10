@@ -34,8 +34,8 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 				}
 			}
 			$mailbox->close();
-			sleep(5);
-		} while ($i < 10);
+			usleep(500000);
+		} while ($i < 20);
 		
 		throw new Exception('Email message ' . $token . ' never arrived');
 	}

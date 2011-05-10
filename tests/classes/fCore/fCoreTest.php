@@ -38,6 +38,23 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(1, count($errors));
 		$this->assertEquals('Undefined variable: invalid_var', $errors[0]['string']);
 	}
+
+	public function testNestedCapture()
+	{
+		fCore::startErrorCapture();
+		echo $invalid_var;
+
+		fCore::startErrorCapture();
+		echo $invalid_var_2;
+		
+		$errors = fCore::stopErrorCapture();
+		$this->assertEquals(1, count($errors));
+		$this->assertEquals('Undefined variable: invalid_var_2', $errors[0]['string']);
+
+		$errors = fCore::stopErrorCapture();
+		$this->assertEquals(1, count($errors));
+		$this->assertEquals('Undefined variable: invalid_var', $errors[0]['string']);
+	}
 	
 	public function testDebugCallback()
 	{

@@ -288,7 +288,7 @@
 		"users": {
 			"birthday": {
 				"auto_increment": false,
-				"comment": "",
+				"comment": "The birthday",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,
@@ -405,7 +405,7 @@
 			},
 			"time_of_last_login": {
 				"auto_increment": false,
-				"comment": "",
+				"comment": "When the user last logged in",
 				"decimal_places": null,
 				"default": null,
 				"max_length": null,

@@ -33,8 +33,8 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 				}
 			}
 			$mailbox->close();
-			sleep(5);
-		} while ($i < 10);
+			usleep(500000);
+		} while ($i < 20);
 		
 		throw new Exception('Email message ' . $token . ' never arrived');
 	}
@@ -59,7 +59,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		if (ini_get('SMTP')) {
 			$output[] = array(ini_get('SMTP'), ini_get('smtp_port'), FALSE, NULL, NULL);
 		} else {
-			$output[] = array('localhost', 25, FALSE, 5, NULL, NULL);
+			$output[] = array('localhost', 25, FALSE, 10, NULL, NULL);
 		}
 		
 		return $output;
@@ -77,7 +77,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('fValidationException');
 		$token = $this->generateSubjectToken();
 		
-		$smtp = new fSMTP($server, $port, $secure, 5);
+		$smtp = new fSMTP($server, $port, $secure, 10);
 		$smtp->authenticate($username, $password . 'dhjskdhsaku');
 		
 		$email = new fEmail();
@@ -93,7 +93,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('fConnectivityException');
 		
-		$smtp = new fSMTP('localhost', 25, TRUE, 5);
+		$smtp = new fSMTP('localhost', 25, TRUE, 10);
 		$smtp->authenticate('test', 'dhjskdhsaku');
 		
 		$token = $this->generateSubjectToken();
@@ -113,7 +113,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	{
 		$token = $this->generateSubjectToken();
 		
-		$smtp = new fSMTP($server, $port, $secure, 5);
+		$smtp = new fSMTP($server, $port, $secure, 10);
 		if ($username) {
 			$smtp->authenticate($username, $password);	
 		}
@@ -141,7 +141,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	{
 		$token = $this->generateSubjectToken();
 		
-		$smtp = new fSMTP($server, $port, $secure, 5);
+		$smtp = new fSMTP($server, $port, $secure, 10);
 		if ($username) {
 			$smtp->authenticate($username, $password);	
 		}
@@ -169,7 +169,7 @@ class fSMTPTest extends PHPUnit_Framework_TestCase
 	{
 		$token = $this->generateSubjectToken();
 		
-		$smtp = new fSMTP($server, $port, $secure, 5);
+		$smtp = new fSMTP($server, $port, $secure, 10);
 		if ($username) {
 			$smtp->authenticate($username, $password);	
 		}
