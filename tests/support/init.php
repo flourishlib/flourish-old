@@ -81,3 +81,50 @@ function __reset($ignore_classes=array())
 		}
 	}	
 }
+
+
+function sort_array($array)
+{
+	if (!is_array(reset($array))) {
+		sort($array);
+		return $array;
+	}
+
+	$param_values = array();
+	$params = array(&$param_values);
+	$arrays = array();
+
+	foreach ($array as $key => &$sub_array) {
+		if (is_numeric(key($sub_array))) {
+			sort($sub_array);
+			$param_values[] =& $sub_array[0];
+		} else {
+			ksort($sub_array);
+			foreach ($sub_array as $sub_key => $sub_value) {
+				if (!isset($arrays[$sub_key])) {
+					$arrays[$sub_key] = array();
+					$params[] =& $arrays[$sub_key];
+				}
+				$arrays[$sub_key][$key] = $sub_value;
+			}
+		}
+	}
+	if (!count($params[0])) {
+		array_shift($params);
+	}
+	$params[] =& $array;
+	call_user_func_array('array_multisort', $params);
+
+	return $array;
+}
+
+
+function teardown($db, $file)
+{
+	$commands = array_filter(explode(';', file_get_contents($file)));
+	foreach ($commands as $command) {
+		try {
+			$db->execute($command);
+		} catch (fSQLException $e) { }
+	}
+}

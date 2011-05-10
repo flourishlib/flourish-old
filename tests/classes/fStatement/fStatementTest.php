@@ -30,156 +30,7 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$this->db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	}
-	
-	
-	public function testInsertAutoIncrementedValue()
-	{
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);
-		$this->assertEquals(5, $res->getAutoIncrementedValue());
-	}
-	
-	public function testInsertAffectedRows()
-	{
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);	
-		$this->assertEquals(1, $res->countAffectedRows());	
-	}
-	
-	public function testInsertReturnedRows()
-	{
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);
-		$this->assertEquals(0, $res->countReturnedRows());
-	}
-	
-	public function testInsertFetchRow()
-	{
-		$this->setExpectedException('fNoRowsException');
-		
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);
-		$res->fetchRow();
-	}
-	
-	public function testInsertFetchScalar()
-	{
-		$this->setExpectedException('fNoRowsException');
-		
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);
-		$res->fetchScalar();
-	}
-	
-	public function testInsertFetchAllRows()
-	{
-		$statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$res = $this->db->query(
-			$statement,
-			'John',
-			'',
-			'Doe',
-			'john@doe.com',
-			'Active',
-			5,
-			new fTimestamp(),
-			new fDate(),
-			new fTime(),
-			TRUE,
-			'password'
-		);
-		$this->assertEquals(array(), $res->fetchAllRows());
-	}
-	
-	public function testDeleteAffectedRows()
-	{
-		$res = $this->db->query($this->db->prepare("DELETE FROM users WHERE user_id > %i AND user_id < %i"), 2, 5);
-		$this->assertEquals(2, $res->countAffectedRows());	
-	}
-	
-	public function testDeleteReturnedRows()
-	{
-		$res = $this->db->query($this->db->prepare("DELETE FROM users WHERE user_id > %i AND user_id < %i"), 2, 5);
-		$this->assertEquals(0, $res->countReturnedRows());	
-	}
-	
-	public function testUpdateAffectedRows()
-	{
-		$res = $this->db->query($this->db->prepare("UPDATE users SET first_name = %s"), 'First');
-		$this->assertEquals(4, $res->countAffectedRows());	
-	}
-	
-	public function testUpdateReturnedRows()
-	{
-		$res = $this->db->query($this->db->prepare("UPDATE users SET first_name = %s"), 'First');
-		$this->assertEquals(0, $res->countReturnedRows());	
+		teardown($this->db, DB_TEARDOWN_FILE);
 	}
 	
 	public function testTransactionRollback()
@@ -207,13 +58,201 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 		$res = $this->db->query($statement);
 		$this->assertEquals(3, $res->countReturnedRows());
 	}
+}
+
+class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
+{
+	protected static $db;
 	
+	public static function setUpBeforeClass()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
+		$db->execute(file_get_contents(DB_SETUP_FILE));
+		
+		self::$db = $db;
+	}
+
+	public static function tearDownAfterClass()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		teardown(self::$db, DB_TEARDOWN_FILE);
+	}
+	
+	public function setUp()
+	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
+		self::$db->execute('BEGIN');
+	}
+	
+	public function tearDown()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		self::$db->execute('ROLLBACK');
+	}
+
+	public function testInsertAutoIncrementedValue()
+	{
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);
+		$this->assertEquals(5, $res->getAutoIncrementedValue());
+	}
+	
+	public function testInsertAffectedRows()
+	{
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);	
+		$this->assertEquals(1, $res->countAffectedRows());	
+	}
+	
+	public function testInsertReturnedRows()
+	{
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);
+		$this->assertEquals(0, $res->countReturnedRows());
+	}
+	
+	public function testInsertFetchRow()
+	{
+		$this->setExpectedException('fNoRowsException');
+		
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);
+		$res->fetchRow();
+	}
+	
+	public function testInsertFetchScalar()
+	{
+		$this->setExpectedException('fNoRowsException');
+		
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);
+		$res->fetchScalar();
+	}
+	
+	public function testInsertFetchAllRows()
+	{
+		$statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$res = self::$db->query(
+			$statement,
+			'John',
+			'',
+			'Doe',
+			'john@doe.com',
+			'Active',
+			5,
+			new fTimestamp(),
+			new fDate(),
+			new fTime(),
+			TRUE,
+			'password'
+		);
+		$this->assertEquals(array(), $res->fetchAllRows());
+	}
+	
+	public function testDeleteAffectedRows()
+	{
+		$res = self::$db->query(self::$db->prepare("DELETE FROM users WHERE user_id > %i AND user_id < %i"), 2, 5);
+		$this->assertEquals(2, $res->countAffectedRows());	
+	}
+	
+	public function testDeleteReturnedRows()
+	{
+		$res = self::$db->query(self::$db->prepare("DELETE FROM users WHERE user_id > %i AND user_id < %i"), 2, 5);
+		$this->assertEquals(0, $res->countReturnedRows());	
+	}
+	
+	public function testUpdateAffectedRows()
+	{
+		$res = self::$db->query(self::$db->prepare("UPDATE users SET first_name = %s"), 'First');
+		$this->assertEquals(4, $res->countAffectedRows());	
+	}
+	
+	public function testUpdateReturnedRows()
+	{
+		$res = self::$db->query(self::$db->prepare("UPDATE users SET first_name = %s"), 'First');
+		$this->assertEquals(0, $res->countReturnedRows());	
+	}
+
 	public function testMultipleExecuteInsert()
 	{
-		$insert_statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
-		$select_statement = $this->db->prepare("SELECT email_address FROM users ORDER BY user_id");
+		$insert_statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$select_statement = self::$db->prepare("SELECT email_address FROM users ORDER BY user_id");
 		
-		$this->db->execute(
+		self::$db->execute(
 			$insert_statement,
 			'John',
 			'',
@@ -236,10 +275,10 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 				array('email_address' => 'foo@example.com'),
 				array('email_address' => 'john@doe.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 		
-		$this->db->execute(
+		self::$db->execute(
 			$insert_statement,
 			'John',
 			'',
@@ -263,18 +302,18 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 				array('email_address' => 'john@doe.com'),
 				array('email_address' => 'john2@doe.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 	}
 	
 	public function testMultipleExecuteDelete()
 	{
-		$delete_statement = $this->db->prepare("DELETE FROM users WHERE user_id = %i");
-		$select_statement = $this->db->prepare("SELECT email_address FROM users ORDER BY user_id");
+		$delete_statement = self::$db->prepare("DELETE FROM users WHERE user_id = %i");
+		$select_statement = self::$db->prepare("SELECT email_address FROM users ORDER BY user_id");
 		
-		$insert_statement = $this->db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
+		$insert_statement = self::$db->prepare("INSERT INTO users (first_name, middle_initial, last_name, email_address, status, times_logged_in, date_created, birthday, time_of_last_login, is_validated, hashed_password) VALUES (%s, %s, %s, %s, %s, %i, %p, %d, %t, %b, %s)");
 		
-		$this->db->execute(
+		$res = self::$db->query(
 			$insert_statement,
 			'John',
 			'',
@@ -289,7 +328,7 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 			'password'
 		);
 		
-		$this->db->execute(
+		$res2 = self::$db->query(
 			$insert_statement,
 			'John',
 			'',
@@ -304,7 +343,7 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 			'password'
 		);
 		
-		$this->db->execute($delete_statement, 6);
+		self::$db->execute($delete_statement, $res2->getAutoIncrementedValue());
 		
 		$this->assertEquals(
 			array(
@@ -314,10 +353,10 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 				array('email_address' => 'foo@example.com'),
 				array('email_address' => 'john@doe.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 		
-		$this->db->execute($delete_statement, 5);
+		self::$db->execute($delete_statement, $res->getAutoIncrementedValue());
 		
 		$this->assertEquals(
 			array(
@@ -326,10 +365,10 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 				array('email_address' => 'bar@example.com'),
 				array('email_address' => 'foo@example.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 		
-		$this->db->execute($delete_statement, 4);
+		self::$db->execute($delete_statement, 4);
 		
 		$this->assertEquals(
 			array(
@@ -337,61 +376,25 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 				array('email_address' => 'john@smith.com'),
 				array('email_address' => 'bar@example.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 		
-		$this->db->execute($delete_statement, 3);
+		self::$db->execute($delete_statement, 3);
 		
 		$this->assertEquals(
 			array(
 				array('email_address' => 'will@flourishlib.com'),
 				array('email_address' => 'john@smith.com')
 			),
-			$this->db->query($select_statement)->fetchAllRows()
+			self::$db->query($select_statement)->fetchAllRows()
 		);
 	}
 	
 	public function testSQLFail()
 	{
 		$this->setExpectedException('fSQLException');
-		$statement = $this->db->prepare("DELETE FROM usrs");
-		$res = $this->db->query($statement);
-	}
-}
-
-class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
-{
-	protected static $db;
-	
-	public static function setUpBeforeClass()
-	{
-		if (defined('SKIPPING')) {
-			return;
-		}
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
-		
-		self::$db = $db;
-	}
-
-	public static function tearDownAfterClass()
-	{
-		if (defined('SKIPPING')) {
-			return;
-		}
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
-	}
-	
-	public function setUp()
-	{
-		if (defined('SKIPPING')) {
-			$this->markTestSkipped();
-		}
-	}
-	
-	public function tearDown()
-	{
-		
+		$statement = self::$db->prepare("DELETE FROM usrs");
+		$res = self::$db->query($statement);
 	}
 	
 	public function testGetSql()
@@ -434,6 +437,18 @@ class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
 	{
 		$res = self::$db->query(self::$db->prepare("SELECT first_name FROM users WHERE user_id = %i"), 1);
 		$this->assertEquals('Will', $res->fetchScalar());
+	}
+
+	public function testProvideArray()
+	{
+		$res = self::$db->query(self::$db->prepare("SELECT first_name FROM users WHERE user_id = %i OR user_id = %i"), array(1, 2));
+		$this->assertEquals('Will', $res->fetchScalar());
+	}
+
+	public function testInvalidValueToNull()
+	{
+		$res = self::$db->query(self::$db->prepare("SELECT first_name FROM users WHERE user_id = %i"), 'test');
+		$this->assertEquals(0, $res->countReturnedRows());
 	}
 	
 	public function testFetchRow()

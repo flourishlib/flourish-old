@@ -4,7 +4,6 @@ require_once('./support/init.php');
 class fDatabaseTest extends PHPUnit_Framework_TestCase
 {
 	protected static $db;
-	protected static $schema;
 
 	public static function setUpBeforeClass()
 	{
@@ -13,9 +12,7 @@ class fDatabaseTest extends PHPUnit_Framework_TestCase
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
 		$db->execute(file_get_contents(DB_SETUP_FILE));
-		
-		self::$db     = $db;
-		self::$schema = new fSchema($db);
+		self::$db = $db;
 	}
 
 	public static function tearDownAfterClass()
@@ -23,7 +20,8 @@ class fDatabaseTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;	
 		}
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
+		self::$db->__destruct();
 	}
 	
 	public function setUp()
@@ -38,6 +36,90 @@ class fDatabaseTest extends PHPUnit_Framework_TestCase
 		
 	}
 	
+	public function testConnectFailPort()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, 8473, 2);
+			$db->connect();
+		} catch (fConnectivityException $e) {
+			$this->assertEquals('Unable to connect to database - connection refused or timed out', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
+	public function testConnectFailHostname()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, 'badhost.flourishlib.com', DB_PORT, 2);
+			$db->connect();
+		} catch (fConnectivityException $e) {
+			$this->assertEquals('Unable to connect to database - hostname not found', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
+	public function testConnectFailIp()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, '127.0.0.200', DB_PORT, 2);
+			$db->connect();
+		} catch (fConnectivityException $e) {
+			$this->assertEquals('Unable to connect to database - connection refused or timed out', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
+	public function testConnectFailUsername()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, DB, 'unknown', DB_PASSWORD, DB_HOST, DB_PORT, 2);
+			$db->connect();
+		} catch (fAuthorizationException $e) {
+			$this->assertEquals('Unable to connect to database - login credentials refused', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
+	public function testConnectFailPassword()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, 'badpassword', DB_HOST, DB_PORT, 2);
+			$db->connect();
+		} catch (fAuthorizationException $e) {
+			$this->assertEquals('Unable to connect to database - login credentials refused', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
+	public function testConnectFailDatabase()
+	{
+		if (DB_TYPE == 'sqlite') {
+			$this->markTestSkipped();
+		}
+		try {
+			$db = new fDatabase(DB_TYPE, 'baddb', DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, 2);
+			$db->connect();
+		} catch (fNotFoundException $e) {
+			$this->assertEquals('Unable to connect to database - database specified not found', $e->getMessage());
+		}
+		$db->__destruct();
+	}
+
 	public function testGetDatabase()
 	{
 		$this->assertEquals(DB, self::$db->getDatabase());
@@ -51,6 +133,11 @@ class fDatabaseTest extends PHPUnit_Framework_TestCase
 	public function testGetType()
 	{
 		$this->assertEquals(DB_TYPE, self::$db->getType());
+	}
+
+	public function testGetVersion()
+	{
+		$this->assertEquals(preg_match('#^\d+(\.\d+)*$#D', self::$db->getVersion()), 1);
 	}
 	
 	public function testQuery()
@@ -99,6 +186,11 @@ class fDatabaseTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('fSQLException');    
 		self::$db->unbufferedTranslatedQuery('SLECT * FROM users');	
+	}
+
+	public function testEscapePercent()
+	{
+		$this->assertEquals('SELECT * FROM users WHERE first_name = %%s AND user_id = 1', self::$db->escape("SELECT * FROM users WHERE first_name = %%s AND user_id = %i", 1));
 	}
 	
 	public function testEscapeBlob()

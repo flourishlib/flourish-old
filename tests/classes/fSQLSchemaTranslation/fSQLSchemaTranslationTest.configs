@@ -1,0 +1,17 @@
+DB2 PDO;;pdo_ibm;ibm_db2;;database/config.db2.php
+DB2;;ibm_db2;;;database/config.db2.php
+PostgreSQL PDO;;pdo_pgsql;pgsql;;database/config.postgresql.php
+PostgreSQL;;pgsql;pdo_pgsql;;database/config.postgresql.php
+SQLite 3 PDO;;pdo_sqlite;;;database/config.sqlite.php
+SQLite 2;;sqlite;pdo_sqlite;;database/config.sqlite2.php
+MySQL PDO;;pdo_mysql;mysqli;;database/config.mysql.php
+MySQLi;;mysqli;;;database/config.mysql.php
+MySQL;;mysql;mysqli,pdo_mysql;;database/config.mysql.php
+MSSQL;;mssql;sqlsrv;;database/config.mssql.php
+MSSQL SQLSRV;;sqlsrv;;;database/config.mssql.php
+MSSQL PDO;;pdo_dblib;sqlsrv,mssql;;database/config.mssql.php
+#MSSQL 2008;;mssql;sqlsrv;;database/config.mssql2008.php
+#MSSQL 2008 SQLSRV;;sqlsrv;;;database/config.mssql2008.php
+#MSSQL 2008 PDO;;pdo_dblib;sqlsrv,mssql;;database/config.mssql2008.php
+Oracle OCI8;;oci8;;;database/config.oracle.php
+Oracle PDO;;pdo_oci;oci8;;database/config.oracle.php

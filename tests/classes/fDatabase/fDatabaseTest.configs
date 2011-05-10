@@ -1,6 +1,6 @@
 DB2 PDO;;pdo_ibm;ibm_db2;;database/config.db2.php
 DB2;;ibm_db2;;;database/config.db2.php
-PostgreSQL PDO;;pdo_pgsql;;;database/config.postgresql.php
+PostgreSQL PDO;;pdo_pgsql;pgsql;;database/config.postgresql.php
 PostgreSQL;;pgsql;pdo_pgsql;;database/config.postgresql.php
 SQLite 3 PDO;;pdo_sqlite;;;database/config.sqlite.php
 SQLite 2;;sqlite;pdo_sqlite;;database/config.sqlite2.php

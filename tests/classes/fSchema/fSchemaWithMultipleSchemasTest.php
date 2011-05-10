@@ -37,7 +37,7 @@ class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 			return;
 		}
 		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
 	}
 	
 	public function setUp()

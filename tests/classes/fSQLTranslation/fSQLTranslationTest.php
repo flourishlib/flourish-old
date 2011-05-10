@@ -1,6 +1,6 @@
 <?php
 require_once('./support/init.php');
- 
+
 class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 {
 	protected static $db;
@@ -21,25 +21,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = self::$db;
-		
-		try {
-			// Clean up the testCreateTable() tables
-			$db->execute('DROP TABLE unicode_test');
-			$db->execute('DROP TABLE unicode_test_2');
-			$db->execute('DROP TABLE translation_test_2');
-			$db->execute('DROP TABLE translation_test');
-			if ($db->getType() == 'oracle') {
-				$db->execute('DROP SEQUENCE unicode_test_unicode_test__seq');
-				$db->execute('DROP SEQUENCE translation_test_translati_seq');
-				$db->execute('DROP SEQUENCE unicode_test_2_unicode_tes_seq');
-				$db->execute('DROP SEQUENCE translation_test_2_transla_seq');
-			}
-		} catch (Exception $e) {
-			echo $e->getMessage();	
-		}
-		
-		$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
 	}
 	
 	public function setUp()
@@ -51,9 +33,9 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	
 	public function tearDown()
 	{
-				
+		
 	}
-	
+
 	public function testModOperator()
 	{
 		$res = self::$db->translatedQuery("SELECT 5 % 2 as mod_col FROM users");
@@ -342,6 +324,15 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 			$res->fetchScalar()
 		);
 	}
+
+	public function testLengthMultibyte()
+	{
+		$res = self::$db->translatedQuery("SELECT length(%s) FROM users", 'résumé');
+		$this->assertEquals(
+			6,
+			$res->fetchScalar()
+		);
+	}
 	
 	public function testCurrentTimestamp()
 	{
@@ -470,410 +461,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			// MySQL doesn't report an affected row if the old and new values are the same
-			(self::$db->getType() == 'mysql') ? 0 : 4,    
+			(DB_TYPE == 'mysql') ? 0 : 4,    
 			$res->countAffectedRows()
-		);
-	}
-	
-	public function testCreateTable()
-	{
-		self::$db->translatedQuery(
-			"CREATE TABLE translation_test (
-				translation_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
-				bigint_col BIGINT NULL,
-				char_col CHAR(40) NULL,
-				varchar_col VARCHAR(100) NULL,
-				text_col TEXT NULL,
-				blob_col BLOB NULL,
-				timestamp_col TIMESTAMP NULL,
-				time_col TIME NULL,
-				date_col DATE NULL,
-				boolean_col BOOLEAN NULL
-			)"
-		);
-		
-		self::$db->translatedQuery(
-			"CREATE TABLE translation_test_2 (
-				translation_test_2_id INTEGER NOT NULL PRIMARY KEY,
-				translation_test_id INTEGER NOT NULL REFERENCES translation_test(translation_test_id) ON DELETE CASCADE,
-				name VARCHAR(100) NULL
-			)"
-		);
-		
-		$schema = new fSchema(self::$db);
-		
-		$translation_test_schema   = $schema->getColumnInfo('translation_test');
-		
-		foreach ($translation_test_schema as $type => &$list) {
-			ksort($list);	
-		}
-		ksort($translation_test_schema);
-		
-		$max_blob_length = 0;
-		$max_text_length = 0;
-		switch (DB_TYPE) {
-			case 'sqlite':
-				$max_blob_length = 1000000000;
-				$max_text_length = 1000000000;
-				break;
-			
-			case 'oracle':
-				$max_blob_length = 4294967295;
-				$max_text_length = 4294967295;
-				break;
-			
-			case 'mysql':
-				$max_blob_length = 4294967295;
-				$max_text_length = 16777215;
-				break;
-			
-			case 'postgresql':
-				$max_blob_length = 1073741824;
-				$max_text_length = 1073741824;
-				break;
-			
-			case 'mssql':
-				$max_blob_length = 2147483647;
-				$max_text_length = 1073741823;
-				break;
-			
-			case 'db2':
-				$max_blob_length = 1048576;
-				$max_text_length = 1048576;
-				break;
-		}
-		
-		$this->assertEquals(
-			array(
-				'bigint_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber('9223372036854775807') : null,
-					"min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber('-9223372036854775808') : null,
-					"not_null"       => FALSE,
-					"placeholder"    => "%i",
-					"type"           => "integer",
-					"valid_values"   => NULL
-				),
-				'blob_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => $max_blob_length,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%l",
-					"type"           => "blob",
-					"valid_values"   => NULL
-				),
-				'boolean_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%b",
-					"type"           => "boolean",
-					"valid_values"   => NULL
-				),
-				'char_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => 40,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%s",
-					"type"           => "char",
-					"valid_values"   => NULL
-				),
-				'date_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => (self::$db->getType() == 'mssql') ? "%p" : "%d",
-					"type"           => (self::$db->getType() == 'mssql') ? "timestamp" : "date",
-					"valid_values"   => NULL
-				),
-				'text_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => $max_text_length,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%s",
-					"type"           => "text",
-					"valid_values"   => NULL
-				),
-				'time_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => (in_array(self::$db->getType(), array('mssql', 'oracle'))) ? "%p" : "%t",
-					"type"           => (in_array(self::$db->getType(), array('mssql', 'oracle'))) ? "timestamp" : "time",
-					"valid_values"   => NULL
-				),
-				'timestamp_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%p",
-					"type"           => "timestamp",
-					"valid_values"   => NULL
-				),
-				'translation_test_id' => array(
-					"auto_increment" => TRUE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
-					"min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
-					"not_null"       => TRUE,
-					"placeholder"    => "%i",
-					"type"           => "integer",
-					"valid_values"   => NULL
-				),
-				'varchar_col' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => 100,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%s",
-					"type"           => "varchar",
-					"valid_values"   => NULL
-				)
-			),
-			$translation_test_schema
-		);
-		
-		$translation_test_2_schema = $schema->getColumnInfo('translation_test_2');
-		
-		foreach ($translation_test_2_schema as $type => &$list) {
-			ksort($list);	
-		}
-		ksort($translation_test_2_schema);
-		
-		$this->assertEquals(
-			array(
-				'name' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => 100,
-					"max_value"      => NULL,
-					"min_value"      => NULL,
-					"not_null"       => FALSE,
-					"placeholder"    => "%s",
-					"type"           => "varchar",
-					"valid_values"   => NULL
-				),
-				'translation_test_2_id' => array(
-					"auto_increment" => (self::$db->getType() == 'sqlite') ? TRUE : FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
-					"min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
-					"not_null"       => TRUE,
-					"placeholder"    => "%i",
-					"type"           => "integer",
-					"valid_values"   => NULL
-				),
-				'translation_test_id' => array(
-					"auto_increment" => FALSE,
-					"comment"        => "",
-					"decimal_places" => NULL,
-					"default"        => NULL,
-					"max_length"     => NULL,
-					"max_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(2147483647) : null,
-					"min_value"      => (DB_TYPE != 'sqlite' && DB_TYPE != 'oracle') ? new fNumber(-2147483648) : null,
-					"not_null"       => TRUE,
-					"placeholder"    => "%i",
-					"type"           => "integer",
-					"valid_values"   => NULL
-				)
-			),
-			$translation_test_2_schema
-		);
-		
-		$translation_test_keys = $schema->getKeys('translation_test');
-		ksort($translation_test_keys);
-		$this->assertEquals(
-			array(
-				'foreign' => array(),
-				'primary' => array('translation_test_id'),
-				'unique' => array()
-			),
-			$translation_test_keys
-		);
-		
-		$translation_test_2_keys = $schema->getKeys('translation_test_2');
-		ksort($translation_test_2_keys);
-		$this->assertEquals(
-			array(
-				'foreign' => array(
-					array(
-						"column"         => "translation_test_id",
-						"foreign_table"  => "translation_test",
-						"foreign_column" => "translation_test_id",
-						"on_delete"      => "cascade",
-						"on_update"      => "no_action"
-					)
-				),
-				'primary' => array('translation_test_2_id'),
-				'unique' => array()
-			),
-			$translation_test_2_keys
-		);
-	}
-	
-	
-	public function testUnicode()
-	{
-		self::$db->translatedQuery(
-			"CREATE TABLE unicode_test (
-				unicode_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
-				varchar_col VARCHAR(100) NULL,
-				varchar_col_2 VARCHAR(100) NULL,
-				char_col VARCHAR(10) NULL,
-				text_col VARCHAR(100) NULL
-			)"
-		);
-		
-		self::$db->getSQLTranslation()->clearCache();
-		self::$db->clearCache();
-		
-		self::$db->translatedQuery(
-			"INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
-			"Արամ Խաչատրյան",
-			"সুকুমার রায়",
-			"Ελλάς",
-			"Ђорђе Балашевић"
-		);
-		
-		$res = self::$db->translatedQuery("SELECT * FROM unicode_test");
-		$this->assertEquals(
-			array(
-				'unicode_test_id' => 1,
-				'varchar_col'     => "Արամ Խաչատրյան",
-				'varchar_col_2'   => "সুকুমার রায়",
-				'char_col'        => "Ελλάς",
-				'text_col'        => "Ђорђе Балашевић"
-			),
-			$res->fetchRow()	
-		);
-		
-		$statement = self::$db->prepare("INSERT INTO unicode_test (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)");
-		self::$db->query(
-			$statement,
-			"Արամ Խաչատրյան",
-			"সুকুমার রায়",
-			"Ελλάς",
-			"Ђорђе Балашевић"
-		);
-		
-		$res2 = self::$db->translatedQuery("SELECT * FROM unicode_test ORDER BY unicode_test_id ASC");
-		$this->assertEquals(
-			array(
-				array(
-					'unicode_test_id' => 1,
-					'varchar_col'     => "Արամ Խաչատրյան",
-					'varchar_col_2'   => "সুকুমার রায়",
-					'char_col'        => "Ελλάς",
-					'text_col'        => "Ђорђе Балашевић"
-				),
-				array(
-					'unicode_test_id' => 2,
-					'varchar_col'     => "Արամ Խաչատրյան",
-					'varchar_col_2'   => "সুকুমার রায়",
-					'char_col'        => "Ελλάς",
-					'text_col'        => "Ђорђе Балашевић"
-				)
-			),
-			$res2->fetchAllRows()	
-		);
-	}
-	
-	
-	public function testUnicodeSubSelect()
-	{
-		self::$db->translatedQuery(
-			"CREATE TABLE unicode_test_2 (
-				unicode_test_id INTEGER AUTOINCREMENT PRIMARY KEY,
-				varchar_col VARCHAR(100) NULL,
-				varchar_col_2 VARCHAR(100) NULL,
-				char_col VARCHAR(10) NULL,
-				text_col VARCHAR(100) NULL
-			)"
-		);
-		
-		self::$db->getSQLTranslation()->clearCache();
-		self::$db->clearCache();
-		
-		self::$db->translatedQuery(
-			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
-			"Արամ Խաչատրյան",
-			"সুকুমার রায়",
-			"Ελλάς",
-			"Ђорђе Балашевић"
-		);
-		self::$db->translatedQuery(
-			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
-			"Արամ Խաչատրյան",
-			"Test1",
-			"Test1",
-			"Test1"
-		);
-		self::$db->translatedQuery(
-			"INSERT INTO unicode_test_2 (varchar_col, varchar_col_2, char_col, text_col) VALUES (%s, %s, %s, %s)",
-			"ամ Խաչատրյան",
-			"Test2",
-			"Test2",
-			"Test2"
-		);
-		
-		$res = self::$db->translatedQuery("SELECT varchar_col, varchar_col_2 FROM unicode_test_2 ut INNER JOIN (SELECT ut2.varchar_col AS varchar_col_3 FROM unicode_test_2 ut2 inner join unicode_test_2 ut3 ON ut2.unicode_test_id = ut3.unicode_test_id) ss ON ut.varchar_col = ss.varchar_col_3");
-		$this->assertEquals(
-			array(
-				'varchar_col'     => "Արամ Խաչատրյան",
-				'varchar_col_2'   => "সুকুমার রায়"
-			),
-			$res->fetchRow()	
 		);
 	}
 }

@@ -25,7 +25,7 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		self::$db->execute(file_get_contents(DB_TEARDOWN_FILE));
+		teardown(self::$db, DB_TEARDOWN_FILE);
 	}
 	
 	public function setUp()
@@ -51,6 +51,55 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(
 			$schema_tables,
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrder()
+	{
+		$tables = $this->schema_obj->getTables(TRUE);
+		
+		$this->assertSame(
+			array(
+				'artists',
+				'blobs',
+				'users',
+				'albums',
+				'groups',
+				'owns_on_cd',
+				'owns_on_tape',
+				'songs',
+				'users_groups'
+			),
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrderFiltered()
+	{
+		$tables = $this->schema_obj->getTables('groups');
+		
+		$this->assertSame(
+			array(
+				'groups',
+				'users_groups'
+			),
+			$tables
+		);
+	}
+	
+	public function testGetTablesInCreationOrderFiltered2()
+	{
+		$tables = $this->schema_obj->getTables('users');
+		
+		$this->assertSame(
+			array(
+				'users',
+				'groups',
+				'owns_on_cd',
+				'owns_on_tape',
+				'users_groups'
+			),
 			$tables
 		);
 	}

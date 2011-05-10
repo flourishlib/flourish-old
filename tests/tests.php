@@ -141,9 +141,11 @@ $classes           = array();
 $classes_to_remove = array();
 $config_matches    = array();
 $config_excludes   = array();
+$filter_pattern    = NULL;
 $format            = 'shell';
 $db_name           = 'flourish';
 $key_value_string  = '';
+$debug             = FALSE;
 		
 if (!empty($_SERVER['argc'])) {
 	foreach (array_slice($_SERVER['argv'], 1) as $arg) {
@@ -151,7 +153,11 @@ if (!empty($_SERVER['argc'])) {
 		if (is_numeric($arg)) {
 			$revision = $arg;
 		
-		// Params that start with - remove a class from the list
+		// Turn on debugging
+		} elseif ($arg == '@d') {
+			$debug = TRUE;
+			
+		// Params that start with : filter the configs for a class
 		} elseif ($arg[0] == '-') {
 			$classes_to_remove[] = substr($arg, 1);	
 			
@@ -167,6 +173,11 @@ if (!empty($_SERVER['argc'])) {
 		} elseif ($arg[0] == '.') {
 			$format = substr($arg, 1);
 		
+		// Params that start with % are a test name pattern
+		} elseif ($arg[0] == '%') {
+			$filter_pattern = substr($arg, 1);
+			
+		// Params that start with = are key=value pairs
 		// Params that start with # are the db name
 		} elseif ($arg[0] == '#') {
 			$db_name = substr($arg, 1);
@@ -179,6 +190,20 @@ if (!empty($_SERVER['argc'])) {
 		} else {
 			$classes[] = $arg;
 		}
+	}
+}
+
+$ini_path = ' -n ';
+if ($debug) {
+	$xdebug_path = ini_get('extension_dir') . DIRECTORY_SEPARATOR . ($windows ? 'php_xdebug.dll' : 'xdebug.so');
+	if (file_exists($xdebug_path)) {
+		$debug_exts = array();
+		$debug_exts[] = 'zend_extension="' . $xdebug_path . '"';
+		$debug_exts[] = 'xdebug.profiler_enable="1"';
+		$debug_exts[] = 'xdebug.profiler_output_dir="' . dirname(__FILE__) .'"';
+		$debug_exts[] = 'xdebug.profiler_output_name="cachegrind.out.%p"';
+		file_put_contents('./php.ini', join("\n", $debug_exts));
+		$ini_path = ' -c ./php.ini ';
 	}
 }
 
@@ -209,6 +234,8 @@ $total_tests = 0;
 $successful  = 0;
 $failures    = 0;
 $skipped     = 0;
+
+$master_start = microtime(TRUE);
 
 /* ------------------------------------------------------------------ */
 /* Run through each class dir looking for test classes
@@ -288,17 +315,18 @@ foreach ($class_dirs as $class_dir) {
 							TRUE
 						);
 						// Here we hijack the user_dir ini setting to pass data into the test
-						$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name$key_value_string\" $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');
+						$configs[$name] = "$phpbin $ini_path -d user_dir=\"DB_NAME:$db_name$key_value_string\" $defines $defines2 $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');
 					} else {
 						throw new Exception();	
 					}
 				} catch (Exception $e) {
 					$defines = make_defines($exts, $lazy_load_exts);
-					$configs[$name] = "$phpbin -n -d user_dir=\"DB_NAME:$db_name,SKIPPING:1$key_value_string\" $defines $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');	
+					$configs[$name] = "$phpbin $ini_path -d user_dir=\"DB_NAME:$db_name,SKIPPING:1$key_value_string\" $defines $phpunit " . ($bootstrap ? ' --bootstrap ' . escapeshellarg($bootstrap) : '');	
 				}
 			}	
 		} elseif (!$config_regex) {
-			$configs[''] = "$phpunit";
+			$custom_ini_path = ($ini_path == ' -n ') ? '' : $ini_path;
+			$configs[''] = "$phpunit $custom_ini_path";
 		}
 		
 		/* ---------------------------------------------------------- */
@@ -306,50 +334,56 @@ foreach ($class_dirs as $class_dir) {
 		/* ---------------------------------------------------------- */
 		$php_errors = 0;
 		foreach ($configs as $name => $config) {
+			
+			$xml_flag = version_compare($phpunit_version, '3.4', '<') ? '--log-xml' : '--log-junit';
+			$filter   = strlen($filter_pattern) ? '--filter ' . escapeshellarg($filter_pattern) : '';
+
 			if ($format == 'shell') {
+				if ($debug) {
+					echo "\033[1;37;46m$config --stderr --log-tap output.tap $xml_flag output.xml $filter $test_name $test_file 2> output.phpunit\033[0;40m\n";
+				}
 				$name_config = $class_dir . ($name ? ': ' . $name : '');
 				echo $name_config;
 			}
 			
-			$xml_flag = version_compare($phpunit_version, '3.4', '<') ? '--log-xml' : '--log-junit';
-			//echo "$config --log-tap tap $xml_flag xml $test_name $test_file\n";
-			$output = trim(`$config --log-tap tap $xml_flag xml $test_name $test_file 2> errors`);
+			$start_time = microtime(TRUE);
+			$output   = trim(`$config --stderr --log-tap output.tap $xml_flag output.xml $filter $test_name $test_file 2> output.phpunit`);
+			$run_time = microtime(TRUE) - $start_time;
 			
-			$errors = file_exists('./errors') && file_get_contents('./errors');
-			
-			// This fixes my development machine's PHP shutdown crash with PostgreSQL drivers
-			if ($errors && trim(file_get_contents('./errors')) == 'Segmentation fault' && file_exists('./xml')) {
-				$errors = FALSE;
+			// Unfortunately the XML output can't indicate if tests are skipped
+			if (file_exists('./output.tap')) {
+				$result = file_get_contents('./output.tap');
+				if (!$debug) {
+					unlink('./output.tap');
+				}
 			}
-			
-			if (!$revision && (stripos($output, 'Fatal error') !== FALSE || stripos($output, 'RuntimeException') !== FALSE || $errors || !file_exists('./xml') || !trim(file_get_contents('./xml')))) {
-				echo $output . "\n";
-				if (file_exists('./xml')) {
-					unlink('./xml');	
+
+			if (file_exists('./output.phpunit')) {
+				$phpunit_output = file_get_contents('./output.phpunit');
+				if (!$debug) {
+					unlink('./output.phpunit');
 				}
-				if ($errors) {
-					echo file_get_contents('./errors');	
+			} else {
+				$phpunit_output = '';
+			}
+
+			if (file_exists('./output.xml')) {
+				$xml = file_get_contents('./output.xml');
+				if (!$debug) {
+					unlink('./output.xml');
 				}
-				unlink('./errors');
-				if (file_exists('./tap')) {
-					unlink('./tap');
-				}
+			} else {
+				$xml = '';
+			}
+
+			if (stripos($phpunit_output, 'Fatal error') !== FALSE || stripos($phpunit_output, 'RuntimeException') !== FALSE || !trim($xml)) {
+				echo "\n    " . str_replace("\n", "\n    ", $output) . "\n";
 				$php_errors++;
 				continue;
 			}
 			
 			// Read the XML file in
-			$xml = new SimpleXMLElement(file_get_contents('./xml'), LIBXML_NOCDATA);
-			unlink('./xml');
-			
-			$result = file_get_contents('./tap');
-			unlink('./tap');
-			
-			unlink('./errors');
-			
-			// Remove some output we don't care about
-			$result = preg_replace('#^PHPUnit.*?$\s+\d+\.\.\d+\s+#ims', '', $result);
-			$result = preg_replace('/\s*^# TestSuite "\w+" (ended|started)\.\s*$\s*/ims', "", $result);
+			$xml = new SimpleXMLElement($xml, LIBXML_NOCDATA);
 			
 			// Parse through the XML and grab each test result
 			$testcases = array();
@@ -358,9 +392,9 @@ foreach ($class_dirs as $class_dir) {
 			}
 			
 			// Match skipped tests
-			$num_skipped = preg_match_all('/^ok (\d+) - # SKIP/im', $result, $matches);
+			$num_skipped =  preg_match_all('/^ok (\d+) - # SKIP/im', $result, $matches);
 			$total_tests += $num_skipped;
-			$skipped += $num_skipped;
+			$skipped     += $num_skipped;
 			
 			// Match all of the result messages
 			$num_passed = 0;
@@ -405,16 +439,22 @@ foreach ($class_dirs as $class_dir) {
 				$width = 80;
 				$pad_to = $width - (3*6) + 1;
 				echo str_pad('', $pad_to - strlen($name_config), ' ');
-				echo ($num_passed) ? "\033[1;37;43mP " . $num_passed : "   ";
-				echo "\033[0m";
+				echo ($num_passed) ? "\033[1;37;42mP " . $num_passed : "   ";
+				echo "\033[0;40m";
 				echo str_pad('', 3-strlen($num_passed), ' ', STR_PAD_RIGHT) . ' ';
 				echo ($num_failed) ? "\033[1;37;41mF " . $num_failed : "   ";
-				echo "\033[0m";
+				echo "\033[0;40m";
 				echo str_pad('', 3-strlen($num_failed), ' ', STR_PAD_RIGHT) . ' ';
-				echo ($num_skipped) ? "\033[1;37;40mS " . $num_skipped : "   ";
-				echo "\033[0m";
+				echo ($num_skipped) ? "\033[1;37;44mS " . $num_skipped : "   ";
+				echo "\033[0;40m";
 				echo str_pad('', 3-strlen($num_skipped), ' ', STR_PAD_RIGHT);
-				echo "\n";	
+				echo " \033[1;37;46m" . number_format($run_time, 2) . "s\033[0;40m";
+				echo "\n";
+
+				if ($output) {
+					echo "\033[1;30;47m" . str_replace("\n", "\033[0;40m\n\033[1;30;47m", $output) . "\033[0;40m\n\n";
+				}
+				
 			}
 		}
 	}
@@ -470,7 +510,7 @@ if ($format == 'json') {
 	}	
 	
 	if ($successful) {
-		echo "\033[1;37;43m " . $successful . " Passed \033[0m";
+		echo "\033[1;37;42m " . $successful . " Passed \033[0m";
 	}
 	
 	if ($failures) {
@@ -481,7 +521,32 @@ if ($format == 'json') {
 		echo "\033[1;37;41m " . $php_errors . " PHP errors \033[0m";
 	}	
 	if ($skipped) {
-		echo "\033[0;37;40m " . $skipped . " Skipped \033[0m";
+		echo "\033[1;37;44m " . $skipped . " Skipped \033[0m";
 	}
+	echo "\033[1;37;46m";
+	$runtime = microtime(TRUE) - $master_start;
+	$runtime_hours   = ($runtime / 3600) % 60;
+	$runtime_minutes = ($runtime / 60) % 60;
+	$runtime_seconds = $runtime % 60;
+	if ($runtime_hours) {
+		echo " $runtime_hours hour";
+		if ($runtime_hours != 1) {
+			echo "s";
+		}
+	}
+	if ($runtime_minutes) {
+
+		echo " $runtime_minutes minute";
+		if ($runtime_minutes != 1) {
+			echo "s";
+		}
+	}
+	if ($runtime_seconds) {
+		echo " $runtime_seconds second";
+		if ($runtime_seconds != 1) {
+			echo "s";
+		}
+	}
+	echo " \033[0;40m";
 	echo "\n";
 }
