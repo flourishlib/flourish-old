@@ -525,9 +525,14 @@ if ($format == 'json') {
 	}
 	echo "\033[1;37;46m";
 	$runtime = microtime(TRUE) - $master_start;
+
 	$runtime_hours   = ($runtime / 3600) % 60;
 	$runtime_minutes = ($runtime / 60) % 60;
 	$runtime_seconds = $runtime % 60;
+	if ($runtime < 1 ) {
+		$runtime_seconds = number_format($runtime, 1);
+	}
+
 	if ($runtime_hours) {
 		echo " $runtime_hours hour";
 		if ($runtime_hours != 1) {
