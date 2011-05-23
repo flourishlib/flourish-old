@@ -96,7 +96,7 @@ CREATE TABLE categories (
 CREATE TABLE people (
 	person_id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	name VARCHAR(200) NOT NULL,
-	category_id INTEGER REFERENCES categories(category_id)
+	category_id INTEGER NULL REFERENCES categories(category_id)
 );
 
 BEGIN TRANSACTION;

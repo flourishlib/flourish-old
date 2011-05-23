@@ -381,6 +381,37 @@ class fORMRelatedTest extends PHPUnit_Framework_TestCase
 			self::$db->query('SELECT %r, album_id, year FROM certifications', 'level')->fetchAllRows()
 		);
 	}
+
+
+	public function testAssociateOneToManyPrimaryKey()
+	{
+		$category = new Category(3);
+		
+		$person = new Model_Person();
+		$person->setName('Bob');
+		$person->store();
+
+		$person_2 = new Model_Person();
+		$person_2->setName("Barbara");
+		$person_2->store();
+
+		$person_ids = array($person->getPersonId(), $person_2->getPersonId());
+
+		$category->associateModel_People($person_ids);
+		$category->store();
+		
+		$db_person_ids = array_map(
+			'current',
+			self::$db->query('SELECT person_id FROM people WHERE category_id = 3')->fetchAllRows()
+		);
+
+		self::$db->query("DELETE FROM people WHERE person_id > 4");
+
+		$this->assertEquals(
+			$person_ids,
+			$db_person_ids
+		);
+	}
 	
 	
 	public function testInsertUpdateStoreManyToMany()
