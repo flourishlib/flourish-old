@@ -114,6 +114,7 @@ class fCoreTest extends PHPUnit_Framework_TestCase
 		$output[] = array('', '{empty_string}');
 		$output[] = array(1, '1');
 		$output[] = array(array(), "Array\n(\n)");
+		$output[] = array(array(1,2,3), "Array\n(\n    [0] => 1\n    [1] => 2\n    [2] => 3\n)");
 		$output[] = array(new stdClass, "stdClass Object\n(\n)");
 		
 		return $output;
