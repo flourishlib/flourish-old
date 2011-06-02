@@ -26,6 +26,8 @@ class fTimestampTest extends PHPUnit_Framework_TestCase
 		$output[] = array('2008-05-06');
 		$output[] = array('2009-01-01 5:00 am');
 		$output[] = array('5:00 am 2008-11-25');
+		$output[] = array(1307022578);
+		$output[] = array(-1307022578);
 		
 		return $output;
 	}

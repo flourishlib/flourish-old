@@ -518,6 +518,11 @@ class fValidationTest extends PHPUnit_Framework_TestCase
 	{
 		return strlen($value) > 4;
 	}
+
+	public function measure2($value)
+	{
+		return strlen($value) > 2;
+	}
 	
 	public function testCallbackRule()
 	{
@@ -532,7 +537,7 @@ class fValidationTest extends PHPUnit_Framework_TestCase
 			
 		} catch (fValidationException $e) {
 			$this->assertContains('Foo: Please enter something', $e->getMessage());
-			throw $e;	
+			throw $e;
 		}
 	}
 	
@@ -543,6 +548,23 @@ class fValidationTest extends PHPUnit_Framework_TestCase
 		$v = new fValidation();
 		$v->addCallbackRule('foo', array($this, 'measure'), 'Please enter something');
 		$v->validate();
+	}
+
+	public function testMultipleCallbackRules()
+	{
+		$this->setExpectedException('fValidationException');
+		
+		$_GET['foo'] = 'Thi';
+		
+		try {
+			$v = new fValidation();
+			$v->addCallbackRule('foo', array($this, 'measure'), 'Please enter something four characters long');
+			$v->addCallbackRule('foo', array($this, 'measure2'), 'Please enter something two characters long');
+			$v->validate();
+		} catch (fValidationException $e) {
+			$this->assertContains('Foo: Please enter something four characters long', $e->getMessage());
+			throw $e;
+		}
 	}
 	
 	public function testRegexRule()
