@@ -20,6 +20,8 @@ class fTimeTest extends PHPUnit_Framework_TestCase
 		$output[] = array('+2 hours');
 		$output[] = array('05:00:12');
 		$output[] = array('05:00');
+		$output[] = array(1307022578);
+		$output[] = array(-1307022578);
 		
 		return $output;
 	}
