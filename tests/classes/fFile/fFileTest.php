@@ -112,6 +112,24 @@ class fFileTest extends PHPUnit_Framework_TestCase
 		$file = new fFile('output/fFile/one.txt');
 		$this->assertEquals(3, $file->getSize());
 	}
+
+	public function testCount()
+	{
+		$file = new fFile('resources/words/input.txt');
+		$this->assertEquals(23532, count($file));	
+	}
+
+	public function testCount2()
+	{
+		$file = new fFile('resources/text/example.txt');
+		$this->assertEquals(1, $file->count());	
+	}
+
+	public function testCount3()
+	{
+		$file = new fFile('resources/text/empty.txt');
+		$this->assertEquals(0, $file->count());	
+	}
 	
 	public function testRename()
 	{
