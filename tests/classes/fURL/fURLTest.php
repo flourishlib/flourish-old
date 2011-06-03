@@ -12,24 +12,31 @@ class fURLTest extends PHPUnit_Framework_TestCase
 	{
 		$output = array();
 		
-		$output[] = array('This is a test', NULL, 'this_is_a_test');
-		$output[] = array('Here is some punctuation-and the output!', NULL, 'here_is_some_punctuation-and_the_output');
-		$output[] = array("tests of dashes - and under_scores", NULL, 'tests_of_dashes-and_under_scores');
-		$output[] = array("Iñtërnâtiônàlizætiøn!", NULL, 'internationalizaetion');
-		$output[] = array("test", 2, 'te');
-		$output[] = array("this is a test of a really long string to be converted to a url", 36, 'this_is_a_test_of_a_really_long');
-		$output[] = array("this is a test of a really long string to be converted to a url", 19, 'this_is_a_test_of_a');
-		$output[] = array("Here is a really long string hjdhjkhdksahdiusahdiushdiusahdiusahdiusahdiudhsahusiudsdjsldssa", 80, 'here_is_a_really_long_string_hjdhjkhdksahdiusahdiushdiusahdiusahdiusahdiudhsahus');
-		
+		$output[] = array('This is a test', NULL, NULL, 'this_is_a_test');
+		$output[] = array('Here is some punctuation-and the output!', NULL, NULL, 'here_is_some_punctuation-and_the_output');
+		$output[] = array("tests of dashes - and under_scores", NULL, NULL, 'tests_of_dashes-and_under_scores');
+		$output[] = array("Iñtërnâtiônàlizætiøn!", NULL, NULL, 'internationalizaetion');
+		$output[] = array("test", 2, NULL, 'te');
+		$output[] = array("this is a test of a really long string to be converted to a url", 36, NULL, 'this_is_a_test_of_a_really_long');
+		$output[] = array("this is a test of a really long string to be converted to a url", 19, NULL, 'this_is_a_test_of_a');
+		$output[] = array("Here is a really long string hjdhjkhdksahdiusahdiushdiusahdiusahdiusahdiudhsahusiudsdjsldssa", 80, NULL, 'here_is_a_really_long_string_hjdhjkhdksahdiusahdiushdiusahdiusahdiusahdiudhsahus');
+		$output[] = array("this is a test of a really long string to be converted to a url", 19, '-', 'this-is-a-test-of-a');
+		$output[] = array("tests of dashes - and under_scores", NULL, '-', 'tests-of-dashes-and-under_scores');
+
 		return $output;
 	}
 	
 	/**
 	 * @dataProvider makeFriendlyProvider
 	 */
-	public function testMakeFriendly($input, $max_length, $output)
+	public function testMakeFriendly($input, $max_length, $delimiter, $output)
 	{
-		$this->assertEquals($output, fURL::makeFriendly($input, $max_length));
+		$this->assertEquals($output, fURL::makeFriendly($input, $max_length, $delimiter));
+	}
+
+	public function testMakeFriendlyOmitMaxLength()
+	{
+		$this->assertEquals('tests-of-dashes-and-under_scores', fURL::makeFriendly('tests of dashes - and under_scores', '-'));
 	}
 
 	public static function redirectProvider()
