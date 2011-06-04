@@ -231,6 +231,17 @@ class fRequestTest extends PHPUnit_Framework_TestCase
 	{
 		$this->assertEquals('', fRequest::get('test', 'string'));
 	}
+
+	public function testGetBlankFieldUseDefault()
+	{
+		$_GET['test'] = '';
+		$this->assertEquals('foo', fRequest::get('test', 'string', 'foo', TRUE));
+	}
+
+	public function testGetBlankFieldUseDefault2()
+	{
+		$this->assertEquals('foo', fRequest::get('test', 'string', 'foo', TRUE));
+	}
 	
 	public function testGetMissingFieldCastBoolean()
 	{
