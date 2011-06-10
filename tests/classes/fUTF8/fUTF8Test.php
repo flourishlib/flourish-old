@@ -10,6 +10,26 @@ class fUTF8Test extends PHPUnit_Framework_TestCase
 		}	
 	}
 	
+	public static function cleanProvider()
+	{
+		$output = array();
+		
+		$output[] = array('', '');
+		$output[] = array('Iñtërnâtiônàlizætiøn', 'Iñtërnâtiônàlizætiøn');
+		$output[] = array(array("a\nb", ''), array("a\nb", ""));
+		$output[] = array('I��nâtiônàlizætiøn', strtolower(ICONV_IMPL) != 'unknown' ? 'Inâtiônàlizætiøn' : 'I');
+		
+		return $output;
+	}
+	
+	/**
+	 * @dataProvider cleanProvider
+	 */
+	public function testClean($input, $output)
+	{
+		$this->assertEquals($output, fUTF8::clean($input));	
+	}
+	
 	public static function explodeProvider()
 	{
 		$output = array();
