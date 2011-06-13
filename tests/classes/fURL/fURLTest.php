@@ -50,6 +50,8 @@ class fURLTest extends PHPUnit_Framework_TestCase
 		$output[] = array('./foobar', '/foo/baz/foobar', '/foo/baz/index.php');
 		$output[] = array('../../foobar', '/../foobar', '/dir/index.php');
 		$output[] = array('../../foobar', '/foobar', '/dir/dir2/index.php');
+		$output[] = array(NULL, '/dir/dir2/index.php', '/dir/dir2/index.php');
+		$output[] = array('', '/dir/dir2/index.php', '/dir/dir2/index.php');
 
 		return $output;
 	}
