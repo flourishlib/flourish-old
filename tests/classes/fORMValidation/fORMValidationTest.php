@@ -345,6 +345,20 @@ class fORMValidationTest extends PHPUnit_Framework_TestCase
 		$user->setTimeOfLastLogin(new fTimestamp());
 		$user->validate();
 	}
+
+
+	public function testConditionalRuleWithDefaultSpace()
+	{
+		fORMValidation::addConditionalRule('User', 'first_name', NULL, 'middle_initial');
+		$user = $this->createUser();
+		$errors = $user->validate(TRUE);
+		$this->assertSame(
+			array(
+				'middle_initial' => 'Middle Initial: Please enter a value'
+			),
+			$errors
+		);
+	}
 	
 	
 	public function testRequiredRuleWithValue()
