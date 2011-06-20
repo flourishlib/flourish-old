@@ -2026,7 +2026,7 @@ class fRecordSetTest extends PHPUnit_Framework_TestCase
 	public function testSort()
 	{
 		$set = fRecordSet::build('User');
-		$set->sort('getEmailAddress', 'asc');
+		$set = $set->sort('getEmailAddress', 'asc');
 		$this->assertEquals(
 			array(3, 4, 2, 1),
 			$set->getPrimaryKeys()
