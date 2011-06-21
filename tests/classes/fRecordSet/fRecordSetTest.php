@@ -557,6 +557,24 @@ class fRecordSetTest extends PHPUnit_Framework_TestCase
 			$set->getPrimaryKeys()
 		);
 	}
+
+	public function testBuildWithWhereConditionStartLike()
+	{
+		$set = fRecordSet::build('User', array('email_address^~' => 'FOO'));
+		$this->assertEquals(
+			array(4),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testBuildWithWhereConditionEndLike()
+	{
+		$set = fRecordSet::build('User', array('email_address$~' => 'EXAMPLE.com'));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
 	
 	public function testBuildWithWhereConditionLessThan()
 	{
@@ -635,6 +653,24 @@ class fRecordSetTest extends PHPUnit_Framework_TestCase
 		$set = fRecordSet::build('User', array('email_address~' => array('example', 'flourish')));
 		$this->assertEquals(
 			array(1, 3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testBuildWithWhereConditionStartLikeMultiValue()
+	{
+		$set = fRecordSet::build('User', array('email_address^~' => array('foo', 'BAR')));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testBuildWithWhereConditionEndLikeMultiValue()
+	{
+		$set = fRecordSet::build('User', array('email_address$~' => array('example.COM', '.net')));
+		$this->assertEquals(
+			array(3, 4),
 			$set->getPrimaryKeys()
 		);
 	}
@@ -1713,6 +1749,36 @@ class fRecordSetTest extends PHPUnit_Framework_TestCase
 			$set->getPrimaryKeys()
 		);
 	}
+
+	public function testFilterStartLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress^~' => 'foo'));
+		$this->assertEquals(
+			array(4),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testFilterStartLikeNoMatch()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress^~' => 'foo2'));
+		$this->assertEquals(
+			array(),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testFilterEndLike()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress$~' => 'example.com'));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
 	
 	public function testFilterLessThan()
 	{
@@ -1810,6 +1876,26 @@ class fRecordSetTest extends PHPUnit_Framework_TestCase
 		$set = $set->filter(array('getEmailAddress&~' => array('example', 'bar')));
 		$this->assertEquals(
 			array(3),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testFilterStartLikeMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress^~' => array('foo', 'bar', 'example')));
+		$this->assertEquals(
+			array(3, 4),
+			$set->getPrimaryKeys()
+		);
+	}
+
+	public function testFilterEndLikeMultiValue()
+	{
+		$set = fRecordSet::build('User');
+		$set = $set->filter(array('getEmailAddress$~' => array('example.com', '.net')));
+		$this->assertEquals(
+			array(3, 4),
 			$set->getPrimaryKeys()
 		);
 	}
