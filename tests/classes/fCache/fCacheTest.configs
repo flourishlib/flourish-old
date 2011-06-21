@@ -1,5 +1,9 @@
+Database;;;;;classes/fCache/config.database.php
+Directory;;;;;classes/fCache/config.directory.php
 File;;;;;classes/fCache/config.file.php
 APC;;apc;xcache;-d apc.enable_cli=1 -d apc.cache_by_default=0 -d apc.slam_defense=0;classes/fCache/config.apc.php
 Memcache;;memcache;;;classes/fCache/config.memcache.php
+Memcached;;memcached;;;classes/fCache/config.memcached.php
+Redis;;redis;;;classes/fCache/config.redis.php
 # XCache doesn't work via CLI on windows
 XCache;!windows;xcache;apc;-d xcache.var_size="8M" -d xcache.admin.enable_auth="Off";classes/fCache/config.xcache.php

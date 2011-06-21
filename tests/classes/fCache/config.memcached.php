@@ -4,7 +4,7 @@ include_once './support/constants.php';
 define('CACHE_TYPE', 'memcache');
 function cache_data_store()
 {
-	$memcache = new Memcache();
-	$memcache->connect('db.flourishlib.com', 11211);
-	return $memcache;	
+	$memcached = new Memcached();
+	$memcached->addServer('db.flourishlib.com', 11211);
+	return $memcached;	
 }
