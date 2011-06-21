@@ -1,0 +1,3 @@
+Default;;;;;
+Memcache;;memcache;;;classes/fSession/config.memcache.php
+Redis;;redis;;;classes/fSession/config.redis.php
