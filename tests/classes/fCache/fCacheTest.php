@@ -3,83 +3,146 @@ require_once('./support/init.php');
  
 class fCacheTest extends PHPUnit_Framework_TestCase
 {
-	public $cache;
+	public static $cache;
 	
-	public function setUp()
+	public static function setUpBeforeClass()
 	{	
 		if (defined('SKIPPING')) {
-			$this->markTestSkipped();
+			return;
 		}
 		$_SERVER['PHP_AUTH_USER'] = 'flourish';
 		$_SERVER['PHP_AUTH_PW']   = '5f4dcc3b5aa765d61d8327deb882cf99';
-		$this->cache = new fCache(CACHE_TYPE, cache_data_store());	
+		self::$cache = new fCache(
+			CACHE_TYPE,
+			cache_data_store(),
+			function_exists('cache_config') ? cache_config() : array()
+		);
+	}
+
+	public static function tearDownAfterClass()
+	{
+		if (defined('SKIPPING')) {
+			return;
+		}
+		self::$cache->clear();
+		self::$cache->__destruct();
+	}
+
+	public function setUp()
+	{
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		}
 	}
 	
 	public function testSet()
 	{
-		$this->cache->set('testkey', 1);
+		self::$cache->set('testkey', 1);
 		
 		$this->assertEquals(
 			1,
-			$this->cache->get('testkey')	
+			self::$cache->get('testkey')	
 		);	
+	}
+
+	public function testSerializerString()
+	{
+		$config = function_exists('cache_config') ? cache_config() : array();
+		$cache = new fCache(
+			CACHE_TYPE,
+			cache_data_store(),
+			array_merge(
+				array('serializer' => 'string', 'unserializer' => 'string'),
+				$config
+			)
+		);
+		$cache->set('testkey', TRUE);
+		
+		$this->assertEquals(
+			'1',
+			$cache->get('testkey')	
+		);
+		
+		$cache->set('testkey', FALSE);
+		
+		$this->assertEquals(
+			'',
+			$cache->get('testkey')	
+		);
+	}
+
+	public function testSerializerJSON()
+	{
+		$config = function_exists('cache_config') ? cache_config() : array();
+		$cache = new fCache(
+			CACHE_TYPE,
+			cache_data_store(),
+			array_merge(
+				array('serializer' => array('fJSON', 'encode'), 'unserializer' => array('fJSON', 'decode')),
+				$config
+			)
+		);
+		$cache->set('testkey', TRUE);
+		
+		$this->assertEquals(
+			TRUE,
+			$cache->get('testkey')	
+		);
+		
+		$cache->set('testkey', FALSE);
+		
+		$this->assertEquals(
+			FALSE,
+			$cache->get('testkey')	
+		);
 	}
 	
 	public function testSet2()
 	{
-		$this->cache->set('testkey2', TRUE);
+		self::$cache->set('testkey2', TRUE);
 		
 		$this->assertEquals(
 			TRUE,
-			$this->cache->get('testkey2')	
+			self::$cache->get('testkey2')	
 		);	
 	}
 	
 	public function testOverwriteSet()
 	{
-		$this->cache->set('overwrite', TRUE);
-		$this->cache->set('overwrite', 'test');
+		self::$cache->set('overwrite', TRUE);
+		self::$cache->set('overwrite', 'test');
 		$this->assertEquals(
 			'test',
-			$this->cache->get('overwrite')	
+			self::$cache->get('overwrite')	
 		);	
 	}
 	
 	public function testDelete()
 	{
-		$this->cache->set('delete', TRUE);
-		$this->cache->delete('delete');
+		self::$cache->set('delete', TRUE);
+		self::$cache->delete('delete');
 		$this->assertEquals(
 			NULL,
-			$this->cache->get('delete')	
+			self::$cache->get('delete')	
 		);	
 	}
 	
 	public function testAdd()
 	{
-		$this->cache->add('add', TRUE);
+		self::$cache->add('add', TRUE);
 		$this->assertEquals(
 			TRUE,
-			$this->cache->get('add')	
+			self::$cache->get('add')	
 		);	
 	}
 	
 	public function testAdd2()
 	{
-		$this->cache->set('add2', TRUE);
-		$this->cache->add('add2', 'test');
+		self::$cache->set('add2', TRUE);
+		self::$cache->add('add2', 'test');
 		$this->assertEquals(
 			TRUE,
-			$this->cache->get('add2')	
+			self::$cache->get('add2')	
 		);	
-	}
-
-	public function tearDown()
-	{
-		if (defined('SKIPPING')) {
-			return;
-		}
-		$this->cache->clear();
-		$this->cache->__destruct();
 	}
 }
