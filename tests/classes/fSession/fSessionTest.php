@@ -3,9 +3,38 @@ require_once('./support/init.php');
  
 class fSessionTest extends PHPUnit_Framework_TestCase
 {
+	static public $cache;
+
+	public static function setUpBeforeClass()
+	{
+		if (defined('SKIPPING')) {
+			return;	
+		}
+		if (defined('CACHE_TYPE') && function_exists('cache_data_store')) {
+			self::$cache = new fCache(CACHE_TYPE, cache_data_store(), array('serializer' => 'string', 'unserializer' => 'string'));
+		}
+	}
+
+	public static function tearDownAfterClass()
+	{
+		if (defined('SKIPPING')) {
+			return;	
+		}
+		if (isset(self::$cache)) {
+			self::$cache->clear();
+		}
+	}
+
 	public function setUp()
 	{	
-			
+		if (defined('SKIPPING')) {
+			$this->markTestSkipped();
+		} elseif (isset(self::$cache)) {
+			fSession::setBackend(
+				self::$cache,
+				'fSession::'
+			);
+		}
 	}
 	
 	public function testOpen()
@@ -215,6 +244,9 @@ class fSessionTest extends PHPUnit_Framework_TestCase
 	
 	public function tearDown()
 	{
+		if (defined('SKIPPING')) {
+			return;	
+		}
 		fSession::reset();
 	}
 }
