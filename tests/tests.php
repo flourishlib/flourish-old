@@ -440,19 +440,19 @@ foreach ($class_dirs as $class_dir) {
 				$pad_to = $width - (3*6) + 1;
 				echo str_pad('', $pad_to - strlen($name_config), ' ');
 				echo ($num_passed) ? "\033[1;37;42mP " . $num_passed : "   ";
-				echo "\033[0;40m";
+				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_passed), ' ', STR_PAD_RIGHT) . ' ';
 				echo ($num_failed) ? "\033[1;37;41mF " . $num_failed : "   ";
-				echo "\033[0;40m";
+				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_failed), ' ', STR_PAD_RIGHT) . ' ';
 				echo ($num_skipped) ? "\033[1;37;44mS " . $num_skipped : "   ";
-				echo "\033[0;40m";
+				echo "\033[0m";
 				echo str_pad('', 3-strlen($num_skipped), ' ', STR_PAD_RIGHT);
-				echo " \033[1;37;46m" . number_format($run_time, 2) . "s\033[0;40m";
+				echo " \033[1;37;46m" . number_format($run_time, 2) . "s\033[0m";
 				echo "\n";
 
 				if ($output) {
-					echo "\033[1;30;47m" . str_replace("\n", "\033[0;40m\n\033[1;30;47m", $output) . "\033[0;40m\n\n";
+					echo "\033[1;30;47m" . str_replace("\n", "\033[0m\n\033[1;30;47m", $output) . "\033[0m\n\n";
 				}
 				
 			}
@@ -552,6 +552,6 @@ if ($format == 'json') {
 			echo "s";
 		}
 	}
-	echo " \033[0;40m";
+	echo " \033[0m";
 	echo "\n";
 }
