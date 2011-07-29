@@ -163,6 +163,7 @@ class fORMColumnTest extends PHPUnit_Framework_TestCase
 		$output[] = array('foobar', TRUE);
 		$output[] = array('john.smith@example', TRUE);
 		$output[] = array('john @ smith dot com', TRUE);
+		$output[] = array('', TRUE);
 		
 		return $output;
 	}
