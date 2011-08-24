@@ -195,9 +195,10 @@ CREATE TRIGGER fku_cas_songs_album_id
 
 
 CREATE TABLE owns_on_cd (
-	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	user_id INTEGER,
 	album_id INTEGER REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY(user_id, album_id)
+	PRIMARY KEY(user_id, album_id),
+	CONSTRAINT "owns_on_cd_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TRIGGER fki_ver_owns_on_cd_user_id
@@ -249,7 +250,7 @@ CREATE TRIGGER fku_cas_owns_on_cd_album_id
 CREATE TABLE owns_on_tape (
 	user_id INTEGER REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	album_id INTEGER REFERENCES albums(album_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY(user_id, album_id)
+	CONSTRAINT "owns_on_tape_pkey" PRIMARY KEY(user_id, album_id)
 );
 
 CREATE TRIGGER fki_ver_owns_on_tape_user_id
