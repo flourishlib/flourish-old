@@ -19,4 +19,8 @@ NEW_REV=$(( $REV + 1 ))
 echo "This folder contains Flourish r$NEW_REV
 Flourish is an open source PHP 5 library - see http://flourishlib.com for more information" > $REV_FILE
 
-svn ci "$@"
+if [[ $# = 2 ]]; then
+	svn ci "$@"
+else
+	svn ci classes/flourish.rev "$@"
+fi
