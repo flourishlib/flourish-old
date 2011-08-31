@@ -423,6 +423,19 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		$file = $match[1];
 		$this->assertEquals(file_get_contents('./resources/css/foo-min.css') . "\n" . file_get_contents('./resources/css/bar-min.css'), file_get_contents('./output/minification_cache/' . $file));
 	}
+
+	public function testCssMinificationAlternate()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('css', '/resources/css/baz.css');
+		ob_start();
+		$tmpl->place('css');
+		$output = ob_get_clean();
+		preg_match('#/(\w+\.css)#', $output, $match);
+		$file = $match[1];
+		$this->assertEquals(file_get_contents('./resources/css/baz-min.css'), file_get_contents('./output/minification_cache/' . $file));
+	}
 	
 	public function testCssMinificationDifferentMedia()
 	{
@@ -449,6 +462,19 @@ class fTemplatingTest extends PHPUnit_Framework_TestCase
 		preg_match('#/(\w+\.js)#', $output, $match);
 		$file = $match[1];
 		$this->assertEquals(file_get_contents('./resources/js/swfobject-min.js'), file_get_contents('./output/minification_cache/' . $file));
+	}
+
+	public function testJsMinificationAlternate()
+	{
+		$tmpl = new fTemplating();
+		$tmpl->enableMinification('development', './output/minification_cache/', $_SERVER['DOCUMENT_ROOT']);
+		$tmpl->add('js', '/resources/js/baz.js');
+		ob_start();
+		$tmpl->place('js');
+		$output = ob_get_clean();
+		preg_match('#/(\w+\.js)#', $output, $match);
+		$file = $match[1];
+		$this->assertEquals(file_get_contents('./resources/js/baz-min.js'), file_get_contents('./output/minification_cache/' . $file));
 	}
 	
 	public function testJsMinificationMultiple()
