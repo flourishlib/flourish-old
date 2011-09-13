@@ -63,6 +63,23 @@ class fEmailTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('This is a simple test', $message['text']);
 	}
 	
+	public function testSendSimpleFluent()
+	{
+		$token = $this->generateSubjectToken();
+
+		$email = new fEmail();
+		$email->setFromEmail('will@flourishlib.com')
+			->addRecipient(EMAIL_ADDRESS, 'Test User')
+			->setSubject($token . ': Testing Simple Email')
+			->setBody('This is a simple test');
+		$message_id = $email->send();
+
+		$message = $this->findMessage($token);
+		$this->assertEquals($message_id, $message['headers']['message-id']);
+		$this->assertEquals('will@flourishlib.com', $message['headers']['from']['mailbox'] . '@' . $message['headers']['from']['host']);
+		$this->assertEquals($token . ': Testing Simple Email', $message['headers']['subject']);
+		$this->assertEquals('This is a simple test', $message['text']);
+	}
 	
 	public function testSendSinglePeriodOnLine()
 	{
