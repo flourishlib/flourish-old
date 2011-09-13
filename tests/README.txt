@@ -14,7 +14,7 @@ directory structure:
 	- tests/   <- The test files, including this README go in here
 
 Once you can the directory structure configured, open a terminal/command
-prompt and cd into the unit_tests directory. Then simple execute the following:
+prompt and cd into the tests/ directory. Then simple execute the following:
 
 php tests.php
 
