@@ -1,0 +1,31 @@
+BEGIN;
+DELETE FROM people;
+DELETE FROM categories;
+DELETE FROM certifications;
+DELETE FROM certification_levels;
+DELETE FROM events_artists;
+DELETE FROM event_details;
+DELETE FROM registrations;
+DELETE FROM event_slots;
+DELETE FROM events;
+DELETE FROM invalid_tables;
+DELETE FROM top_albums;
+DELETE FROM year_favorite_albums;
+DELETE FROM favorite_albums;
+DELETE FROM record_deals;
+DELETE FROM record_labels;
+DELETE FROM other_user_details;
+DELETE FROM user_details;
+COMMIT;
+
+DROP SEQUENCE top_albums_top_album_id_seq;
+DROP SEQUENCE event_slots_id_seq;
+DROP SEQUENCE events_event_id_seq;
+DROP SEQUENCE categories_category_id_seq;
+DROP SEQUENCE people_person_id_seq;
+
+CREATE SEQUENCE top_albums_top_album_id_seq;
+CREATE SEQUENCE event_slots_id_seq;
+CREATE SEQUENCE events_event_id_seq;
+CREATE SEQUENCE categories_category_id_seq;
+CREATE SEQUENCE people_person_id_seq;

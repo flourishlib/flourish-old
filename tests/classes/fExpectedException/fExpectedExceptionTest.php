@@ -67,16 +67,20 @@ class fExpectedExceptionTest extends PHPUnit_Framework_TestCase
 	
 	public function testThrowNoComponent()
 	{
-		$this->setExpectedException('Exception');
-		
-		throw new fExpectedException('This is a test of adding %s');
+		try {
+			throw new fExpectedException('This is a test of adding %s');
+		} catch (Exception $e) {
+			// This should be thrown since a component is missing
+		}
 	}
 	
 	public function testThrowNoComponent2()
 	{
-		$this->setExpectedException('Exception');
-		
-		throw new fExpectedException('This is a test of adding %\'.d');
+		try {
+			throw new fExpectedException('This is a test of adding %\'.d');
+		} catch (Exception $e) {
+			// This should be thrown since a component is missing
+		}
 	}
 	
 	public function tearDown()

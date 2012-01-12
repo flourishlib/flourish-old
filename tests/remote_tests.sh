@@ -344,7 +344,7 @@ while [[ $1 =~ .@ ]]; do
 	((TOTAL_HOSTS++))
 done
 if (( ! $TOTAL_HOSTS )); then
-	RHOSTS="will@vm-centos will@vm-debian will@vm-fedora will@vm-freebsd will@vm-netbsd will@vm-openbsd will@vm-opensolaris will@vm-opensuse will@osx will@vm-server2008 will@vm-ubuntu will@vm-xp"
+	RHOSTS="will@vm-centos.wbond.net will@vm-debian.wbond.net will@vm-fedora.wbond.net will@vm-freebsd.wbond.net will@vm-netbsd.wbond.net will@vm-openbsd.wbond.net will@vm-opensolaris.wbond.net will@vm-opensuse.wbond.net will@osx.wbond.net will@vm-server2008.wbond.net will@vm-ubuntu.wbond.net will@vm-xp.wbond.net"
 	TOTAL_HOSTS=12
 fi
 
@@ -540,43 +540,7 @@ for RHOST in $RHOSTS; do
 		queue_command mv flourish_$TOKEN.tar.gz flourish_$TOKEN/
 		queue_command cd flourish_$TOKEN
 		queue_command tar xzf flourish_$TOKEN.tar.gz \2\> /dev/null
-
-		CONFIG_EXCLUSIONS=""
-
-		if (( ! $NO_MYSQL && $HAS_MYSQL )); then
-			queue_command mysql -h db.flourishlib.com -u flourish -ppassword mysql -e "DROP DATABASE IF EXISTS flourish_$TOKEN; CREATE DATABASE flourish_$TOKEN CHARACTER SET 'utf8';"
-		fi
 		
-		if (( ! $NO_POSTGRESQL && $HAS_PSQL )); then
-			queue_command export PGPASSWORD='password'
-			queue_command psql -q -h db.flourishlib.com -U flourish -d postgres -c "DROP DATABASE IF EXISTS flourish_$TOKEN;" \2\> /dev/null
-			queue_command psql -q -h db.flourishlib.com -U flourish -d postgres -c "CREATE DATABASE flourish_$TOKEN ENCODING 'UTF-8';"
-		fi
-		
-		if (( ! $NO_ORACLE && $HAS_SQLPLUS )); then
-			queue_command echo "DROP USER flourish_$TOKEN CASCADE;
-				DROP ROLE flourish_${TOKEN}_role;
-				DROP USER flourish_${TOKEN}_2 CASCADE;
-				CREATE USER flourish_$TOKEN IDENTIFIED BY password DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
-				GRANT CONNECT, RESOURCE, GRANT ANY PRIVILEGE, GRANT ANY OBJECT PRIVILEGE, UNLIMITED TABLESPACE, CREATE ROLE, DROP ANY ROLE, ALTER ANY ROLE, GRANT ANY ROLE, CREATE ANY TABLE, CREATE ANY INDEX, CREATE ANY SEQUENCE, CREATE ANY TRIGGER, ALTER ANY INDEX, ALTER ANY TRIGGER, ALTER ANY SEQUENCE, SELECT ANY SEQUENCE, DROP ANY TABLE, DROP ANY INDEX, DROP ANY SEQUENCE, DROP ANY TRIGGER TO flourish_$TOKEN;
-				CREATE ROLE flourish_${TOKEN}_role;
-				GRANT flourish_${TOKEN}_role TO flourish_$TOKEN;
-				CREATE USER flourish_${TOKEN}_2 IDENTIFIED BY password DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
-				GRANT UNLIMITED TABLESPACE TO flourish_${TOKEN}_2;
-				exit" \| sqlplus -S flourish/password@db.flourishlib.com/XE \> /dev/null
-		fi
-		
-		if (( ! $NO_MSSQL && $HAS_SQSH )); then
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;" \| awk 'BEGIN { RS="" } {gsub(".return status = 0.", "");printf $0}'
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN;"
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -L semicolon_hack=1 -C "CREATE DATABASE flourish_$TOKEN;"
-		fi
-		
-		#if (( ! $NO_DB2 && $HAS_DB2BATCH )); then
-			# Since database creation is very slow and users are controlled via the OS, everything is kept in place for DB2
-		#fi
-
 		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT
 		else
@@ -584,13 +548,36 @@ for RHOST in $RHOSTS; do
 		fi
 
 		stop_activity
+		
+		CONFIG_EXCLUSIONS=""
+		queue_command cd /tmp/flourish_$TOKEN/tests/
+		
+		if (( ! $NO_MYSQL && $HAS_MYSQL )); then
+			queue_command ./reset_databases.sh -t mysql flourish_$TOKEN
+		fi
+		
+		if (( ! $NO_POSTGRESQL && $HAS_PSQL )); then
+			queue_command ./reset_databases.sh -t pgsql flourish_$TOKEN
+		fi
+		
+		if (( ! $NO_ORACLE && $HAS_SQLPLUS )); then
+
+			queue_command ./reset_databases.sh -t oracle flourish_$TOKEN
+		fi
+		
+		if (( ! $NO_MSSQL && $HAS_SQSH )); then
+			queue_command ./reset_databases.sh -t mssql flourish_$TOKEN
+		fi
+		
+		if (( ! $NO_DB2 && $HAS_DB2BATCH )); then
+			queue_command ./reset_databases.sh -t db2 flourish_$TOKEN
+		fi
 
 		DEBUG_FLAG="";
 		if (( $DEBUG_MODE )); then
 			DEBUG_FLAG="@d"
 		fi
 
-		queue_command cd /tmp/flourish_$TOKEN/tests/
 		queue_command export NLS_LANG="AMERICAN_AMERICA.AL32UTF8"
 		queue_command export DB2CODEPAGE="1208"
 		queue_command php tests.php \#flourish_$TOKEN $CONFIG_EXCLUSIONS "$@" $DEBUG_FLAG $FORMAT
@@ -622,31 +609,6 @@ for RHOST in $RHOSTS; do
 		fi
 
 		queue_command rm -Rf /tmp/flourish_$TOKEN
-		
-		if (( ! $NO_MYSQL && $HAS_MYSQL )); then
-			queue_command mysql -h db.flourishlib.com -u flourish -ppassword mysql -e "DROP DATABASE IF EXISTS flourish_$TOKEN;"
-		fi
-		
-		if (( ! $NO_POSTGRESQL && $HAS_PSQL )); then
-			queue_command export PGPASSWORD="password"
-			queue_command psql -q -h db.flourishlib.com -U flourish -d postgres -c "DROP DATABASE IF EXISTS flourish_$TOKEN;" \2\> /dev/null
-		fi
-		
-		if (( ! $NO_ORACLE && $HAS_SQLPLUS )); then
-			queue_command echo "DROP USER flourish_$TOKEN CASCADE;
-				DROP ROLE flourish_${TOKEN}_role;
-				DROP USER flourish_${TOKEN}_2 CASCADE;
-				exit" \| sqlplus -S flourish/password@db.flourishlib.com/XE \> /dev/null
-		fi
-		
-		if (( ! $NO_MSSQL && $HAS_SQSH )); then
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1122 -D flourish -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN" \| awk 'BEGIN { RS="" } {gsub(".return status = 0.", "");printf $0}'
-			queue_command sqsh -b -U flourish -P password -S win-db.flourishlib.com:1123 -D flourish -C "IF EXISTS(SELECT name FROM sys.databases WHERE name = 'flourish_$TOKEN') DROP DATABASE flourish_$TOKEN"
-		fi
-		
-		#if (( ! $NO_DB2 && $HAS_DB2BATCH )); then
-			# Since database creation is very slow and users are controlled via the OS, everything is kept in place for DB2
-		#fi
 
 		if (( $SUB_CALL || $JSON || $TEXT )); then
 			exec_commands $RHOST OUTPUT

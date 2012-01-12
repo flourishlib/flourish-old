@@ -1,0 +1,11 @@
+BEGIN;
+DELETE FROM flourish2.albums;
+DELETE FROM flourish2.artists;
+DELETE FROM flourish2.users_groups;
+DELETE FROM flourish2.groups;
+DELETE FROM flourish2.users;
+COMMIT;
+ALTER TABLE flourish2.albums ALTER COLUMN album_id RESTART WITH 1;
+ALTER TABLE flourish2.artists ALTER COLUMN artist_id RESTART WITH 1;
+ALTER TABLE flourish2.groups ALTER COLUMN group_id RESTART WITH 1;
+ALTER TABLE flourish2.users ALTER COLUMN user_id RESTART WITH 1;

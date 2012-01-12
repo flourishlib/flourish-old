@@ -21,8 +21,11 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			$this->markTestSkipped();
 		}
-		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$this->db->execute(file_get_contents(DB_SETUP_FILE));
+		$this->db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT);
+		if (DB_TYPE == 'sqlite') {
+			$this->db->execute(file_get_contents(DB_SETUP_FILE));
+		} 
+		$this->db->execute(file_get_contents(DB_POPULATE_FILE));
 	}
 	
 	public function tearDown()
@@ -30,7 +33,7 @@ class fStatementTestModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown($this->db, DB_TEARDOWN_FILE);
+		teardown($this->db, DB_WIPE_FILE);
 	}
 	
 	public function testTransactionRollback()
@@ -69,8 +72,11 @@ class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT);
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+		} 
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
 		
 		self::$db = $db;
 	}
@@ -80,7 +86,7 @@ class fStatementTestNoModifications extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 	
 	public function setUp()
