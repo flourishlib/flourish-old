@@ -39,8 +39,12 @@ class fActiveRecordTest extends PHPUnit_Framework_TestCase
 			return;	
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+			$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		}
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_POPULATE_FILE));
 		
 		self::$db     = $db;
 		self::$schema = new fSchema($db);
@@ -51,8 +55,8 @@ class fActiveRecordTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;	
 		}
-		teardown(self::$db, DB_EXTENDED_TEARDOWN_FILE);
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db, DB_EXTENDED_WIPE_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 
 	protected function createUser()

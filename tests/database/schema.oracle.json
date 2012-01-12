@@ -470,6 +470,614 @@
 				"type": "integer",
 				"valid_values": null
 			}
+		},
+		"blobs": {
+			"blob_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"data": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": "4294967295",
+				"not_null": true,
+				"placeholder": "%l",
+				"type": "blob",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"categories": {
+			"category_id": {
+				"auto_increment": true,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": "200",
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"parent": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"certification_levels": {
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": "200",
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"certifications": {
+			"level": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": "200",
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"album_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"year": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"event_details": {
+			"event_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"allows_registration": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%b",
+				"type": "boolean",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"event_slots": {
+			"id": {
+				"auto_increment": true,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"events": {
+			"event_id": {
+				"auto_increment": true,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"title": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"start_date": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%d",
+				"type": "date",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"end_date": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%d",
+				"type": "date",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"event_slot_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"registration_url": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": "",
+				"max_length": 255,
+				"not_null": false,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"events_artists": {
+			"event_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"artist_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"favorite_albums": {
+			"email": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 200,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"album_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"position": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"invalid_tables": {
+			"not_primary_key": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 200,
+				"not_null": false,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"other_user_details": {
+			"id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"avatar": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": "",
+				"max_length": 255,
+				"not_null": false,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"people": {
+			"person_id": {
+				"auto_increment": true,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 200,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"category_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": false,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"record_deals": {
+			"record_label": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"artist_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"record_labels": {
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"registrations": {
+			"event_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"name": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 255,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"top_albums": {
+			"top_album_id": {
+				"auto_increment": true,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"album_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"position": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"user_details": {
+			"user_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"photo": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": "",
+				"max_length": 255,
+				"not_null": false,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
+		},
+		"year_favorite_albums": {
+			"email": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": 200,
+				"not_null": true,
+				"placeholder": "%s",
+				"type": "varchar",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"year": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"album_id": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			},
+			"position": {
+				"auto_increment": false,
+				"comment": "",
+				"decimal_places": null,
+				"default": null,
+				"max_length": null,
+				"not_null": true,
+				"placeholder": "%i",
+				"type": "integer",
+				"valid_values": null,
+				"max_value": null,
+				"min_value": null
+			}
 		}
 	},
 	"keys": {
@@ -576,6 +1184,209 @@
 			}],
 			"primary": ["group_id", "user_id"],
 			"unique": []
+		},
+		"blobs": {
+			"foreign": [],
+			"primary": ["blob_id"],
+			"unique": []
+		},
+		"categories": {
+			"foreign": [{
+				"column": "parent",
+				"foreign_table": "categories",
+				"foreign_column": "category_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["category_id"],
+			"unique": []
+		},
+		"certification_levels": {
+			"foreign": [],
+			"primary": ["name"],
+			"unique": []
+		},
+		"certifications": {
+			"foreign": [{
+				"column": "level",
+				"foreign_table": "certification_levels",
+				"foreign_column": "name",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["album_id", "level"],
+			"unique": []
+		},
+		"event_details": {
+			"foreign": [{
+				"column": "event_id",
+				"foreign_table": "events",
+				"foreign_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			}],
+			"primary": ["event_id"],
+			"unique": []
+		},
+		"event_slots": {
+			"foreign": [],
+			"primary": ["id"],
+			"unique": []
+		},
+		"events": {
+			"foreign": [{
+				"column": "event_slot_id",
+				"foreign_table": "event_slots",
+				"foreign_column": "id",
+				"on_delete": "set_null",
+				"on_update": "no_action"
+			}],
+			"primary": ["event_id"],
+			"unique": [["event_slot_id"]]
+		},
+		"events_artists": {
+			"foreign": [{
+				"column": "event_id",
+				"foreign_table": "events",
+				"foreign_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			},
+			{
+				"column": "artist_id",
+				"foreign_table": "artists",
+				"foreign_column": "artist_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["event_id", "artist_id"],
+			"unique": []
+		},
+		"favorite_albums": {
+			"foreign": [{
+				"column": "email",
+				"foreign_table": "users",
+				"foreign_column": "email_address",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["email", "album_id"],
+			"unique": [["email", "position"]]
+		},
+		"invalid_tables": {
+			"foreign": [],
+			"primary": [],
+			"unique": []
+		},
+		"other_user_details": {
+			"foreign": [{
+				"column": "id",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["id"],
+			"unique": []
+		},
+		"people": {
+			"foreign": [{
+				"column": "category_id",
+				"foreign_table": "categories",
+				"foreign_column": "category_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["person_id"],
+			"unique": []
+		},
+		"record_deals": {
+			"foreign": [{
+				"column": "record_label",
+				"foreign_table": "record_labels",
+				"foreign_column": "name",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"column": "artist_id",
+				"foreign_table": "artists",
+				"foreign_column": "artist_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["record_label", "artist_id"],
+			"unique": []
+		},
+		"record_labels": {
+			"foreign": [],
+			"primary": ["name"],
+			"unique": []
+		},
+		"registrations": {
+			"foreign": [{
+				"column": "event_id",
+				"foreign_table": "events",
+				"foreign_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			}],
+			"primary": ["event_id", "name"],
+			"unique": []
+		},
+		"top_albums": {
+			"foreign": [{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["top_album_id"],
+			"unique": [["album_id"], ["position"]]
+		},
+		"user_details": {
+			"foreign": [{
+				"column": "user_id",
+				"foreign_table": "users",
+				"foreign_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["user_id"],
+			"unique": []
+		},
+		"year_favorite_albums": {
+			"foreign": [{
+				"column": "email",
+				"foreign_table": "users",
+				"foreign_column": "email_address",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"column": "album_id",
+				"foreign_table": "albums",
+				"foreign_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"primary": ["email", "year", "album_id"],
+			"unique": [["email", "year", "position"]]
 		}
 	},
 	"relationships": {
@@ -611,15 +1422,67 @@
 			"one-to-many": [{
 				"table": "albums",
 				"column": "album_id",
+				"related_table": "certifications",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "favorite_albums",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"table": "albums",
+				"column": "album_id",
 				"related_table": "songs",
 				"related_column": "album_id",
 				"on_delete": "cascade",
 				"on_update": "no_action"
+			},
+			{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "year_favorite_albums",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
 			}],
-			"one-to-one": []
+			"one-to-one": [{
+				"table": "albums",
+				"column": "album_id",
+				"related_table": "top_albums",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}]
 		},
 		"artists": {
-			"many-to-many": [],
+			"many-to-many": [{
+				"table": "artists",
+				"column": "artist_id",
+				"related_table": "events",
+				"related_column": "event_id",
+				"join_table": "events_artists",
+				"join_column": "artist_id",
+				"join_related_column": "event_id",
+				"on_update": "no_action",
+				"on_delete": "cascade"
+			},
+			{
+				"table": "artists",
+				"column": "artist_id",
+				"related_table": "record_labels",
+				"related_column": "name",
+				"join_table": "record_deals",
+				"join_column": "artist_id",
+				"join_related_column": "record_label",
+				"on_update": "no_action",
+				"on_delete": "cascade"
+			}],
 			"many-to-one": [],
 			"one-to-many": [{
 				"table": "artists",
@@ -731,15 +1594,356 @@
 				"related_column": "group_leader",
 				"on_delete": "cascade",
 				"on_update": "no_action"
+			},
+			{
+				"table": "users",
+				"column": "email_address",
+				"related_table": "favorite_albums",
+				"related_column": "email",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"table": "users",
+				"column": "email_address",
+				"related_table": "year_favorite_albums",
+				"related_column": "email",
+				"on_delete": "cascade",
+				"on_update": "no_action"
 			}],
-			"one-to-one": []
+			"one-to-one": [{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "other_user_details",
+				"related_column": "id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"table": "users",
+				"column": "user_id",
+				"related_table": "user_details",
+				"related_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}]
 		},
 		"users_groups": {
 			"many-to-many": [],
 			"many-to-one": [],
 			"one-to-many": [],
 			"one-to-one": []
+		},
+		"blobs": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"categories": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "categories",
+				"column": "parent",
+				"related_table": "categories",
+				"related_column": "category_id"
+			}],
+			"one-to-many": [{
+				"table": "categories",
+				"column": "category_id",
+				"related_table": "categories",
+				"related_column": "parent",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			},
+			{
+				"table": "categories",
+				"column": "category_id",
+				"related_table": "people",
+				"related_column": "category_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"one-to-one": []
+		},
+		"certification_levels": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [{
+				"table": "certification_levels",
+				"column": "name",
+				"related_table": "certifications",
+				"related_column": "level",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}],
+			"one-to-one": []
+		},
+		"certifications": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "certifications",
+				"column": "level",
+				"related_table": "certification_levels",
+				"related_column": "name"
+			},
+			{
+				"table": "certifications",
+				"column": "album_id",
+				"related_table": "albums",
+				"related_column": "album_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"event_details": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": [{
+				"table": "event_details",
+				"column": "event_id",
+				"related_table": "events",
+				"related_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			}]
+		},
+		"event_slots": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": [{
+				"table": "event_slots",
+				"column": "id",
+				"related_table": "events",
+				"related_column": "event_slot_id",
+				"on_delete": "set_null",
+				"on_update": "no_action"
+			}]
+		},
+		"events": {
+			"many-to-many": [{
+				"table": "events",
+				"column": "event_id",
+				"related_table": "artists",
+				"related_column": "artist_id",
+				"join_table": "events_artists",
+				"join_column": "event_id",
+				"join_related_column": "artist_id",
+				"on_update": "no_action",
+				"on_delete": "no_action"
+			}],
+			"many-to-one": [],
+			"one-to-many": [{
+				"table": "events",
+				"column": "event_id",
+				"related_table": "registrations",
+				"related_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			}],
+			"one-to-one": [{
+				"table": "events",
+				"column": "event_slot_id",
+				"related_table": "event_slots",
+				"related_column": "id",
+				"on_delete": "set_null",
+				"on_update": "no_action"
+			},
+			{
+				"table": "events",
+				"column": "event_id",
+				"related_table": "event_details",
+				"related_column": "event_id",
+				"on_delete": "no_action",
+				"on_update": "no_action"
+			}]
+		},
+		"events_artists": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"favorite_albums": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "favorite_albums",
+				"column": "email",
+				"related_table": "users",
+				"related_column": "email_address"
+			},
+			{
+				"table": "favorite_albums",
+				"column": "album_id",
+				"related_table": "albums",
+				"related_column": "album_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"invalid_tables": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"other_user_details": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": [{
+				"table": "other_user_details",
+				"column": "id",
+				"related_table": "users",
+				"related_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}]
+		},
+		"people": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "people",
+				"column": "category_id",
+				"related_table": "categories",
+				"related_column": "category_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"record_deals": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"record_labels": {
+			"many-to-many": [{
+				"table": "record_labels",
+				"column": "name",
+				"related_table": "artists",
+				"related_column": "artist_id",
+				"join_table": "record_deals",
+				"join_column": "record_label",
+				"join_related_column": "artist_id",
+				"on_update": "no_action",
+				"on_delete": "cascade"
+			}],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"registrations": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "registrations",
+				"column": "event_id",
+				"related_table": "events",
+				"related_column": "event_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
+		},
+		"top_albums": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": [{
+				"table": "top_albums",
+				"column": "album_id",
+				"related_table": "albums",
+				"related_column": "album_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}]
+		},
+		"user_details": {
+			"many-to-many": [],
+			"many-to-one": [],
+			"one-to-many": [],
+			"one-to-one": [{
+				"table": "user_details",
+				"column": "user_id",
+				"related_table": "users",
+				"related_column": "user_id",
+				"on_delete": "cascade",
+				"on_update": "no_action"
+			}]
+		},
+		"year_favorite_albums": {
+			"many-to-many": [],
+			"many-to-one": [{
+				"table": "year_favorite_albums",
+				"column": "email",
+				"related_table": "users",
+				"related_column": "email_address"
+			},
+			{
+				"table": "year_favorite_albums",
+				"column": "album_id",
+				"related_table": "albums",
+				"related_column": "album_id"
+			}],
+			"one-to-many": [],
+			"one-to-one": []
 		}
 	},
-	"tables": ["albums", "artists", "blobs", "groups", "owns_on_cd", "owns_on_tape", "songs", "users", "users_groups"]
+	"tables": [
+		"albums",
+		"artists",
+		"blobs",
+		"categories",
+		"certification_levels",
+		"certifications",
+		"event_details",
+		"event_slots",
+		"events",
+		"events_artists",
+		"favorite_albums",
+		"groups",
+		"invalid_tables",
+		"other_user_details",
+		"owns_on_cd",
+		"owns_on_tape",
+		"people",
+		"record_deals",
+		"record_labels",
+		"registrations",
+		"songs",
+		"top_albums",
+		"user_details",
+		"users",
+		"users_groups",
+		"year_favorite_albums"
+	],
+	"ordered_tables": [
+		"artists",
+		"blobs",
+		"categories",
+		"certification_levels",
+		"event_slots",
+		"events",
+		"events_artists",
+		"invalid_tables",
+		"people",
+		"record_labels",
+		"registrations",
+		"users",
+		"albums",
+		"certifications",
+		"event_details",
+		"favorite_albums",
+		"groups",
+		"other_user_details",
+		"owns_on_cd",
+		"owns_on_tape",
+		"record_deals",
+		"songs",
+		"top_albums",
+		"user_details",
+		"users_groups",
+		"year_favorite_albums"
+	]
 }

@@ -1,0 +1,11 @@
+BEGIN;
+DELETE FROM flourish2.albums;
+DELETE FROM flourish2.artists;
+DELETE FROM flourish2.users_groups;
+DELETE FROM flourish2.groups;
+DELETE FROM flourish2.users;
+COMMIT;
+DBCC CHECKIDENT ('flourish2.albums', RESEED, 0);
+DBCC CHECKIDENT ('flourish2.artists', RESEED, 0);
+DBCC CHECKIDENT ('flourish2.groups', RESEED, 0);
+DBCC CHECKIDENT ('flourish2.users', RESEED, 0);

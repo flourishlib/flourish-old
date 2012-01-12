@@ -23,9 +23,12 @@ class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 			return;
 		}
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		
-		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE)));
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+			$db->execute(file_get_contents(DB_ALTERNATE_SCHEMA_SETUP_FILE));
+		}
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
+		$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_POPULATE_FILE)));
 		
 		self::$db     = $db;
 		self::$schema = fJSON::decode(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_SCHEMA_FILE)), TRUE);
@@ -36,8 +39,8 @@ class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_TEARDOWN_FILE)));
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		self::$db->execute(fix_schema(file_get_contents(DB_ALTERNATE_SCHEMA_WIPE_FILE)));
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 	
 	public function setUp()
@@ -62,17 +65,34 @@ class fSchemaWithMultipleSchemasTest extends PHPUnit_Framework_TestCase
 				"albums",
 				"artists",
 				"blobs",
+				"categories",
+				"certification_levels",
+				"certifications",
+				"event_details",
+				"event_slots",
+				"events",
+				"events_artists",
+				"favorite_albums",
 				fix_schema("flourish2.albums"),
 				fix_schema("flourish2.artists"),
 				fix_schema("flourish2.groups"),
 				fix_schema("flourish2.users"),
 				fix_schema("flourish2.users_groups"),
 				"groups",
+				"invalid_tables",
+				"other_user_details",
 				"owns_on_cd",
 				"owns_on_tape",
+				"people",
+				"record_deals",
+				"record_labels",
+				"registrations",
 				"songs",
+				"top_albums",
+				"user_details",
 				"users",
-				"users_groups"
+				"users_groups",
+				"year_favorite_albums"
 			),
 			$tables
 		);

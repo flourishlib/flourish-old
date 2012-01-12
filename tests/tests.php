@@ -340,7 +340,7 @@ foreach ($class_dirs as $class_dir) {
 
 			if ($format == 'shell') {
 				if ($debug) {
-					echo "\033[1;37;46m$config --stderr --log-tap output.tap $xml_flag output.xml $filter $test_name $test_file 2> output.phpunit\033[0;40m\n";
+					echo "\033[1;37;46m$config --stderr --log-tap output.tap $xml_flag output.xml $filter $test_name $test_file 2> output.phpunit\033[0m\n";
 				}
 				$name_config = $class_dir . ($name ? ': ' . $name : '');
 				echo $name_config;

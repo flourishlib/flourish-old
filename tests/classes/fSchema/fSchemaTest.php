@@ -13,9 +13,12 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
-		
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT);
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+			$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		}
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
 		self::$db     = $db;
 		self::$schema = fJSON::decode(file_get_contents(DB_SCHEMA_FILE), TRUE);
 	}
@@ -25,7 +28,7 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 	
 	public function setUp()
@@ -40,6 +43,18 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 	{
 			
 	}
+
+	public function filterSchemaTables($tables)
+	{
+		$filtered_tables = array();
+		foreach ($tables as $table) {
+			if (strpos($table, '.') !== FALSE) {
+				continue;
+			}
+			$filtered_tables[] = $table;
+		}
+		return $filtered_tables;
+	}
 	
 	public function testGetTables()
 	{
@@ -48,6 +63,8 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		
 		$tables = $this->schema_obj->getTables();
 		sort($tables);
+
+		$tables = $this->filterSchemaTables($tables);
 		
 		$this->assertEquals(
 			$schema_tables,
@@ -58,19 +75,12 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 	public function testGetTablesInCreationOrder()
 	{
 		$tables = $this->schema_obj->getTables(TRUE);
+		$tables = $this->filterSchemaTables($tables);
 		
+		$ordered_tables = self::$schema['ordered_tables'];
+
 		$this->assertSame(
-			array(
-				'artists',
-				'blobs',
-				'users',
-				'albums',
-				'groups',
-				'owns_on_cd',
-				'owns_on_tape',
-				'songs',
-				'users_groups'
-			),
+			$ordered_tables,
 			$tables
 		);
 	}
@@ -95,10 +105,14 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(
 			array(
 				'users',
+				'favorite_albums',
 				'groups',
+				'other_user_details',
 				'owns_on_cd',
 				'owns_on_tape',
-				'users_groups'
+				'user_details',
+				'users_groups',
+				'year_favorite_albums'
 			),
 			$tables
 		);
@@ -108,14 +122,32 @@ class fSchemaTest extends PHPUnit_Framework_TestCase
 	{
 		$output = array();
 		
-		$output[] = array("albums");
-		$output[] = array("artists");
-		$output[] = array("groups");
-		$output[] = array("owns_on_cd");
-		$output[] = array("owns_on_tape");
-		$output[] = array("songs");
-		$output[] = array("users");
-		$output[] = array("users_groups");
+		$output[] = array('albums');
+		$output[] = array('artists');
+		$output[] = array('blobs');
+		$output[] = array('categories');
+		$output[] = array('certification_levels');
+		$output[] = array('certifications');
+		$output[] = array('event_details');
+		$output[] = array('event_slots');
+		$output[] = array('events');
+		$output[] = array('events_artists');
+		$output[] = array('favorite_albums');
+		$output[] = array('groups');
+		$output[] = array('invalid_tables');
+		$output[] = array('other_user_details');
+		$output[] = array('owns_on_cd');
+		$output[] = array('owns_on_tape');
+		$output[] = array('people');
+		$output[] = array('record_deals');
+		$output[] = array('record_labels');
+		$output[] = array('registrations');
+		$output[] = array('songs');
+		$output[] = array('top_albums');
+		$output[] = array('user_details');
+		$output[] = array('users');
+		$output[] = array('users_groups');
+		$output[] = array('year_favorite_albums');
 		
 		return $output;
 	}

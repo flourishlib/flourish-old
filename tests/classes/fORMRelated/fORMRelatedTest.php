@@ -29,9 +29,13 @@ class fORMRelatedTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
-		$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT);
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+			$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		}
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
+		$db->execute(file_get_contents(DB_EXTENDED_POPULATE_FILE));
 		
 		self::$db     = $db;
 		self::$schema = new fSchema($db);
@@ -42,8 +46,8 @@ class fORMRelatedTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown(self::$db, DB_EXTENDED_TEARDOWN_FILE);
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db, DB_EXTENDED_WIPE_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 
 	protected function createUser()
@@ -402,7 +406,7 @@ class fORMRelatedTest extends PHPUnit_Framework_TestCase
 		
 		$db_person_ids = array_map(
 			'current',
-			self::$db->query('SELECT person_id FROM people WHERE category_id = 3')->fetchAllRows()
+			self::$db->query('SELECT person_id FROM people WHERE category_id = 3 ORDER BY person_id')->fetchAllRows()
 		);
 
 		self::$db->query("DELETE FROM people WHERE person_id > 4");

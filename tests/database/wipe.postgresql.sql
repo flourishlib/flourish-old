@@ -1,0 +1,16 @@
+BEGIN;
+DELETE FROM blobs;
+DELETE FROM owns_on_tape;
+DELETE FROM owns_on_cd;
+DELETE FROM songs;
+DELETE FROM albums;
+DELETE FROM artists;
+DELETE FROM users_groups;
+DELETE FROM groups;
+DELETE FROM users;
+COMMIT;
+SELECT pg_catalog.setval(pg_get_serial_sequence('songs', 'song_id'), 1, FALSE);
+SELECT pg_catalog.setval(pg_get_serial_sequence('albums', 'album_id'), 1, FALSE);
+SELECT pg_catalog.setval(pg_get_serial_sequence('artists', 'artist_id'), 1, FALSE);
+SELECT pg_catalog.setval(pg_get_serial_sequence('groups', 'group_id'), 1, FALSE);
+SELECT pg_catalog.setval(pg_get_serial_sequence('users', 'user_id'), 1, FALSE);

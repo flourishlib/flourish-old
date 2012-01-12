@@ -1,6 +1,15 @@
 <?php
 require_once('./support/init.php');
 
+function fix_schema($input)
+{
+	if (DB_TYPE != 'oracle' && DB_TYPE != 'db2') {
+		return $input;	
+	}
+	$input = str_replace('flourish2.', DB_SECOND_SCHEMA . '.', $input);
+	return str_replace('flourish_role', DB_NAME . '_role', $input);
+}
+
 class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 {
 	protected static $db;
@@ -13,8 +22,12 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
+		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT);
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+			$db->execute(file_get_contents(DB_EXTENDED_SETUP_FILE));
+		} 
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
 
 		self::$db = $db;
 
@@ -26,7 +39,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown(self::$db, DB_TEARDOWN_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
 	}
 	
 	public function setUp()
@@ -679,6 +692,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testAddPrimaryKey()
 	{
 		self::$db->translatedQuery('ALTER TABLE "artists" DROP PRIMARY KEY');
+		$this->rollback_statements[] = "ALTER TABLE record_deals ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE";
+		$this->rollback_statements[] = "ALTER TABLE events_artists ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE";
 		$this->rollback_statements[] = "ALTER TABLE albums ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE";
 		$this->rollback_statements[] = "ALTER TABLE artists ADD PRIMARY KEY (artist_id) AUTOINCREMENT";
 
@@ -747,6 +762,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testAddMultiColumnPrimaryKey()
 	{
 		self::$db->translatedQuery('ALTER TABLE "artists" DROP PRIMARY KEY');
+		$this->rollback_statements[] = "ALTER TABLE record_deals ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE";
+		$this->rollback_statements[] = "ALTER TABLE events_artists ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON DELETE CASCADE";
 		$this->rollback_statements[] = "ALTER TABLE albums ADD FOREIGN KEY (artist_id) REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE";
 		$this->rollback_statements[] = "ALTER TABLE artists ADD PRIMARY KEY (artist_id) AUTOINCREMENT";
 		self::$db->translatedQuery('ALTER TABLE "artists" ADD PRIMARY KEY (artist_id, "name")');
@@ -774,8 +791,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 
 	public function testDropMultiColumnUnique()
 	{
-		self::$db->translatedQuery('ALTER TABLE albums DROP UNIQUE ("name", "artist_id")');
-		$this->rollback_statements[] = "ALTER TABLE albums ADD UNIQUE (name, artist_id)";
+		self::$db->translatedQuery('ALTER TABLE albums DROP UNIQUE ("artist_id", "name")');
+		$this->rollback_statements[] = "ALTER TABLE albums ADD UNIQUE (artist_id, name)";
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
@@ -787,7 +804,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testDropMultiColumnUniqueDifferentOrder()
 	{
 		self::$db->translatedQuery('ALTER TABLE albums DROP UNIQUE (artist_id, name)');
-		$this->rollback_statements[] = "ALTER TABLE albums ADD UNIQUE (name, artist_id)";
+		$this->rollback_statements[] = "ALTER TABLE albums ADD UNIQUE (artist_id, name)";
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
@@ -945,10 +962,57 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 
 		$schema = new fSchema(self::$db);
 
-		$this->assertSame(
+		$tables = array(
+			'albums',
+			'artists',
+			'blobs',
+			'categories',
+			'certification_levels',
+			'certifications',
+			'event_details',
+			'event_slots',
+			'events',
+			'events_artists',
+			'favorite_albums'
+		);
+		if (DB_TYPE == 'oracle' || DB_TYPE == 'db2' || DB_TYPE == 'postgresql' || DB_TYPE == 'mssql') {
+			$tables = array_merge(
+				$tables,
+				array_map(
+					'fix_schema',
+					array(
+						'flourish2.albums',
+						'flourish2.artists',
+						'flourish2.groups',
+						'flourish2.users',
+						'flourish2.users_groups'
+					)
+				)
+			);
+		}
+		$tables = array_merge(
+			$tables,
 			array(
-				"albums", "artists", "blobs", "foosers", "groups", "owns_on_cd", "owns_on_tape", "songs", "users_groups"
-			),
+				'foosers',
+				'groups',
+				'invalid_tables',
+				'other_user_details',
+				'owns_on_cd',
+				'owns_on_tape',
+				'people',
+				'record_deals',
+				'record_labels',
+				'registrations',
+				'songs',
+				'top_albums',
+				'user_details',
+				'users_groups',
+				'year_favorite_albums'
+			)
+		);
+
+		$this->assertSame(
+			$tables,
 			$schema->getTables()
 		);
 
@@ -1040,10 +1104,57 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 
 		$schema = new fSchema(self::$db);
 
-		$this->assertSame(
+		$tables = array(
+			'albums',
+			'bands',
+			'blobs',
+			'categories',
+			'certification_levels',
+			'certifications',
+			'event_details',
+			'event_slots',
+			'events',
+			'events_artists',
+			'favorite_albums'
+		);
+		if (DB_TYPE == 'oracle' || DB_TYPE == 'db2' || DB_TYPE == 'postgresql' || DB_TYPE == 'mssql') {
+			$tables = array_merge(
+				$tables,
+				array_map(
+					'fix_schema',
+					array(
+						'flourish2.albums',
+						'flourish2.artists',
+						'flourish2.groups',
+						'flourish2.users',
+						'flourish2.users_groups'
+					)
+				)
+			);
+		}
+		$tables = array_merge(
+			$tables,
 			array(
-				"albums", "bands", "blobs", "groups", "owns_on_cd", "owns_on_tape", "songs", "users", "users_groups"
-			),
+				'groups',
+				'invalid_tables',
+				'other_user_details',
+				'owns_on_cd',
+				'owns_on_tape',
+				'people',
+				'record_deals',
+				'record_labels',
+				'registrations',
+				'songs',
+				'top_albums',
+				'user_details',
+				'users',
+				'users_groups',
+				'year_favorite_albums'
+			)
+		);
+
+		$this->assertSame(
+			$tables,
 			$schema->getTables()
 		);
 
@@ -1081,7 +1192,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'id',
 				'first_name',
 				'middle_initial',
@@ -1094,8 +1205,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'time_of_last_login',
 				'is_validated',
 				'hashed_password'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 
 		$this->assertEquals(
@@ -1240,13 +1351,13 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'group_id',
 				'name',
 				'group_leader',
 				'founder'
-			),
-			array_keys($schema->getColumnInfo('groups'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('groups')))
 		);
 
 		$this->assertEquals(
@@ -1285,15 +1396,15 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'album_id',
 				'name',
 				'year_released',
 				'msrp',
 				'genre',
 				'artist'
-			),
-			array_keys($schema->getColumnInfo('albums'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('albums')))
 		);
 
 		$this->assertSame(
@@ -1367,7 +1478,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1380,8 +1491,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'time_of_last_login',
 				'is_validated',
 				'hashed_password'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 
 		$this->assertEquals(
@@ -1411,7 +1522,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1425,8 +1536,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1460,7 +1571,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1474,8 +1585,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1503,7 +1614,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1517,8 +1628,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1573,7 +1684,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		}
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1587,8 +1698,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1643,7 +1754,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		}
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1657,8 +1768,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1686,7 +1797,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1700,8 +1811,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1729,7 +1840,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1743,8 +1854,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 
 		$type        = 'date';
@@ -1780,7 +1891,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1794,8 +1905,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		
 		$type        = 'time';
@@ -1832,7 +1943,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -1846,8 +1957,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'is_validated',
 				'hashed_password',
 				'reset_code'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertEquals(
 			array(
@@ -1968,7 +2079,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'album_id',
 				'name',
 				'year_released',
@@ -1976,8 +2087,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'genre',
 				'artist_id',
 				'total_sales'
-			),
-			array_keys($schema->getColumnInfo('albums'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('albums')))
 		);
 		$this->assertEquals(
 			array(
@@ -2193,7 +2304,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -2205,8 +2316,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'birthday',
 				'time_of_last_login',
 				'is_validated'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 		$this->assertSame(
 			NULL,
@@ -2223,7 +2334,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertEquals(
-			array(
+			sort_array(array(
 				'user_id',
 				'first_name',
 				'middle_initial',
@@ -2235,8 +2346,8 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 				'birthday',
 				'time_of_last_login',
 				'hashed_password'
-			),
-			array_keys($schema->getColumnInfo('users'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('users')))
 		);
 
 		$this->assertSame(
@@ -2252,6 +2363,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testDropColumn3()
 	{
 		self::$db->translatedQuery('ALTER TABLE users DROP COLUMN time_of_last_login');
+		$this->rollback_statements[] = self::$db->escape("COMMENT ON COLUMN users.time_of_last_login IS %s", 'When the user last logged in');
 		$this->rollback_statements[] = self::$db->escape("UPDATE users SET time_of_last_login = %t WHERE user_id = 1", '17:00:00');
 		$this->rollback_statements[] = self::$db->escape("UPDATE users SET time_of_last_login = %t WHERE user_id = 2", '12:00:00');
 		$this->rollback_statements[] = "ALTER TABLE users ADD COLUMN time_of_last_login TIME";
@@ -2309,7 +2421,6 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testDropForeignKeyColumn()
 	{
 		self::$db->translatedQuery('ALTER TABLE "groups" DROP COLUMN "group_founder"');
-		$this->rollback_statements[] = "ALTER TABLE groups ALTER COLUMN group_founder SET NOT NULL";
 		$this->rollback_statements[] = "UPDATE groups SET group_founder = 2";
 		if (DB_TYPE == 'mssql') {
 			$this->rollback_statements[] = "ALTER TABLE groups ADD COLUMN group_founder INTEGER REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION";
@@ -2320,12 +2431,12 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'group_id',
 				'name',
 				'group_leader'
-			),
-			array_keys($schema->getColumnInfo('groups'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('groups')))
 		);
 		$this->assertSame(
 			array(
@@ -2382,23 +2493,24 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testDropForeignKeyColumnPartOfUniqueConstraint()
 	{
 		self::$db->translatedQuery('ALTER TABLE "albums" DROP COLUMN "artist_id"');
+		$this->rollback_statements[] = "ALTER TABLE albums ADD UNIQUE (artist_id, name)";
 		$this->rollback_statements[] = "ALTER TABLE albums ALTER COLUMN artist_id SET NOT NULL";
 		$this->rollback_statements[] = "UPDATE albums SET artist_id = 3 WHERE album_id IN (4, 5, 6, 7)";
 		$this->rollback_statements[] = "UPDATE albums SET artist_id = 2 WHERE album_id IN (2, 3)";
 		$this->rollback_statements[] = "UPDATE albums SET artist_id = 1 WHERE album_id = 1";
-		$this->rollback_statements[] = "ALTER TABLE albums ADD COLUMN artist_id INTEGER REFERENCES artists(artist_id) ON DELETE CASCADE";
+		$this->rollback_statements[] = "ALTER TABLE albums ADD COLUMN artist_id INTEGER REFERENCES artists(artist_id) ON UPDATE CASCADE ON DELETE CASCADE";
 
 		$schema = new fSchema(self::$db);
 
 		$this->assertSame(
-			array(
+			sort_array(array(
 				'album_id',
 				'name',
 				'year_released',
 				'msrp',
 				'genre'
-			),
-			array_keys($schema->getColumnInfo('albums'))
+			)),
+			sort_array(array_keys($schema->getColumnInfo('albums')))
 		);
 		$this->assertSame(
 			array(),
@@ -2447,6 +2559,7 @@ class fSQLTranslationTest extends PHPUnit_Framework_TestCase
 	public function testAlterTypeDateToTimestamp()
 	{
 		self::$db->translatedQuery("ALTER TABLE users ALTER COLUMN birthday TYPE TIMESTAMP");
+		$this->rollback_statements[] = "COMMENT ON COLUMN users.birthday is 'The birthday'";
 		$this->rollback_statements[] = "ALTER TABLE users RENAME COLUMN birthday2 TO birthday";
 		$this->rollback_statements[] = "ALTER TABLE users DROP COLUMN birthday";
 		$this->rollback_statements[] = "UPDATE users SET birthday2 = CAST(birthday as DATE)";

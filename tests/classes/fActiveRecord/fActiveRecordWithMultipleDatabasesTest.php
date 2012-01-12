@@ -24,11 +24,17 @@ class fActiveRecordWithMultipleDatabasesTest extends PHPUnit_Framework_TestCase
 		}
 
 		$db = new fDatabase(DB_TYPE, DB, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT); 
-		$db->execute(file_get_contents(DB_SETUP_FILE));
+		if (DB_TYPE == 'sqlite') {
+			$db->execute(file_get_contents(DB_SETUP_FILE));
+		}
+		$db->execute(file_get_contents(DB_POPULATE_FILE));
 		self::$db = $db;
 
 		$db2 = new fDatabase(DB_TYPE, DB_2, DB_2_USERNAME, DB_2_PASSWORD, DB_2_HOST, DB_2_PORT); 
-		$db2->execute(file_get_contents(DB_2_SETUP_FILE));
+		if (DB_TYPE == 'sqlite') {
+			$db2->execute(file_get_contents(DB_2_SETUP_FILE));
+		}
+		$db2->execute(file_get_contents(DB_2_POPULATE_FILE));
 		self::$db2 = $db2;
 
 		self::$schema  = new fSchema($db);
@@ -40,8 +46,8 @@ class fActiveRecordWithMultipleDatabasesTest extends PHPUnit_Framework_TestCase
 		if (defined('SKIPPING')) {
 			return;
 		}
-		teardown(self::$db, DB_TEARDOWN_FILE);
-		teardown(self::$db2, DB_2_TEARDOWN_FILE);
+		teardown(self::$db, DB_WIPE_FILE);
+		teardown(self::$db2, DB_2_WIPE_FILE);
 	}
 
 	protected function createUser()
